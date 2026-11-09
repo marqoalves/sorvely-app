@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function setupFeito() { return exists(/databases/$(database)/documents/publico/setup); }
+    function logado() { return request.auth != null && request.auth.token.email is string; }
+    function meuSlug() { return request.auth.token.email.split('--')[0]; }
+    function eu() { return get(/databases/$(database)/documents/usuarios/$(meuSlug())).data; }
+    function membro() {
+      return logado() && setupFeito()
+        && get(/databases/$(database)/documents/login/$(meuSlug())).data.authEmail == request.auth.token.email
+        && eu().get('ativo', true) != false;
+    }
+    function lider() { return membro() && eu().nivel == 'Liderança'; }
+    // Só vale enquanto a configuração inicial não terminou
+    function emSetup() { return logado() && !setupFeito(); }
+
+    // Lista de nomes da tela de entrada e marcador de configuração feita
+    match /publico/{id} {
+      allow read: if true;
+      allow write: if lider() || emSetup();
+    }
+
+    // Qual conta de acesso vale para cada pessoa
+    match /login/{slug} {
+      allow read: if true;
+      allow create, delete: if lider() || emSetup();
+      allow update: if lider() || emSetup()
+        || (membro() && slug == meuSlug() && request.resource.data.keys().hasOnly(['authEmail']));
+    }
+
+    // Usuários: só a Liderança altera. A própria pessoa só marca acesso e troca de PIN.
+    match /usuarios/{slug} {
+      allow read: if membro() || emSetup();
+      allow create, delete: if lider() || emSetup();
+      allow update: if lider() || emSetup()
+        || (membro() && slug == meuSlug()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimoAcesso', 'trocarPin', 'pinMudouEm']));
+    }
+
+    // Fechamentos de caixa: Liderança e quem tem a rotina de caixa
+    match /caixas/{id} {
+      allow read, write: if emSetup() || lider() || (membro() && 'caixa' in eu().get('rotinas', []));
+    }
+
+    // Cartão de ponto: só Liderança
+    match /ponto/{id} {
+      allow read, write: if lider() || emSetup();
+    }
+
+    // Comunicados: Liderança publica, todos leem
+    match /comunicados/{id} {
+      allow read: if membro() || emSetup();
+      allow write: if lider() || emSetup();
+    }
+
+    // Ciência: cada pessoa registra a própria. Liderança registra a presencial.
+    match /ciencias/{id} {
+      allow read: if membro() || emSetup();
+      allow create: if emSetup() || lider() || (membro() && request.resource.data.nome == eu().nome);
+      allow update, delete: if lider() || emSetup();
+    }
+
+    // Sessão guardada de cada aparelho
+    match /data/users/{uid}/sessao {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Demais dados do app
+    match /{col}/{id} {
+      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias'])
+        && (membro() || emSetup());
+    }
+  }
+}
