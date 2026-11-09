@@ -61,6 +61,40 @@ service cloud.firestore {
       allow update, delete: if lider() || emSetup();
     }
 
+    // Configurações e indicadores: só a Liderança altera
+    match /config/{id} {
+      allow read: if membro() || emSetup();
+      allow write: if lider() || emSetup();
+    }
+    match /indicadores/{id} {
+      allow read: if membro() || emSetup();
+      allow write: if lider() || emSetup();
+    }
+
+    // Ações e iniciativas: Liderança cria e exclui; responsáveis atualizam o status
+    match /acoes/{id} {
+      allow read, update: if membro() || emSetup();
+      allow create, delete: if lider() || emSetup();
+    }
+    match /trilha/{id} {
+      allow read, update: if membro() || emSetup();
+      allow create, delete: if lider() || emSetup();
+    }
+
+    // Lançamentos de indicadores: todos lançam, só a Liderança apaga
+    match /lancamentos/{id} {
+      allow read, create, update: if membro() || emSetup();
+      allow delete: if lider() || emSetup();
+    }
+
+    // Histórico: ninguém escreve em nome de outra pessoa nem edita o passado
+    match /historico/{id} {
+      allow read: if membro() || emSetup();
+      allow create: if emSetup() || (membro() && request.resource.data.por == eu().nome);
+      allow update: if emSetup();
+      allow delete: if emSetup() || lider() || (membro() && resource.data.tipo == 'nota' && resource.data.por == eu().nome);
+    }
+
     // Sessão guardada de cada aparelho
     match /data/users/{uid}/sessao {
       allow read, write: if request.auth != null && request.auth.uid == uid;
@@ -68,7 +102,7 @@ service cloud.firestore {
 
     // Demais dados do app
     match /{col}/{id} {
-      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias'])
+      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias', 'config', 'indicadores', 'acoes', 'trilha', 'lancamentos', 'historico'])
         && (membro() || emSetup());
     }
   }

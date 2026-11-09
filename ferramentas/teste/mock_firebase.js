@@ -39,6 +39,10 @@ function rules(authU,op,path,novo){
   if(col==="ponto") return lider()||emSetup();
   if(col==="comunicados") return leitura?(membro()||emSetup()):(lider()||emSetup());
   if(col==="ciencias"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||lider()||(membro()&&novo.nome===eu().nome); return lider()||emSetup(); }
+  if(col==="config"||col==="indicadores") return leitura?(membro()||emSetup()):(lider()||emSetup());
+  if(col==="acoes"||col==="trilha") return (leitura||op==="update")?(membro()||emSetup()):(lider()||emSetup());
+  if(col==="lancamentos") return op==="delete"?(lider()||emSetup()):(membro()||emSetup());
+  if(col==="historico"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||(membro()&&novo.por===eu().nome); if(op==="update")return emSetup(); return emSetup()||lider()||(membro()&&atual&&atual.tipo==="nota"&&atual.por===eu().nome); }
   if(col==="caixas") return emSetup()||lider()||(membro()&&(eu().rotinas||[]).includes("caixa"));
   if(col==="data") return false;
   return membro()||emSetup();
