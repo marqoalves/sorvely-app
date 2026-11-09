@@ -70,7 +70,7 @@ function chk(op,path,novo){ if(!rules(quem(),op,path,novo)) throw err("permissio
 function snapDoc(path){const d=st.docs[path];const id=path.split("/").pop();return {id,exists:!!d,data:()=>clone(d),metadata:{fromCache:false}};}
 function D(path){ const id=path.split("/").pop(); return {
   id,path,
-  get:async()=>{chk("get",path);return snapDoc(path);},
+  get:()=>localStorage.getItem('__travar')?new Promise(()=>{}):(async()=>{chk("get",path);return snapDoc(path);})(),
   set:async(d)=>{const ruim=(x,l)=>Array.isArray(x)?(l||x.some(v=>ruim(v,true))):(x&&typeof x==="object")?Object.values(x).some(v=>ruim(v,false)):false; if(ruim(d,false))throw err("invalid-argument");chk(st.docs[path]?"update":"create",path,d);st.docs[path]=clone(d);save();fire();},
   update:async(d)=>{if(!st.docs[path])throw err("not-found");const n={...st.docs[path],...clone(d)};chk("update",path,n);st.docs[path]=n;save();fire();},
   delete:async()=>{chk("delete",path);delete st.docs[path];save();fire();},

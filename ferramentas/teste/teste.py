@@ -145,6 +145,15 @@ async def main():
         await login("gustavo", "605183"); await pg.wait_for_timeout(1500)
         tg = await pg.inner_text("#fbGate"); print("GATE:", tg)
         ok("desativado" in tg, "usuário desativado não entra no app")
+        # 8. Servidor sem resposta: mostra mensagem clara, não o app quebrado
+        await pg.evaluate("localStorage.setItem('__travar','1')")
+        await pg.goto(URL); await pg.wait_for_timeout(1500)
+        ok("Carregando" in await pg.inner_text("#fbGate"), "mostra Carregando enquanto conecta")
+        await pg.wait_for_timeout(12500)
+        tg = await pg.inner_text("#fbGate")
+        ok("Sem conexão" in tg and "Tentar de novo" in tg, "sem resposta do servidor mostra Sem conexão e Tentar de novo")
+        ok("Não consegui conectar" not in await pg.inner_text("main"), "não mostra o erro antigo atrás da tela")
+        await pg.evaluate("localStorage.removeItem('__travar')")
         ok(not erros, "sem erros de JavaScript na página: " + "; ".join(erros[:3]))
         await b.close()
 

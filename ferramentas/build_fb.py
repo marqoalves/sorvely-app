@@ -42,6 +42,10 @@ troca('Não consegui conectar ao banco de dados. Entre na sua conta Claude para 
 troca('  return S.db.collection(col).onSnapshot(snap=>{', '  return S.db.collection(col).onSnapshot({includeMetadataChanges:true},snap=>{')
 troca('un=S.db.collection(c).onSnapshot(sn=>{', 'un=S.db.collection(c).onSnapshot({includeMetadataChanges:true},sn=>{')
 
+# 7. Não mostrar "Não consegui conectar" antes de a conexão terminar de abrir
+troca('if(!S.db) top+=`<div class="banner err">', 'if(!S.db&&S.tentouDb) top+=`<div class="banner err">')
+troca('  S.db=db; S.user=user;', '  S.db=db; S.user=user; S.tentouDb=true;')
+
 open(os.path.join(R,'site','index.html'), 'w', encoding='utf8').write(src)
 shutil.copy(os.path.join(R,'ferramentas','fb.js'), os.path.join(R,'site','fb.js'))
 print('ok', len(src))

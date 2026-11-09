@@ -364,7 +364,7 @@ nav.tabs .ti{display:none}
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-09 17:10"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5c2a6e"><link rel="apple-touch-icon" href="icone-192.png"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-09 18:01"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5c2a6e"><link rel="apple-touch-icon" href="icone-192.png"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -590,7 +590,7 @@ function render(){
   const b=$("#propBadge"); b.hidden=!pend; b.textContent=pend;
   const m=$("#main");
   let top="";
-  if(!S.db) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Confira a internet e abra o app de novo.</div>`;
+  if(!S.db&&S.tentouDb) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Confira a internet e abra o app de novo.</div>`;
   else if(S.slow) top+=`<div class="banner">Os dados estão demorando para chegar. O que aparece pode estar desatualizado.</div>`;
   if(!S.canWrite) top+=`<div class="banner">Você está com acesso só de leitura. Para lançar, peça ao Marco para te convidar como editor.</div>`;
     $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!veRotinas(); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
@@ -2675,7 +2675,7 @@ function assinar(col,key,map){
   rota();
   if(!window.claude||!window.claude.use){ render(); return; }
   const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
-  S.db=db; S.user=user;
+  S.db=db; S.user=user; S.tentouDb=true;
   if(user){ try{S.uid=await user.id();}catch(e){} try{S.owner=!!user.isOwner();}catch(e){} try{const c=await user.can("data.write"); if(c===false)S.canWrite=false;}catch(e){} }
   if(!db){ render(); return; }
   S.slowT=setTimeout(()=>{S.slow=true;render();},10000);

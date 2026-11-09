@@ -16,7 +16,15 @@ if(!CFG || !CFG.apiKey){ document.addEventListener("DOMContentLoaded",()=>tela(`
 firebase.initializeApp(CFG);
 const auth = firebase.auth();
 const fs = firebase.firestore();
-try{ fs.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
+/* Sem cache local (IndexedDB trava em alguns iPhones). Long polling automático para redes que bloqueiam streaming. */
+try{ fs.settings({experimentalAutoDetectLongPolling:true, merge:true}); }catch(e){}
+/* Leitura com prazo: se o servidor não responder, mostra mensagem em vez de travar */
+function comPrazo(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>{const e=new Error("tempo esgotado");e.code="timeout";rej(e);},ms||12000))]); }
+function semConexao(){
+  tela(`<div class="fb-logo">Sorvely</div><h2>Sem conexão com o servidor</h2>
+    <p class="hint">Não consegui falar com o banco de dados. Confira a internet (Wi-Fi ou dados móveis) e tente de novo.</p>
+    <p><button class="btn" onclick="location.reload()">Tentar de novo</button></p>`);
+}
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
 
 let avisoLogin="", liberar, liberado=false, emProcesso=false, setupConcluido=false;
@@ -82,7 +90,7 @@ document.head.appendChild(est);
 
 async function telaLogin(){
   let lista=[];
-  try{ const d=await fs.doc("publico/login").get(); lista=(d.exists&&d.data().lista)||[]; }catch(e){}
+  try{ const d=await comPrazo(fs.doc("publico/login").get()); lista=(d.exists&&d.data().lista)||[]; }catch(e){ if(e.code==="timeout"||e.code==="unavailable") return semConexao(); }
   const g=tela(`<div class="fb-logo">Sorvely</div><h2>Entrar</h2><p class="hint">Selecione seu nome e digite seu PIN.</p>
     <form id="fbLg"><div class="field"><label for="fbU">Usuário</label><select id="fbU" required><option value="">Selecione seu nome</option>${lista.map(p=>`<option value="${esc(p.slug)}">${esc(p.nome)}</option>`).join("")}</select></div>
     <div class="field"><label for="fbP">PIN</label><input id="fbP" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" required></div>
@@ -96,14 +104,14 @@ async function telaLogin(){
     if(!s)return falha("Escolha seu nome."); if(!/^\d{4,6}$/.test(pin))return falha("O PIN tem de 4 a 6 números.");
     b.disabled=true; b.textContent="Entrando...";
     try{
-      const l=await fs.doc("login/"+s).get();
+      const l=await comPrazo(fs.doc("login/"+s).get());
       if(!l.exists)return falha("Esse usuário ainda não tem acesso. Fale com o Marco.");
       await auth.signInWithEmailAndPassword(l.data().authEmail,senha(pin));
     }catch(e){
       g.querySelector("#fbP").value="";
       const c=e&&e.code||"";
       if(c.includes("too-many-requests"))return falha("Muitas tentativas erradas. Espere alguns minutos e tente de novo.");
-      if(c.includes("network"))return falha("Sem internet agora. Tente de novo.");
+      if(c.includes("network")||c==="timeout"||c==="unavailable")return falha("Sem conexão com o servidor agora. Confira a internet e tente de novo.");
       return falha("PIN incorreto.");
     }
   };
@@ -113,11 +121,11 @@ async function entrarNoApp(u){
   const s=slugDoEmail(u.email);
   let ok=false, nome="", trocar=false;
   try{
-    const [l,p]=await Promise.all([fs.doc("login/"+s).get(), fs.doc("usuarios/"+s).get()]);
+    const [l,p]=await comPrazo(Promise.all([fs.doc("login/"+s).get(), fs.doc("usuarios/"+s).get()]));
     ok = l.exists && l.data().authEmail===u.email && p.exists && p.data().ativo!==false;
     if(ok){ nome=p.data().nome; trocar=!!p.data().trocarPin; }
     if(ok && p.data().nivel==="Liderança") sincronizarLista();
-  }catch(e){ ok=false; }
+  }catch(e){ if(e.code==="timeout"||e.code==="unavailable") return semConexao(); ok=false; }
   if(!ok){ avisoLogin="Seu acesso foi trocado ou desativado. Se precisar, fale com o Marco."; await auth.signOut(); return; }
   const horas=(typeof SESSAO_HORAS!=="undefined"?SESSAO_HORAS:12);
   const atual=JSON.parse(localStorage.getItem("sorvely_sessao")||"null");
@@ -213,11 +221,13 @@ async function telaSetup(){
   };
 }
 
+if(document.body) tela('<div class="fb-logo">Sorvely</div><p class="hint">Carregando…</p>');
+else document.addEventListener("DOMContentLoaded",()=>{ if(!liberado&&!document.getElementById("fbGate")) tela('<div class="fb-logo">Sorvely</div><p class="hint">Carregando…</p>'); });
 auth.onAuthStateChanged(async u=>{
   if(emProcesso||setupConcluido) return;
   if(liberado){ if(!u) location.reload(); return; }
   let feito=true;
-  try{ feito=(await fs.doc("publico/setup").get()).exists; }catch(e){}
+  try{ feito=(await comPrazo(fs.doc("publico/setup").get())).exists; }catch(e){ if(e.code==="timeout"||e.code==="unavailable") return semConexao(); }
   if(u){ if(!feito){ await auth.signOut(); return; } return entrarNoApp(u); }
   if(feito) telaLogin(); else telaSetup();
 });
