@@ -11,7 +11,10 @@ def troca(velho, novo, n=1):
     src = src.replace(velho, novo)
 
 # 1. Carrega Firebase e a ligação antes do script do app
-head = ('<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5c2a6e">'
+import datetime
+VERSAO = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
+head = ('<meta name="sorvely-versao" content="' + VERSAO + '">'
+        '<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5c2a6e">'
         '<link rel="apple-touch-icon" href="icone-192.png">'
         '<script src="firebase-config.js"></script>'
         '<script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script>'
