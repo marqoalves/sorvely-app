@@ -411,6 +411,9 @@ dialog::backdrop{background:rgba(31,29,66,.45)}
 nav.tabs a.on{color:var(--acai);border-bottom-color:var(--rosa)}
 .ck-it.on{border-color:var(--ok)}
 details.aj{border-radius:14px}
+.btn.feito,.btn.feito:disabled{background:var(--ok-bg);border-color:transparent;color:var(--ok);opacity:1;box-shadow:none;display:inline-flex;align-items:center;gap:6px;cursor:default}
+.com-card.lido{border-left-color:var(--ok);opacity:.7;transition:opacity 1.2s ease .2s}
+@media (prefers-reduced-motion: reduce){.com-card.lido{transition:none}}
 .ver{margin:6px 0 0;text-align:center;font-size:.72rem;color:var(--muted);opacity:.75}
 .apr-card{border:2px solid var(--azul)}.apr-card h3 .badge{display:inline-block;min-width:22px;padding:0 7px;border-radius:11px;background:var(--rosa);color:#fff;font-size:.78rem;text-align:center;vertical-align:middle;font-family:var(--body)}
 ul.apr{list-style:none;margin:10px 0 0;padding:0}.apr-it{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
@@ -2636,17 +2639,27 @@ async function lancarPontoInd(mes){
 /* ---------- Comunicados com ciência ---------- */
 const paraMim=c=>c.ativo!==false&&(c.para==="todos"||(Array.isArray(c.para)&&c.para.includes(S.eu)));
 const cienciasDe=c=>S.ciencias.filter(x=>x.com===c._doc);
-const cienteEu=c=>cienciasDe(c).some(x=>x.nome===S.eu);
+/* Ciência marcada neste aparelho conta na hora, antes de o servidor confirmar */
+function cienteLocal(){ if(!S.cienteLoc){ S.cienteLoc=new Set(lsGet("sorvely_ciente_"+slugP(S.eu||""))||[]); } return S.cienteLoc; }
+const cienteEu=c=>cienciasDe(c).some(x=>x.nome===S.eu)||(!!S.eu&&cienteLocal().has(c._doc));
 function destinatarios(c){return c.para==="todos"?ativos().map(u=>u.nome):(c.para||[]);}
-function comunicadosPendentes(){return S.eu?S.comunicados.filter(c=>paraMim(c)&&!cienteEu(c)).sort((a,b)=>String(a.em).localeCompare(b.em)):[];}
+function comunicadosPendentes(){const fx=S.cienteFx||{},ag=Date.now();return S.eu?S.comunicados.filter(c=>paraMim(c)&&(!cienteEu(c)||(fx[c._doc]||0)>ag)).sort((a,b)=>String(a.em).localeCompare(b.em)):[];}
 function cardsComunicados(){
-  return comunicadosPendentes().map(c=>`<section class="card com-card"><span class="pill p-acai">Comunicado</span> <span class="hint">${fmtD(new Date(c.em))} · ${esc(c.por||"")}</span>
+  const fx=S.cienteFx||{}, ag=Date.now();
+  return comunicadosPendentes().map(c=>{const lido=(fx[c._doc]||0)>ag; return `<section class="card com-card${lido?" lido":""}"><span class="pill p-acai">Comunicado</span> <span class="hint">${fmtD(new Date(c.em))} · ${esc(c.por||"")}</span>
     <h3>${esc(c.titulo)}</h3><div class="com-txt">${esc(c.texto)}</div>
-    <p><button class="btn" data-act="ciente" data-doc="${esc(c._doc)}">Li e estou ciente</button></p></section>`).join("");
+    <p>${lido?`<button class="btn feito" disabled><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg> Ciência registrada</button>`:`<button class="btn" data-act="ciente" data-doc="${esc(c._doc)}">Li e estou ciente</button>`}</p></section>`;}).join("");
 }
-async function darCiencia(doc){
+async function darCiencia(doc,btn){
   const c=S.comunicados.find(x=>x._doc===doc); if(!c||!S.eu)return;
-  await gravar(()=>S.db.doc("ciencias/"+doc+"_"+slugP(S.eu)).set({com:doc,titulo:c.titulo,nome:S.eu,em:new Date().toISOString()}),"Ciência registrada. Obrigado!");
+  const card=btn&&btn.closest(".com-card");
+  S.cienteFx=S.cienteFx||{}; S.cienteFx[doc]=Date.now()+1500; setTimeout(render,1600);
+  const marcar=()=>{ if(btn){btn.disabled=true;btn.classList.add("feito");btn.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg> Ciência registrada';} if(card)card.classList.add("lido"); };
+  if(cienciasDe(c).some(x=>x.nome===S.eu)){ marcar(); return; }
+  marcar();
+  const ok=await gravar(()=>S.db.doc("ciencias/"+doc+"_"+slugP(S.eu)).set({com:doc,titulo:c.titulo,nome:S.eu,em:new Date().toISOString()}),"Ciência registrada. Obrigado!");
+  if(!ok){ delete S.cienteFx[doc]; render(); if(btn&&btn.isConnected){btn.disabled=false;btn.classList.remove("feito");btn.textContent="Li e estou ciente";} if(card)card.classList.remove("lido"); return; }
+  const l=cienteLocal(); l.add(doc); lsSet("sorvely_ciente_"+slugP(S.eu),[...l].slice(-50));
 }
 function vComunicados(){
   const l=S.comunicados.slice().sort((a,b)=>String(b.em).localeCompare(a.em));
@@ -2878,7 +2891,7 @@ document.addEventListener("click",e=>{
   else if(a==="editProd")formProd(S.produtos.find(x=>x._doc===d));
   else if(a==="excel")baixarExcel(b);
   else if(a==="backup")baixarBackup(b);
-  else if(a==="ciente")darCiencia(d);
+  else if(a==="ciente"){ if(!b.disabled)darCiencia(d,b); }
   else if(a==="novoCom")formComunicado();
   else if(a==="comPres")formCienciaPresencial(d);
   else if(a==="comArq"){const c=S.comunicados.find(x=>x._doc===d);if(c)gravar(()=>S.db.doc("comunicados/"+d).update({ativo:c.ativo===false}),c.ativo===false?"Comunicado reativado.":"Comunicado arquivado.");}
