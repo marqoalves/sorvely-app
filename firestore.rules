@@ -84,8 +84,17 @@ service cloud.firestore {
     }
     match /trilha/{id} {
       allow read: if membro() || emSetup();
-      allow update: if emSetup() || lider() || (membro() && !mexeCancelada());
+      allow update: if emSetup() || lider() || (membro() && !mexeCancelada()
+        && request.resource.data.get('aprovada', false) == resource.data.get('aprovada', false));
       allow create, delete: if lider() || emSetup();
+    }
+
+    // Propostas: qualquer pessoa propõe em nome próprio; só a Liderança aprova ou recusa
+    match /propostas/{id} {
+      allow read: if membro() || emSetup();
+      allow create: if emSetup() || lider() || (membro() && request.resource.data.propostoPor == eu().nome
+        && request.resource.data.status == 'Aguardando aprovação');
+      allow update, delete: if lider() || emSetup();
     }
 
     // Lançamentos de indicadores: todos lançam, só a Liderança apaga
@@ -109,7 +118,7 @@ service cloud.firestore {
 
     // Demais dados do app
     match /{col}/{id} {
-      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias', 'config', 'indicadores', 'acoes', 'trilha', 'lancamentos', 'historico'])
+      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias', 'config', 'indicadores', 'acoes', 'trilha', 'lancamentos', 'historico', 'propostas'])
         && (membro() || emSetup());
     }
   }

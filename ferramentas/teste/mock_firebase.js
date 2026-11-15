@@ -40,7 +40,8 @@ function rules(authU,op,path,novo){
   if(col==="comunicados") return leitura?(membro()||emSetup()):(lider()||emSetup());
   if(col==="ciencias"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||lider()||(membro()&&novo.nome===eu().nome); return lider()||emSetup(); }
   if(col==="config"||col==="indicadores") return leitura?(membro()||emSetup()):(lider()||emSetup());
-  if(col==="acoes"||col==="trilha"){ if(leitura)return membro()||emSetup(); if(op==="update"){const de=(atual||{}).status||"",para=(novo||{}).status||"";const mc=de!==para&&(de==="Cancelada"||para==="Cancelada");return emSetup()||lider()||(membro()&&!mc);} return lider()||emSetup(); }
+  if(col==="acoes"||col==="trilha"){ if(leitura)return membro()||emSetup(); if(op==="update"){const de=(atual||{}).status||"",para=(novo||{}).status||"";const mc=de!==para&&(de==="Cancelada"||para==="Cancelada");return emSetup()||lider()||(membro()&&!mc&&(col!=="trilha"||!!(novo||{}).aprovada===!!(atual||{}).aprovada));} return lider()||emSetup(); }
+  if(col==="propostas"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||lider()||(membro()&&novo.propostoPor===eu().nome&&novo.status==="Aguardando aprovação"); return lider()||emSetup(); }
   if(col==="lancamentos") return op==="delete"?(lider()||emSetup()):(membro()||emSetup());
   if(col==="historico"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||(membro()&&novo.por===eu().nome); if(op==="update")return emSetup(); return emSetup()||lider()||(membro()&&atual&&atual.tipo==="nota"&&atual.por===eu().nome); }
   if(col==="caixas") return emSetup()||lider()||(membro()&&(eu().rotinas||[]).includes("caixa"));

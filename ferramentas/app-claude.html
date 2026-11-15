@@ -89,6 +89,12 @@ main{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-direction:col
 .limit:first-of-type{border-top:0}
 
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filt-bar{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.filt-bar>input[type=search]{flex:1;min-width:160px;padding:7px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+details.filt{flex:0 0 auto}details.filt[open]{flex-basis:100%;order:2}
+details.filt summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-weight:600;color:var(--acai);user-select:none}
+details.filt summary::-webkit-details-marker{display:none}details.filt[open] summary{background:var(--acai-soft);border-color:transparent}
+.filt-l{display:inline-flex;align-items:center;gap:6px}.filt-n{display:inline-block;min-width:18px;padding:0 6px;border-radius:9px;background:var(--rosa);color:#fff;font-size:.72rem;text-align:center}
+details.filt .filters{margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .filters select,.filters input[type=search]{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
 .filters input[type=search]{flex:1;min-width:160px}
 .chk{display:flex;align-items:center;gap:6px;font-size:.9rem;cursor:pointer}
@@ -346,7 +352,7 @@ nav.tabs .ti{display:none}
   .stk-it .btn{min-width:58px;min-height:44px;font-size:1.15rem}
   .stk-tools{position:sticky;top:52px;z-index:5;background:var(--surface);padding:8px 0;margin:-8px 0 0}
   details.help-d summary{cursor:pointer}
-  .card.hero{order:-4}.com-card{order:-3}.pend-card{order:-2}
+  .card.hero{order:-4}.com-card{order:-3}.apr-card{order:-3}.pend-card{order:-2}
 }
 @media (prefers-reduced-motion: reduce){#toast{transition:none}}
 /* ===== Identidade visual Sorvely ===== */
@@ -405,6 +411,12 @@ dialog::backdrop{background:rgba(31,29,66,.45)}
 nav.tabs a.on{color:var(--acai);border-bottom-color:var(--rosa)}
 .ck-it.on{border-color:var(--ok)}
 details.aj{border-radius:14px}
+.ver{margin:6px 0 0;text-align:center;font-size:.72rem;color:var(--muted);opacity:.75}
+.apr-card{border:2px solid var(--azul)}.apr-card h3 .badge{display:inline-block;min-width:22px;padding:0 7px;border-radius:11px;background:var(--rosa);color:#fff;font-size:.78rem;text-align:center;vertical-align:middle;font-family:var(--body)}
+ul.apr{list-style:none;margin:10px 0 0;padding:0}.apr-it{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.apr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.apr-obs{font-size:.86rem;color:var(--muted);background:var(--bg);border-radius:10px;padding:6px 10px}
+.apr-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+@media (max-width:600px){.apr-it{flex-direction:column}.apr-b{justify-content:flex-start;width:100%}.apr-b .btn,.apr-b .icon-btn{flex:1}}
 .linkbtn{background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:.78rem;text-decoration:underline;cursor:pointer;opacity:.8}
 h3.reg-dia::first-letter{text-transform:uppercase}h3.reg-dia{font-size:.85rem;color:var(--muted);margin:14px 0 4px}h3.reg-dia:first-child{margin-top:0}
 ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem}
@@ -657,6 +669,7 @@ function menuUsuario(){
   const p=pessoa(S.eu);
   abrirDlg(`<h2>${esc(S.eu)}</h2><p class="hint">${ehLider()?esc(p?.papel||"")+" · nível "+esc(nivelEu()||"-")+". "+esc(NIVEIS[nivelEu()]?.desc||""):esc(p?.papel||"")}</p>
     ${ehLider()?'<p style="margin:0"><button type="submit" class="linkbtn" value="reg">Registro de lançamentos</button></p>':""}
+    ${rodapeVersao()}
     <div class="dlg-foot"><button class="btn ghost" value="cancel">Fechar</button>${ehLider()?'<button class="btn ghost" value="usu">Equipe e usuários</button>':""}${S.canWrite?'<button class="btn ghost" value="pin">Trocar meu PIN</button>':""}<button class="btn" value="sair">Sair</button></div>`,
   async (fd,btn)=>{ if(btn==="sair")setTimeout(sair,0); if(btn==="pin")setTimeout(()=>trocarPin(false),0); if(btn==="usu")location.hash="usuarios"; if(btn==="reg")location.hash="registro"; });
 }
@@ -691,7 +704,7 @@ function render(){
   const grupo={trilha:"plano",propostas:"plano"}[S.view]||S.view;
   document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===grupo));
   $("#tabPainel").hidden=!vePainel(); $("#tabUsu").hidden=!ehLider(); $("#tabPlano").hidden=!S.eu; $("#tabInd").hidden=!S.eu;
-  const pend=ehLider()?S.propostas.filter(p=>p.status==="Aguardando aprovação").length:0;
+  const pend=pendAprov().n;
   const b=$("#propBadge"); b.hidden=!pend; b.textContent=pend;
   const m=$("#main");
   let top="";
@@ -890,14 +903,14 @@ function fmtCampo(k,v){
   return String(v);
 }
 function colecao(col){return col==="acoes"?S.acoes:S.trilha;}
-function pedirTexto(titulo,sub,rotulo,exemplo){
+function pedirTexto(titulo,sub,rotulo,exemplo,opcional,botao){
   return new Promise(res=>{
     let feito=false; const fim=v=>{if(!feito){feito=true;res(v);}};
     setTimeout(()=>{
       abrirDlg(`<h2>${esc(titulo)}</h2>${sub?`<p><b>${esc(sub)}</b></p>`:""}
-        <div class="field"><label for="pt_t">${esc(rotulo)}</label><textarea id="pt_t" name="t" rows="3" placeholder="${esc(exemplo||"")}" required></textarea></div>
-        <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn" value="ok">Confirmar</button></div>`,
-      async fd=>{const v=String(fd.get("t")||"").trim(); if(!v)return false; fim(v);});
+        <div class="field"><label for="pt_t">${esc(rotulo)}</label><textarea id="pt_t" name="t" rows="3" placeholder="${esc(exemplo||"")}" ${opcional?"":"required"}></textarea></div>
+        <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn${opcional?" danger":""}" value="ok">${esc(botao||"Confirmar")}</button></div>`,
+      async fd=>{const v=String(fd.get("t")||"").trim(); if(!v&&!opcional)return false; fim(opcional?{texto:v}:v);});
       $("#dlg").addEventListener("close",()=>fim(""),{once:true});
     },0);
   });
@@ -1041,6 +1054,7 @@ function htmlDetalhe(){
     ${ac?`<span class="num"><b>Previsto:</b> ${fmtD(dt.ini)} a ${fmtD(dt.fim)}</span>`:`<span><b>Prazo:</b> ${it.prazo?fmtD(parseISO(it.prazo)):esc(it.prazoTexto||"sem prazo")}</span>`}
     ${(it.replans||[]).length?`<span class="pill p-and">replanejada ${it.replans.length}x</span>`:""}
     ${it.concluidaEm?`<span><b>Concluída em</b> ${fmtD(parseISO(it.concluidaEm))}</span>`:""}
+    ${col==="trilha"&&it.categoria==="Produto"?(it.aprovada?`<span class="pill p-ok">produto aprovado${it.aprovadaPor?" por "+esc(it.aprovadaPor):""}</span>`:fechada(it)?"":ehLider()&&podeEscrever()?`<button type="button" class="btn sm" data-det="aprovar">Aprovar produto</button>`:'<span class="pill p-idle">aguardando aprovação</span>'):""}
     ${it.status==="Cancelada"?`<span><b>Cancelada</b>${it.canceladaEm?" em "+fmtD(parseISO(it.canceladaEm)):""}${it.canceladaPor?" por "+esc(it.canceladaPor):""}${it.motivoCancel?": "+esc(it.motivoCancel):""}</span>`:""}</div>
   ${pr?`<div class="det-prog">${barraProg(it)}</div>`:""}
   <div class="det-tabs" role="tablist">
@@ -1106,6 +1120,7 @@ async function acaoDetalhe(b){
   if(k==="aba"){S.detalhe.aba=b.dataset.aba;atualizarDetalhe();return;}
   if(k==="filtro"){S.detalhe.filtro=b.dataset.f;atualizarDetalhe();return;}
   if(k==="prazo"){$("#dlg").close();setTimeout(()=>naoDeu(col,doc),0);return;}
+  if(k==="aprovar"){b.disabled=true;await aprovarProduto(it);return;}
   if(k==="editar"){$("#dlg").close();setTimeout(()=>(col==="acoes"?formAcao(it):formTrilha(it)),0);return;}
   if(k==="concluir"){await aplicarStatus(col,doc,"Concluída");return;}
   if(k==="nota-add"){
@@ -1904,7 +1919,7 @@ function atalho(go,titulo,desc,n,destaque){
 }
 function vInicio(){
   if(!S.eu&&window.FB)return `<div class="card"><p class="sub">Carregando seus dados...</p></div>`;
-  if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>`;
+  if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>${rodapeVersao()}`;
   const p=pessoa(S.eu), pr=permProd(p), rt=permRot(p), hojeI=iso(hoje());
   const minhas=[...S.acoes.filter(a=>ehResp(a,S.eu)&&!fechada(a)).map(a=>({...a,col:"acoes",fim:datasAcao(a).fim,venc:vencida(a)})),...S.trilha.filter(t=>ehResp(t,S.eu)&&!fechada(t)).map(t=>({...t,col:"trilha",fim:parseISO(t.prazo),venc:vencidaTrilha(t)}))].sort((a,b)=>(a.fim||9e15)-(b.fim||9e15));
   const abertas=S.solic.filter(s=>s.status==="Aberta").length, paraProd=S.ordens.filter(o=>o.status==="Emitida"||o.status==="Em produção").length, paraReceber=S.ordens.filter(o=>o.status==="Enviada").length;
@@ -1939,13 +1954,32 @@ function vInicio(){
   if(pr.includes("emitir")&&abertas)pend.push({go:"producao:solic",t:`${abertas} solicitação(ões) da loja aguardando ordem de produção`,c:"and"});
   if(pr.includes("produzir")&&paraProd)pend.push({go:"producao:ordens",t:`${paraProd} ordem(ns) de produção para fazer`,c:"and"});
   if(pr.includes("solicitar")&&paraReceber)pend.push({go:"producao:ordens",t:`${paraReceber} envio(s) para conferir na loja`,c:"and"});
-  if(ehLider()){const pp=S.propostas.filter(x=>x.status==="Aguardando aprovação").length;if(pp)pend.push({go:"propostas",t:`${pp} proposta(s) da equipe aguardando avaliação`,c:"and"});}
   minhas.filter(x=>x.venc).slice(0,5).forEach(x=>pend.push({go:`abrir:${x.col}:${x._doc}`,t:`${x.id} ${x.oque}: prazo vencido em ${fmtD(x.fim)}`,c:"bad"}));
   minhas.filter(x=>!x.venc&&x.fim&&x.fim<=addDias(hoje(),7)).slice(0,5).forEach(x=>pend.push({go:`abrir:${x.col}:${x._doc}`,t:`${x.id} ${x.oque}: vence em ${fmtD(x.fim)}`,c:"idle"}));
   return `<div class="card hero"><div><h2>${saudacao()}, ${esc(S.eu)}</h2><p class="sub">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})} · ${esc(p?.papel||nivelEu()||"")}</p></div></div>
   ${cardsComunicados()}
+  ${cardAprovacoes()}
   <section><h3 class="sec">O que você quer fazer?</h3><div class="atalhos">${at.join("")}</div></section>
-  <section class="card pend-card"><h3>Para fazer hoje</h3>${pend.length?`<ul class="pend">${pend.map(x=>`<li><button type="button" class="pend-it p-${x.c}" data-go="${esc(x.go)}"><span class="dot d-${x.c==="bad"?"Vermelho":x.c==="and"?"Amarelo":"none"}"></span>${esc(x.t)}</button></li>`).join("")}</ul>`:'<p class="empty">Tudo em dia por aqui.</p>'}</section>`;
+  <section class="card pend-card"><h3>Para fazer hoje</h3>${pend.length?`<ul class="pend">${pend.map(x=>`<li><button type="button" class="pend-it p-${x.c}" data-go="${esc(x.go)}"><span class="dot d-${x.c==="bad"?"Vermelho":x.c==="and"?"Amarelo":"none"}"></span>${esc(x.t)}</button></li>`).join("")}</ul>`:'<p class="empty">Tudo em dia por aqui.</p>'}</section>
+  ${rodapeVersao()}`;
+}
+function versaoApp(){
+  const m=document.querySelector('meta[name="sorvely-versao"]'); if(!m)return "";
+  const [d,h]=String(m.content).split(" "); const [a,mo,di]=(d||"").split("-");
+  return di?`${di}/${mo}/${a}${h?" "+h:""}`:m.content;
+}
+function rodapeVersao(){const v=versaoApp(); return `<p class="ver">Sorvely · versão de ${v||"teste"}</p>`;}
+/* Filtros recolhíveis: a busca fica sempre à mostra; o resto abre num toque */
+function blocoFiltros(fid,busca,campos,ativos){
+  const ab=!!(S.f.filtAb&&S.f.filtAb[fid]);
+  return `<div class="filt-bar">${busca||""}<details class="filt" data-fid="${fid}"${ab?" open":""}><summary><span class="filt-l"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg> Filtros${ativos?` <span class="filt-n">${ativos}</span>`:""}</span></summary>
+    <div class="filters">${campos}${ativos?`<button type="button" class="linkbtn" data-act="limparFilt" data-fid="${fid}">Limpar filtros</button>`:""}</div></details></div>`;
+}
+function limparFiltros(fid){
+  if(fid==="plano")Object.assign(S.f.plano,{onda:"",status:"",onde:"",minhas:false});
+  else if(fid==="trilha")Object.assign(S.f.trilha,{cat:"",status:"",minhas:false});
+  else if(fid==="registro")Object.assign(S.f.reg,{dias:7,por:"",area:"",lim:150});
+  render();
 }
 function abrirAjuda(){
   const p=S.eu?pessoa(S.eu):null, rt=p?permRot(p):[], pr=p?permProd(p):[];
@@ -1961,7 +1995,7 @@ function abrirAjuda(){
   if(pr.length)b.push(sec("Produção",`<p><b>Loja:</b> use "Pedir produção" para avisar a fábrica do que está faltando e confira o recebimento quando o envio chegar.</p><p><b>Fábrica:</b> veja as ordens em Produção e atualize o andamento de cada uma.</p>`));
   if(S.eu)b.push(sec("Plano e indicadores",`<p>Em Plano, abra uma atividade sua para mudar o status ou escrever uma observação.</p><p>Em Indicadores, toque no indicador para lançar o valor do período.</p><p>Tem uma ideia de melhoria? Use "Propor uma ação" na tela inicial.</p>`));
   b.push(sec("Problemas comuns",`<p><b>"Sem internet":</b> confira o Wi-Fi ou os dados móveis. O que você tentou salvar sem conexão não foi gravado. Salve de novo quando a conexão voltar.</p><p><b>"Você não tem permissão":</b> essa tarefa não está liberada para o seu usuário. Fale com o Marco.</p><p><b>Tela estranha ou travada:</b> feche o app e abra de novo.</p>`));
-  abrirDlg(`<h2>Ajuda</h2>${b.join("")}${ehLider()?`<p class="hint">Liderança: o manual completo está no Claude. <a href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir manual da equipe</a></p>`:""}
+  abrirDlg(`<h2>Ajuda</h2>${b.join("")}${rodapeVersao()}${ehLider()?`<p class="hint">Liderança: o manual completo está no Claude. <a href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir manual da equipe</a></p>`:""}
     <div class="dlg-foot"><button class="btn" value="cancel">Fechar</button></div>`,async()=>{});
 }
 function irPara(go){
@@ -1986,13 +2020,12 @@ function vPlano(){
   return `${subPlano("plano")}<div class="section-head"><h2>Plano de Ação</h2><span class="sub">${l.length} de ${S.acoes.length} ações</span>
     ${seletorVis("plano",[["lista","Lista"],["quadro","Quadro"],["cronograma","Cronograma"]])}
     ${podeEscrever()&&ehLider()?'<button class="btn" data-act="novaAcao">Nova ação</button>':podeEscrever()?'<button class="btn ghost" data-act="propor">Propor ação</button>':""}</div>
-  <div class="filters">
-    <select id="fOnda" aria-label="Onda">${opts([{v:"",l:"Todas as ondas"},...[1,2,3,4].map(o=>({v:o,l:"Onda "+o}))],f.onda)}</select>
+  ${blocoFiltros("plano",`<input type="search" id="fQ" placeholder="Buscar ação, pessoa ou observação" value="${esc(f.q)}">`,
+    `<select id="fOnda" aria-label="Onda">${opts([{v:"",l:"Todas as ondas"},...[1,2,3,4].map(o=>({v:o,l:"Onda "+o}))],f.onda)}</select>
     <select id="fStatus" aria-label="Status">${opts([{v:"",l:"Todos os status"},...ST_PLANO,{v:"vencida",l:"Atrasadas ou vencidas"}],f.status)}</select>
     <select id="fOnde" aria-label="Onde">${opts([{v:"",l:"Todos os locais"},...ondes],f.onde)}</select>
-    <input type="search" id="fQ" placeholder="Buscar ação, pessoa ou observação" value="${esc(f.q)}">
-    ${S.eu&&verGeral()?`<label class="chk"><input type="checkbox" id="fMinhas" ${f.minhas?"checked":""}> Só as minhas</label>`:""}
-  </div>
+    ${S.eu&&verGeral()?`<label class="chk"><input type="checkbox" id="fMinhas" ${f.minhas?"checked":""}> Só as minhas</label>`:""}`,
+    [f.onda,f.status,f.onde,f.minhas].filter(Boolean).length)}
   ${vis==="lista"?ajudaStatus():(S.eu?"":ajudaStatus())}
   ${vis==="quadro"?vQuadro("acoes",l):vis==="cronograma"?vCronograma(l.filter(a=>a.status!=="Cancelada").sort(ordenarId)):`<div class="list">${l.map(cartaoAcao).join("")||'<p class="empty">Nenhuma ação com esses filtros.</p>'}</div>`}`;
 }
@@ -2100,7 +2133,9 @@ async function validarStatus(col,item,novo){
     const falta=faltaCustoMargem(item);
     if(falta){ await aviso("Regra da trilha comercial",`Antes de colocar em andamento, preencha ${falta}. Nenhuma iniciativa começa sem custo e margem calculados.`); return false; }
     if(item.categoria==="Produto"&&!item.aprovada){
-      if(!ehLider()){ await aviso("Falta aprovação","Mudança de produto precisa da aprovação da proprietária. Fale com o Marco ou a Eliete."); return false; }
+      if(!ehLider()){ await aviso("Falta aprovação","Mudança de produto precisa da aprovação da Liderança. Fale com o Marco ou a Eliete."); return false; }
+      if(!(await pergunta("Produto ainda não aprovado",`${item.id} ${item.oque}. Aprovar agora e colocar em andamento?`,"Aprovar e iniciar")))return false;
+      if(!(await aprovarProduto(item,true)))return false;
     }
     const n=(S.raw.trilha||S.trilha).filter(t=>t.status==="Em andamento"&&t._doc!==item._doc).length;
     if(n>=LIM_TRILHA) return limiteOk(`Já existem ${n} iniciativas comerciais em andamento. O limite é ${LIM_TRILHA}.`);
@@ -2186,12 +2221,11 @@ function vTrilha(){
   ${and>LIM_TRILHA?`<div class="banner err">${and} iniciativas em andamento. A regra da trilha é no máximo ${LIM_TRILHA} ao mesmo tempo.</div>`:""}
   ${semCusto?`<div class="banner">${semCusto} iniciativa${semCusto>1?"s":""} em andamento ainda sem custo e margem preenchidos.</div>`:""}
   <p class="sub">Regra da trilha: no máximo ${LIM_TRILHA} iniciativas em andamento, nenhuma sem custo e margem calculados, e aprovação da proprietária quando muda produto ou posicionamento. Nenhum item novo entra no cardápio sem ficha técnica, custo e preço definidos.</p>
-  <div class="filters">
-    <select id="tCat" aria-label="Categoria">${opts([{v:"",l:"Todas as categorias"},...CATEGORIAS],f.cat)}</select>
+  ${blocoFiltros("trilha",`<input type="search" id="tQ" placeholder="Buscar" value="${esc(f.q)}">`,
+    `<select id="tCat" aria-label="Categoria">${opts([{v:"",l:"Todas as categorias"},...CATEGORIAS],f.cat)}</select>
     <select id="tStatus" aria-label="Status">${opts([{v:"",l:"Todos os status"},...ST_TRILHA],f.status)}</select>
-    <input type="search" id="tQ" placeholder="Buscar" value="${esc(f.q)}">
-    ${S.eu&&verGeral()?`<label class="chk"><input type="checkbox" id="tMinhas" ${f.minhas?"checked":""}> Só as minhas</label>`:""}
-  </div>
+    ${S.eu&&verGeral()?`<label class="chk"><input type="checkbox" id="tMinhas" ${f.minhas?"checked":""}> Só as minhas</label>`:""}`,
+    [f.cat,f.status,f.minhas].filter(Boolean).length)}
   ${ajudaStatus()}
   ${(f.vis||"lista")==="quadro"?vQuadro("trilha",l):`<div class="list">${l.map(t=>{const venc=vencidaTrilha(t),pode=podeEditarItem(t),mine=S.eu&&ehResp(t,S.eu),mg=margemDe(t),reps=t.replans||[],falta=faltaCustoMargem(t);return `<div class="item s-${stClass(t.status,venc)} ${mine?"mine":""}">
     <span class="id">${esc(t.id)}</span><span class="what clic" data-act="abrir" data-col="trilha" data-doc="${esc(t._doc)}" role="button" tabindex="0">${esc(t.oque)}</span>
@@ -2200,7 +2234,7 @@ function vTrilha(){
     <div class="meta"><span class="pill p-acai">${esc(t.categoria)}</span>${ehLider()&&t.sensivel?'<span class="pill p-acai">sensível</span>':""}<span>${esc(t.onde)}</span><span><b>Quem:</b> ${esc(quemTxt(t))}</span><span>${t.prazo?"prazo "+fmtD(parseISO(t.prazo)):esc(t.prazoTexto||"sem prazo")}</span>${venc?'<span class="pill p-bad">prazo vencido</span>':""}
     ${reps.length?`<span class="pill p-and">replanejada ${reps.length}x${t.prazoOrig?" · prazo original "+fmtD(parseISO(t.prazoOrig)):""}</span>`:""}
     ${falta?(!fechada(t)?'<span class="pill p-idle">sem custo e margem</span>':""):`<span class="num">custo ${fmtQuanto(t.custo)}${t.preco?" · preço "+fmtQuanto(t.preco):""}${mg!==null?" · margem "+mg.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%":""}</span>`}
-    ${t.categoria==="Produto"?(t.aprovada?'<span class="pill p-ok">aprovada pela proprietária</span>':'<span class="pill p-idle">aguardando aprovação da proprietária</span>'):""}
+    ${t.categoria==="Produto"?(t.aprovada?`<span class="pill p-ok">aprovado${t.aprovadaPor?" por "+esc(t.aprovadaPor):""}</span>`:fechada(t)?"":ehLider()&&podeEscrever()?`<button class="btn sm" data-act="aprovProd" data-doc="${esc(t._doc)}">Aprovar produto</button>`:'<span class="pill p-idle">aguardando aprovação</span>'):""}
     ${t.statusPor?`<span>status definido por <b>${esc(t.statusPor)}</b> ${quando(t.statusEm)}</span>`:t.atualizado?`<span>atualizado por ${esc(t.atualizado.por)} ${quando(t.atualizado.em)}</span>`:""}
     ${barraProg(t,true)}${t.status==="Cancelada"&&t.motivoCancel?`<span class="sub">Cancelada${t.canceladaPor?" por "+esc(t.canceladaPor):""}: ${esc(t.motivoCancel)}</span>`:""}</div>
     ${t.obs||reps.length?`<div class="obs">${t.obs?`<div>${esc(t.obs)}</div>`:""}${reps.length?`<div><b>Último atraso:</b> ${esc(reps[reps.length-1].motivo)}${reps[reps.length-1].detalhe?" ("+esc(reps[reps.length-1].detalhe)+")":""}</div>`:""}</div>`:""}</div>`;}).join("")||'<p class="empty">Nenhuma iniciativa com esses filtros.</p>'}</div>`}`;
@@ -2371,11 +2405,12 @@ async function registrarAuto(){
 function vPropostas(){
   const ord=s=>({"Aguardando aprovação":0,"Promovida":1,"Recusada":2}[s]??3);
   const l=S.propostas.filter(p=>verGeral()||p.propostoPor===S.eu).sort((a,b)=>ord(a.status)-ord(b.status)||(b.criadoEm||"").localeCompare(a.criadoEm||""));
-  return `${subPlano("propostas")}<div class="section-head"><h2>Propostas de ação</h2>${podeEscrever()?'<button class="btn" data-act="propor">Nova proposta</button>':""}</div>
+  const pa=pendAprov();
+  return `${subPlano("propostas")}${pa.prods.length?`<div class="banner">${pa.prods.length} produto(s) da Trilha aguardando aprovação. <button class="btn sm" data-go="inicio">Ver aprovações</button></div>`:""}<div class="section-head"><h2>Propostas de ação</h2>${podeEscrever()?'<button class="btn" data-act="propor">Nova proposta</button>':""}</div>
   <p class="sub">A equipe propõe aqui. ${ehLider()?"Como liderança, você aprova e a proposta entra direto no Plano de Ação ou na Trilha Comercial.":"Marco ou Eliete aprovam, e a proposta entra no plano oficial."}</p>
   <div class="list">${l.map(p=>{const c=p.status==="Promovida"?"ok":p.status==="Recusada"?"bad":"and";return `<div class="item s-${c}">
     <span class="id">${esc(p.idGerado||"•")}</span><span class="what">${esc(p.oque)}</span>
-    <div class="actions"><span class="pill p-${c}">${esc(p.status)}</span>${ehLider()&&podeEscrever()&&p.status==="Aguardando aprovação"?`<button class="btn sm" data-act="avaliar" data-doc="${esc(p._doc)}">Avaliar</button>`:""}</div>
+    <div class="actions"><span class="pill p-${c}">${esc(p.status)}</span>${ehLider()&&podeEscrever()&&p.status==="Aguardando aprovação"?`<button class="btn sm" data-act="aprovProp" data-doc="${esc(p._doc)}">Aprovar</button><button class="btn ghost sm" data-act="avaliar" data-doc="${esc(p._doc)}">Ajustar</button><button class="icon-btn" data-act="recProp" data-doc="${esc(p._doc)}">Recusar</button>`:""}</div>
     <div class="meta"><span>${p.destino==="plano"?"Plano de Ação · onda sugerida "+esc(p.onda):"Trilha Comercial · "+esc(p.categoria)}</span><span>${esc(p.onde)}</span><span>proposto por <b>${esc(p.propostoPor)}</b> em ${fmtD(new Date(p.criadoEm))}</span>${p.prazo?`<span>prazo sugerido: ${esc(p.prazo)}</span>`:""}${p.avaliadoPor?`<span>avaliado por ${esc(p.avaliadoPor)}</span>`:""}</div>
     ${p.obs||p.motivo?`<div class="obs">${esc(p.obs)}${p.motivo?`<br><b>Resposta:</b> ${esc(p.motivo)}`:""}</div>`:""}</div>`;}).join("")||'<p class="empty">Nenhuma proposta ainda. Use “Nova proposta” para sugerir uma ação.</p>'}</div>`;
 }
@@ -2406,19 +2441,72 @@ function avaliar(doc){
   async (fd,btn)=>{
     const quem=fd.get("quem")||p.propostoPor, motivo=fd.get("motivo")||"";
     if(btn==="rec") return gravar(()=>S.db.doc("propostas/"+doc).update({status:"Recusada",motivo,avaliadoPor:quemSou(),avaliadoEm:new Date().toISOString()}),"Proposta recusada.");
-    let idG;
-    if(fd.get("destino")==="plano"){
-      const onda=Number(fd.get("onda")); idG=proxIdPlano(onda);
+    return aprovarProposta(p,{destino:fd.get("destino"),onda:Number(fd.get("onda")),categoria:fd.get("categoria"),quem,motivo});
+  });
+}
+async function aprovarProposta(p,o={}){
+  const doc=p._doc, destino=o.destino||p.destino, quem=o.quem||p.quem||p.propostoPor, motivo=o.motivo||"";
+  if(p.status!=="Aguardando aprovação"){toast("Esta proposta já foi avaliada.");return false;}
+  let idG;
+  {
+    if(destino==="plano"){
+      const onda=Number(o.onda||p.onda||2); idG=proxIdPlano(onda);
       const fimMax=Math.max(30,...S.acoes.filter(a=>Number(a.onda)===onda).map(a=>Number(a.diaFim)||0)), iniMin=Math.min(...S.acoes.filter(a=>Number(a.onda)===onda).map(a=>Number(a.diaIni)||1),fimMax);
       const ok=await gravar(()=>S.db.doc("acoes/a"+idG.replace(".","_")).set({id:idG,onda,oque:p.oque,onde:p.onde,quem,responsaveis:respDeTexto(quem),diaIni:iniMin,diaFim:fimMax,status:"Não iniciada",rotina:false,obs:p.obs?("Proposta de "+p.propostoPor+": "+p.obs):"Proposta de "+p.propostoPor,ordem:Date.now()}));
       if(!ok)return false;
     } else {
       idG=proxIdTrilha();
-      const ok=await gravar(()=>S.db.doc("trilha/"+idG.toLowerCase()).set({id:idG,num:Number(idG.slice(1)),categoria:fd.get("categoria"),oque:p.oque,onde:p.onde,quem,responsaveis:respDeTexto(quem),prazo:"",prazoTexto:p.prazo||"Sem prazo fixo",status:"Não iniciada",obs:p.obs?("Proposta de "+p.propostoPor+": "+p.obs):""}));
+      const ok=await gravar(()=>S.db.doc("trilha/"+idG.toLowerCase()).set({id:idG,num:Number(idG.slice(1)),categoria:o.categoria||p.categoria||"Produto",oque:p.oque,onde:p.onde,quem,responsaveis:respDeTexto(quem),prazo:"",prazoTexto:p.prazo||"Sem prazo fixo",status:"Não iniciada",obs:p.obs?("Proposta de "+p.propostoPor+": "+p.obs):""}));
       if(!ok)return false;
     }
-    return gravar(()=>S.db.doc("propostas/"+doc).update({status:"Promovida",idGerado:idG,motivo,avaliadoPor:quemSou(),avaliadoEm:new Date().toISOString()}),"Aprovada e incluída como "+idG+".");
-  });
+    const r=await gravar(()=>S.db.doc("propostas/"+doc).update({status:"Promovida",idGerado:idG,motivo,avaliadoPor:quemSou(),avaliadoEm:new Date().toISOString()}),"Aprovada e incluída como "+idG+".");
+    if(r)logHist(destino==="plano"?"acoes":"trilha",{_doc:destino==="plano"?"a"+idG.replace(".","_"):idG.toLowerCase(),id:idG,oque:p.oque},{tipo:"criacao",texto:"Proposta de "+p.propostoPor+" aprovada"});
+    return r;
+  }
+}
+async function recusarProposta(p){
+  const r=await pedirTexto("Recusar proposta",p.oque,"Resposta para "+(p.propostoPor||"a equipe")+" (opcional)","ex.: boa ideia, mas fica para depois da reforma",true,"Recusar");
+  if(!r)return false;
+  return gravar(()=>S.db.doc("propostas/"+p._doc).update({status:"Recusada",motivo:r.texto,avaliadoPor:quemSou(),avaliadoEm:new Date().toISOString()}),"Proposta recusada.");
+}
+async function aprovarProduto(t,silencioso){
+  if(!ehLider()||!t||t.aprovada)return !!(t&&t.aprovada);
+  const ok=await gravar(()=>S.db.doc("trilha/"+t._doc).update({aprovada:true,aprovadaPor:quemSou(),aprovadaEm:new Date().toISOString()}),silencioso?"":"Produto "+t.id+" aprovado.");
+  if(ok)logHist("trilha",t,{tipo:"alteracao",campos:[{campo:"Aprovação do produto",de:"Não",para:"Sim"}],texto:"Produto aprovado"});
+  return ok;
+}
+/* Tudo o que espera decisão da Liderança */
+function pendAprov(){
+  if(!ehLider())return {props:[],prods:[],n:0};
+  const props=S.propostas.filter(p=>p.status==="Aguardando aprovação").sort((a,b)=>(a.criadoEm||"").localeCompare(b.criadoEm||""));
+  const prods=S.trilha.filter(t=>t.categoria==="Produto"&&!t.aprovada&&!fechada(t)).sort((a,b)=>(a.num||0)-(b.num||0));
+  return {props,prods,n:props.length+prods.length};
+}
+function linhaAprovProp(p){
+  const dias=p.criadoEm?Math.floor((Date.now()-new Date(p.criadoEm))/864e5):0;
+  return `<li class="apr-it"><div class="apr-t"><span class="pill ${p.destino==="plano"?"p-acai":"p-and"}">${p.destino==="plano"?"Plano · onda "+esc(p.onda||2):"Trilha · "+esc(p.categoria||"")}</span> <b>${esc(p.oque)}</b>
+    <div class="sub">proposta de ${esc(p.propostoPor)} ${dias?`há ${dias} dia(s)`:"hoje"}${p.quem&&p.quem!==p.propostoPor?` · quem faria: ${esc(p.quem)}`:""}${p.prazo?` · prazo: ${esc(p.prazo)}`:""}</div>
+    ${p.obs?`<div class="apr-obs">${esc(p.obs)}</div>`:""}</div>
+    <div class="apr-b"><button class="btn sm" data-act="aprovProp" data-doc="${esc(p._doc)}">Aprovar</button><button class="btn ghost sm" data-act="avaliar" data-doc="${esc(p._doc)}">Ajustar</button><button class="icon-btn" data-act="recProp" data-doc="${esc(p._doc)}">Recusar</button></div></li>`;
+}
+function linhaAprovProd(t){
+  const mg=margemDe(t), falta=faltaCustoMargem(t);
+  return `<li class="apr-it"><div class="apr-t"><span class="pill p-and">Produto · ${esc(t.id)}</span> <b>${esc(t.oque)}</b>
+    <div class="sub">${falta?`<span class="pill p-idle">sem ${esc(falta)}</span>`:`custo ${fmtQuanto(t.custo)}${t.preco?" · preço "+fmtQuanto(t.preco):""}${mg!==null?" · margem <b>"+mg.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%</b>":""}`} · ${esc(quemTxt(t))}</div></div>
+    <div class="apr-b"><button class="btn sm" data-act="aprovProd" data-doc="${esc(t._doc)}">Aprovar</button><button class="btn ghost sm" data-act="abrir" data-col="trilha" data-doc="${esc(t._doc)}">Ver ficha</button></div></li>`;
+}
+function cardAprovacoes(){
+  const {props,prods,n}=pendAprov(); if(!n)return "";
+  return `<section class="card apr-card" id="aprovacoes"><div class="section-head"><h3>Aguardando sua aprovação <span class="badge">${n}</span></h3>
+    ${props.length>1?`<button class="btn ghost sm" data-act="aprovTodas">Aprovar todas as propostas (${props.length})</button>`:""}</div>
+    <ul class="apr">${props.map(linhaAprovProp).join("")}${prods.map(linhaAprovProd).join("")}</ul>
+    <p class="hint">"Aprovar" inclui a proposta como foi sugerida. "Ajustar" deixa mudar destino, onda, categoria e responsável antes de aprovar.</p></section>`;
+}
+async function aprovarTodas(){
+  const {props}=pendAprov(); if(!props.length)return;
+  if(!(await pergunta("Aprovar todas as propostas",`Incluir ${props.length} propostas como foram sugeridas: ${props.map(p=>p.oque.slice(0,40)).join("; ")}.`,"Aprovar todas")))return;
+  let n=0; for(const p of props){ if(await aprovarProposta(p))n++; }
+  toast(`${n} de ${props.length} proposta(s) aprovada(s).`);
 }
 function formDataIni(){
   abrirDlg(`<h2>Data de início do plano</h2><p class="hint">Todas as datas previstas do Plano de Ação são recalculadas a partir desta data.</p>
@@ -2726,12 +2814,12 @@ function vRegistro(){
     html+=`<li><span class="reg-h num">${e.d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span><span class="reg-t"><b>${esc(e.por)}</b> ${e.txt} <span class="reg-a">${esc(e.area)}</span></span>${e.go?`<button type="button" class="icon-btn" data-go="${esc(e.go)}" aria-label="Abrir">Ver</button>`:""}</li>`; });
   if(dia)html+="</ul>";
   return `<div class="section-head"><h2>Registro de lançamentos</h2><span class="sub">Tudo o que foi registrado no app, do mais recente para o mais antigo. Só a Liderança vê esta tela.</span></div>
-  <div class="filters">
-    <select id="rgDias" aria-label="Período">${opts([{v:1,l:"Últimas 24 horas"},{v:7,l:"Últimos 7 dias"},{v:30,l:"Últimos 30 dias"},{v:0,l:"Tudo o que está carregado"}],f.dias)}</select>
+  ${blocoFiltros("registro",`<input type="search" id="rgQ" placeholder="Buscar" value="${esc(f.q)}">`,
+    `<select id="rgDias" aria-label="Período">${opts([{v:1,l:"Últimas 24 horas"},{v:7,l:"Últimos 7 dias"},{v:30,l:"Últimos 30 dias"},{v:0,l:"Tudo o que está carregado"}],f.dias)}</select>
     <select id="rgPor" aria-label="Pessoa">${opts([{v:"",l:"Todas as pessoas"},...pessoas],f.por)}</select>
-    <select id="rgArea" aria-label="Área">${opts([{v:"",l:"Todas as áreas"},...areas],f.area)}</select>
-    <input type="search" id="rgQ" placeholder="Buscar" value="${esc(f.q)}">
-  </div>
+    <select id="rgArea" aria-label="Área">${opts([{v:"",l:"Todas as áreas"},...areas],f.area)}</select>`,
+    [f.dias!==7,f.por,f.area].filter(Boolean).length)}
+  <p class="sub">Mostrando: ${{1:"últimas 24 horas",7:"últimos 7 dias",30:"últimos 30 dias",0:"tudo o que está carregado"}[f.dias]}${f.por?" · "+esc(f.por):""}${f.area?" · "+esc(f.area):""}</p>
   ${porPessoa.length?`<p class="sub">No período: ${porPessoa.map(([p,n])=>`${esc(p)} <b class="num">${n}</b>`).join(" · ")}</p>`:""}
   <div class="card">${html||'<p class="empty">Nenhum lançamento com esses filtros.</p>'}
   ${l.length>f.lim?`<p style="text-align:center"><button class="btn ghost sm" data-act="regMais">Mostrar mais (${l.length-f.lim} restantes)</button></p>`:""}</div>
@@ -2739,6 +2827,8 @@ function vRegistro(){
 }
 /* ---------- Eventos ---------- */
 document.addEventListener("click",e=>{
+  const lf=e.target.closest&&e.target.closest("[data-act=limparFilt]"); if(lf){e.preventDefault();e.stopPropagation();limparFiltros(lf.dataset.fid);return;}
+  const fs_=e.target.closest&&e.target.closest("details[data-fid] > summary"); if(fs_){const d=fs_.parentElement;S.f.filtAb=S.f.filtAb||{};S.f.filtAb[d.dataset.fid]=!d.open;}
   const v=e.target.closest("[data-vis]"); if(v&&!v.closest("dialog")){S.f[v.dataset.g].vis=v.dataset.vis;render();return;}
   const g=e.target.closest("[data-go]"); if(g&&!g.closest("dialog")){irPara(g.dataset.go);return;}
   const ps=e.target.closest("[data-psub]"); if(ps){S.f.prod.sub=ps.dataset.psub;render();return;}
@@ -2801,9 +2891,18 @@ document.addEventListener("click",e=>{
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(["aprovProp","recProp","aprovProd","aprovTodas"].includes(a)){
+    if(b.dataset.busy)return; b.dataset.busy="1"; b.disabled=true;
+    (async()=>{ try{
+      if(a==="aprovProp"){const p=S.propostas.find(x=>x._doc===d); if(p)await aprovarProposta(p);}
+      else if(a==="recProp"){const p=S.propostas.find(x=>x._doc===d); if(p)await recusarProposta(p);}
+      else if(a==="aprovProd"){await aprovarProduto(itemDe("trilha",d));}
+      else await aprovarTodas();
+    } finally { if(b.isConnected){delete b.dataset.busy;b.disabled=false;} } })();
+  }
   else if(a==="regMais"){S.f.reg.lim+=150;render();}
 });
-document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open;},true);
+document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open; if(e.target.matches&&e.target.matches("details[data-fid]")){S.f.filtAb=S.f.filtAb||{};S.f.filtAb[e.target.dataset.fid]=e.target.open;}},true);
 document.addEventListener("change",async e=>{
   const t=e.target;
   if(t.matches("select.status")){
@@ -2876,6 +2975,7 @@ function assinar(col,key,map){
   },err=>{ if(err.code==="revoked"){S.db=null;} clearTimeout(S.slowT); agendaRender(); });
 }
 (async function init(){
+  if(location.hash&&location.hash!=="#inicio"){try{history.replaceState(null,"",location.pathname+location.search+"#inicio");}catch(e){location.hash="inicio";}}
   rota();
   if(!window.claude||!window.claude.use){ render(); return; }
   const [db,user]=await Promise.all([claude.use("db"),claude.use("user")]);
