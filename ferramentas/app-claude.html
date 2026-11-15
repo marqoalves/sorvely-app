@@ -104,7 +104,7 @@ main{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-direction:col
 .item.mine{box-shadow:0 0 0 2px var(--acai-soft)}
 
 .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
-.p-idle{background:var(--idle-bg);color:var(--idle)} .p-and{background:var(--warn-bg);color:var(--warn)} .p-ok{background:var(--ok-bg);color:var(--ok)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-acai{background:var(--acai-soft);color:var(--acai)}
+.p-idle{background:var(--idle-bg);color:var(--idle)} .p-cancel{background:var(--idle-bg);color:var(--idle);text-decoration:line-through} .p-and{background:var(--warn-bg);color:var(--warn)} .p-ok{background:var(--ok-bg);color:var(--ok)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-acai{background:var(--acai-soft);color:var(--acai)}
 .dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .d-Verde{background:var(--ok)} .d-Amarelo{background:var(--warn)} .d-Vermelho{background:var(--bad)} .d-none{background:var(--line)}
 
@@ -132,6 +132,7 @@ dialog.wide{max-width:820px}
 .kcard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--idle);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
 .kcard[draggable=true]{cursor:grab}.kcard.dragging{opacity:.5}
 .kcard:hover{border-color:var(--acai)}
+.item.s-cancel,.kcard.s-cancel{opacity:.62}.item.s-cancel .what,.kcard.s-cancel .kc-o{text-decoration:line-through}
 .kcard.s-and{border-left-color:var(--warn)}.kcard.s-ok{border-left-color:var(--ok)}.kcard.s-bad{border-left-color:var(--bad)}
 .kcard.mine{box-shadow:0 0 0 2px var(--acai-soft)}
 .kc-top,.kc-foot{display:flex;justify-content:space-between;gap:6px;align-items:center;font-size:.78rem;color:var(--muted)}
@@ -404,6 +405,10 @@ dialog::backdrop{background:rgba(31,29,66,.45)}
 nav.tabs a.on{color:var(--acai);border-bottom-color:var(--rosa)}
 .ck-it.on{border-color:var(--ok)}
 details.aj{border-radius:14px}
+.linkbtn{background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:.78rem;text-decoration:underline;cursor:pointer;opacity:.8}
+h3.reg-dia::first-letter{text-transform:uppercase}h3.reg-dia{font-size:.85rem;color:var(--muted);margin:14px 0 4px}h3.reg-dia:first-child{margin-top:0}
+ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.reg-h{color:var(--muted);min-width:42px}.reg-t{flex:1;min-width:0}.reg-a{font-size:.72rem;color:var(--muted);background:var(--bg);border-radius:999px;padding:1px 7px;margin-left:4px;white-space:nowrap}
 #toast{background:var(--marinho);color:#fff;border-radius:999px;padding:10px 18px}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #toast{background:var(--amarelo);color:#1F1D42}}
 @media (max-width:600px){
@@ -459,8 +464,13 @@ const NIVEIS = {
   "Consulta":{desc:"Vê a visão geral do plano e dos indicadores, sem os itens sensíveis, e não altera nada."}
 };
 const PIN_ITER = 100000, SESSAO_HORAS = 12, MAX_TENT = 5;
-const ST_PLANO = ["Não iniciada","Em andamento","Concluída","Atrasada"];
-const ST_TRILHA = ["Não iniciada","Em andamento","Concluída"];
+const ST_PLANO = ["Não iniciada","Em andamento","Concluída","Atrasada","Cancelada"];
+const ST_TRILHA = ["Não iniciada","Em andamento","Concluída","Cancelada"];
+/* Fechada = concluída ou cancelada (não conta como pendente nem vencida) */
+const fechada = x => x.status==="Concluída"||x.status==="Cancelada";
+/* Ordem de exibição: em andamento primeiro, depois não iniciadas, concluídas e canceladas */
+const ORD_ST = {"Atrasada":0,"Em andamento":1,"Não iniciada":2,"Concluída":3,"Cancelada":4};
+const rankSt = x => ORD_ST[x.status] ?? 2;
 const CATEGORIAS = ["Produto","Marketing e comercial","Compras","Decisão com prazo próprio"];
 const PERSPECTIVAS = ["Financeira","Clientes e mercado","Processos internos","Pessoas e aprendizado","Validação do plano"];
 const LIM_PLANO = 5, LIM_TRILHA = 2;
@@ -523,9 +533,9 @@ function datasAcao(a){
   const base=parseISO(S.geral.dataInicio)||hoje();
   return {ini:addDias(base,(Number(a.diaIni)||1)-1), fim:addDias(base,(Number(a.diaFim)||1)-1)};
 }
-function vencida(a){ if(a.status==="Concluída")return false; return datasAcao(a).fim < hoje(); }
-function vencidaTrilha(t){ if(t.status==="Concluída"||!t.prazo)return false; return parseISO(t.prazo) < hoje(); }
-function stClass(st,venc){ if(st==="Concluída")return "ok"; if(st==="Atrasada"||venc)return "bad"; if(st==="Em andamento")return "and"; return "idle"; }
+function vencida(a){ if(fechada(a))return false; return datasAcao(a).fim < hoje(); }
+function vencidaTrilha(t){ if(fechada(t)||!t.prazo)return false; return parseISO(t.prazo) < hoje(); }
+function stClass(st,venc){ if(st==="Cancelada")return "cancel"; if(st==="Concluída")return "ok"; if(st==="Atrasada"||venc)return "bad"; if(st==="Em andamento")return "and"; return "idle"; }
 function pillStatus(st,venc){const c=stClass(st,venc);return `<span class="pill p-${c}">${esc(st)}</span>`+(venc&&st!=="Atrasada"?` <span class="pill p-bad">prazo vencido</span>`:"");}
 function farolAuto(valor,dir,lv,la){
   if(lv===null||lv===undefined||lv===""||isNaN(Number(valor)))return "";
@@ -576,7 +586,7 @@ function abrirDlg(html,onSubmit,{onOpen}={}){
   if(!d.open)d.showModal();
   if(onOpen)onOpen(f);
 }
-const optsStatus=(arr,sel)=>opts(arr,sel)+(sel!=="Concluída"?`<option disabled>──────────</option><option value="__prazo">Prazo não cumprido…</option>`:"");
+const optsStatus=(arr,sel)=>opts(arr.filter(x=>x!=="Cancelada"||ehLider()||sel==="Cancelada"),sel)+(!["Concluída","Cancelada"].includes(sel)?`<option disabled>──────────</option><option value="__prazo">Prazo não cumprido…</option>`:"");
 const opts=(arr,sel)=>arr.map(o=>{const v=typeof o==="object"?o.v:o,l=typeof o==="object"?o.l:o;return `<option value="${esc(v)}"${String(v)===String(sel)?" selected":""}>${esc(l)}</option>`;}).join("");
 
 /* ---------- Identidade, PIN e sessão ---------- */
@@ -646,8 +656,9 @@ function menuUsuario(){
   if(!S.eu){entrar(false);return;}
   const p=pessoa(S.eu);
   abrirDlg(`<h2>${esc(S.eu)}</h2><p class="hint">${ehLider()?esc(p?.papel||"")+" · nível "+esc(nivelEu()||"-")+". "+esc(NIVEIS[nivelEu()]?.desc||""):esc(p?.papel||"")}</p>
+    ${ehLider()?'<p style="margin:0"><button type="submit" class="linkbtn" value="reg">Registro de lançamentos</button></p>':""}
     <div class="dlg-foot"><button class="btn ghost" value="cancel">Fechar</button>${ehLider()?'<button class="btn ghost" value="usu">Equipe e usuários</button>':""}${S.canWrite?'<button class="btn ghost" value="pin">Trocar meu PIN</button>':""}<button class="btn" value="sair">Sair</button></div>`,
-  async (fd,btn)=>{ if(btn==="sair")setTimeout(sair,0); if(btn==="pin")setTimeout(()=>trocarPin(false),0); if(btn==="usu")location.hash="usuarios"; });
+  async (fd,btn)=>{ if(btn==="sair")setTimeout(sair,0); if(btn==="pin")setTimeout(()=>trocarPin(false),0); if(btn==="usu")location.hash="usuarios"; if(btn==="reg")location.hash="registro"; });
 }
 function formPin(titulo,texto,obrig,onPin){
   abrirDlg(`<h2>${esc(titulo)}</h2><p class="hint">${esc(texto)}</p>
@@ -689,7 +700,7 @@ function render(){
   else if(S.slow) top+=`<div class="banner">Os dados estão demorando para chegar. O que aparece pode estar desatualizado.</div>`;
   if(!S.canWrite) top+=`<div class="banner">Você está com acesso só de leitura. Para lançar, peça ao Marco para te convidar como editor.</div>`;
     $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!veRotinas(); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
-  const v={painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
+  const v={registro:vRegistro,painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
   const scroll=window.scrollY, keep={}; let foco=document.activeElement&&m.contains(document.activeElement)?document.activeElement:null;
   m.querySelectorAll("#enForm input, #enForm select, [data-eqin], textarea[id]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);keep[k]=el.type==="checkbox"?el.checked:el.value;});
   const cur=foco&&typeof foco.selectionStart==="number"?foco.selectionStart:null;
@@ -701,7 +712,8 @@ function render(){
 
 /* ---------- Painel ---------- */
 function metricasPlano(){
-  const a=S.acoes, tot=a.length;
+  const canc=S.acoes.filter(x=>x.status==="Cancelada").length;
+  const a=S.acoes.filter(x=>x.status!=="Cancelada"), tot=a.length;
   const c=s=>a.filter(x=>x.status===s).length;
   const conc=c("Concluída"), and=c("Em andamento"), nao=c("Não iniciada");
   const atr=a.filter(x=>x.status==="Atrasada"||vencida(x)).length;
@@ -710,21 +722,21 @@ function metricasPlano(){
   const previstas=a.filter(x=>prazoOriginal(x)<=hoje());
   const noPrazo=previstas.filter(x=>x.status==="Concluída"&&!concluidaComAtraso(x)).length;
   const aderencia = previstas.length? noPrazo/previstas.length*100 : (tot?conc/tot*100:0);
-  const replanejadas=[...a,...S.trilha].filter(x=>(x.replans||[]).length).length;
+  const replanejadas=[...a,...S.trilha.filter(x=>x.status!=="Cancelada")].filter(x=>(x.replans||[]).length).length;
   const w5=a.filter(w5ok).length;
-  return {tot,conc,and,nao,atr,rot,aderencia,pctRotina:conc?rot/conc*100:0, previstas:previstas.length,replanejadas,w5};
+  return {tot,canc,conc,and,nao,atr,rot,aderencia,pctRotina:conc?rot/conc*100:0, previstas:previstas.length,replanejadas,w5};
 }
 function vPainel(){
   const m=metricasPlano();
-  const t=S.trilha, tAnd=t.filter(x=>x.status==="Em andamento").length, tConc=t.filter(x=>x.status==="Concluída").length;
+  const t=S.trilha.filter(x=>x.status!=="Cancelada"), tAnd=t.filter(x=>x.status==="Em andamento").length, tConc=t.filter(x=>x.status==="Concluída").length;
   const ini=parseISO(S.geral.dataInicio), dia=ini?Math.floor((hoje()-ini)/864e5)+1:0;
-  const ondas=[1,2,3,4].map(o=>{const l=S.acoes.filter(a=>Number(a.onda)===o);return {o,l,tot:l.length,conc:l.filter(a=>a.status==="Concluída").length,and:l.filter(a=>a.status==="Em andamento").length,atr:l.filter(a=>a.status==="Atrasada"||vencida(a)).length};});
+  const ondas=[1,2,3,4].map(o=>{const l=S.acoes.filter(a=>Number(a.onda)===o&&a.status!=="Cancelada");return {o,l,tot:l.length,conc:l.filter(a=>a.status==="Concluída").length,and:l.filter(a=>a.status==="Em andamento").length,atr:l.filter(a=>a.status==="Atrasada"||vencida(a)).length};});
   const maxO=Math.max(1,...ondas.map(o=>o.tot));
-  const resp=ativos().filter(u=>u.nivel!=="Consulta").map(p=>{const pa=S.acoes.filter(a=>ehResp(a,p.nome)),pt=S.trilha.filter(x=>ehResp(x,p.nome));const all=[...pa,...pt];return {p,tot:all.length,aberto:all.filter(x=>x.status!=="Concluída").length,conc:all.filter(x=>x.status==="Concluída").length};});
+  const resp=ativos().filter(u=>u.nivel!=="Consulta").map(p=>{const pa=S.acoes.filter(a=>ehResp(a,p.nome)&&a.status!=="Cancelada"),pt=S.trilha.filter(x=>ehResp(x,p.nome)&&x.status!=="Cancelada");const all=[...pa,...pt];return {p,tot:all.length,aberto:all.filter(x=>x.status!=="Concluída").length,conc:all.filter(x=>x.status==="Concluída").length};});
   const maxR=Math.max(1,...resp.map(r=>r.tot));
   const vitais=S.indicadores.filter(i=>i.vital);
-  const minhas = S.eu ? [...S.acoes.filter(a=>ehResp(a,S.eu)&&a.status!=="Concluída").map(a=>({...a,tipo:"plano",fim:datasAcao(a).fim})),
-     ...S.trilha.filter(x=>ehResp(x,S.eu)&&x.status!=="Concluída").map(x=>({...x,tipo:"trilha",fim:parseISO(x.prazo)}))]
+  const minhas = S.eu ? [...S.acoes.filter(a=>ehResp(a,S.eu)&&!fechada(a)).map(a=>({...a,tipo:"plano",fim:datasAcao(a).fim})),
+     ...S.trilha.filter(x=>ehResp(x,S.eu)&&!fechada(x)).map(x=>({...x,tipo:"trilha",fim:parseISO(x.prazo)}))]
      .sort((a,b)=>(a.fim||9e15)-(b.fim||9e15)) : [];
   return `
   <div class="section-head"><h2>Painel do plano</h2>
@@ -733,7 +745,7 @@ function vPainel(){
     ${ehLider()?'<button class="btn sm" data-act="excel">Baixar em Excel</button>':""}
   </div>
   <div class="tiles">
-    <div class="tile acai"><span class="v num">${m.tot}</span><span class="l">ações de controle</span></div>
+    <div class="tile acai"><span class="v num">${m.tot}</span><span class="l">ações de controle${m.canc?` (sem as ${m.canc} canceladas)`:""}</span></div>
     <div class="tile ok"><span class="v num">${m.conc}</span><span class="l">concluídas</span></div>
     <div class="tile warn"><span class="v num">${m.and}</span><span class="l">em andamento</span></div>
     <div class="tile"><span class="v num">${m.nao}</span><span class="l">não iniciadas</span></div>
@@ -830,7 +842,7 @@ async function baixarExcel(btn){
     const add=(nome,rows,larg)=>{const ws=X.utils.json_to_sheet(rows.length?rows:[{"":"sem dados"}],{cellDates:true,dateNF:"dd/mm/yyyy"});ws["!cols"]=(larg||[]).map(w=>({wch:w}));X.utils.book_append_sheet(wb,ws,nome);};
     add("Resumo",[
       {"Indicador":"Data de início do plano","Valor":d(S.geral.dataInicio)},{"Indicador":"Exportado em","Valor":new Date()},{"Indicador":"Exportado por","Valor":quemSou()},
-      {"Indicador":"Total de ações do plano","Valor":m.tot},{"Indicador":"Concluídas","Valor":m.conc},{"Indicador":"Em andamento","Valor":m.and},{"Indicador":"Não iniciadas","Valor":m.nao},
+      {"Indicador":"Total de ações do plano (sem canceladas)","Valor":m.tot},{"Indicador":"Canceladas","Valor":m.canc},{"Indicador":"Concluídas","Valor":m.conc},{"Indicador":"Em andamento","Valor":m.and},{"Indicador":"Não iniciadas","Valor":m.nao},
       {"Indicador":"Atrasadas ou com prazo vencido","Valor":m.atr},{"Indicador":"Aderência ao plano (%)","Valor":Math.round(m.aderencia*10)/10},{"Indicador":"Ações que viraram rotina (%)","Valor":Math.round(m.pctRotina*10)/10},
       {"Indicador":"Atividades replanejadas","Valor":m.replanejadas},{"Indicador":"Ações com 5W2H completo","Valor":m.w5},
       {"Indicador":"Iniciativas comerciais","Valor":S.trilha.length},{"Indicador":"Iniciativas em andamento","Valor":S.trilha.filter(t=>t.status==="Em andamento").length}],[40,22]);
@@ -878,6 +890,18 @@ function fmtCampo(k,v){
   return String(v);
 }
 function colecao(col){return col==="acoes"?S.acoes:S.trilha;}
+function pedirTexto(titulo,sub,rotulo,exemplo){
+  return new Promise(res=>{
+    let feito=false; const fim=v=>{if(!feito){feito=true;res(v);}};
+    setTimeout(()=>{
+      abrirDlg(`<h2>${esc(titulo)}</h2>${sub?`<p><b>${esc(sub)}</b></p>`:""}
+        <div class="field"><label for="pt_t">${esc(rotulo)}</label><textarea id="pt_t" name="t" rows="3" placeholder="${esc(exemplo||"")}" required></textarea></div>
+        <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn" value="ok">Confirmar</button></div>`,
+      async fd=>{const v=String(fd.get("t")||"").trim(); if(!v)return false; fim(v);});
+      $("#dlg").addEventListener("close",()=>fim(""),{once:true});
+    },0);
+  });
+}
 function itemDe(col,doc){return colecao(col).find(x=>x._doc===doc);}
 function histDe(col,doc){return S.hist.filter(h=>h.alvo===col+"/"+doc).sort((a,b)=>(b.em||"").localeCompare(a.em||""));}
 function logHist(col,item,e){
@@ -905,9 +929,16 @@ async function aplicarStatus(col,doc,novo){
   const it=itemDe(col,doc); if(!it)return false;
   if(novo===it.status)return true;
   if(!podeEditarItem(it)){toast(S.eu?"Você só pode mudar as atividades em que seu nome aparece.":"Entre com seu nome e PIN para alterar.");if(!S.eu)entrar(false);return false;}
+  if((novo==="Cancelada"||it.status==="Cancelada")&&!ehLider()){toast(novo==="Cancelada"?"Só a Liderança pode cancelar uma atividade.":"Esta atividade foi cancelada. Só a Liderança pode reativar.");return false;}
+  let extra={}, motivo="";
+  if(novo==="Cancelada"){
+    motivo=await pedirTexto("Cancelar atividade",`${it.id} ${it.oque}`,"Por que esta atividade foi cancelada?","ex.: substituída pela ação 2.4; não faz mais sentido depois da reforma");
+    if(!motivo)return false;
+    extra={motivoCancel:motivo,canceladaEm:iso(hoje()),canceladaPor:quemSou()};
+  } else if(it.status==="Cancelada") extra={motivoCancel:null,canceladaEm:null,canceladaPor:null};
   if(!(await validarStatus(col,it,novo)))return false;
-  const ok=await gravar(()=>S.db.doc(col+"/"+doc).update({...camposStatus(it,novo),atualizado:carimbo()}),"Status alterado para "+novo+".");
-  if(ok)logHist(col,it,{tipo:"status",de:it.status,para:novo});
+  const ok=await gravar(()=>S.db.doc(col+"/"+doc).update({...camposStatus(it,novo),...extra,atualizado:carimbo()}),novo==="Cancelada"?"Atividade cancelada.":it.status==="Cancelada"?"Atividade reativada como "+novo+".":"Status alterado para "+novo+".");
+  if(ok)logHist(col,it,{tipo:"status",de:it.status,para:novo,...(motivo?{texto:motivo}:{})});
   return ok;
 }
 async function salvarComHist(col,it,d,msg){
@@ -938,8 +969,9 @@ function cartaoCompacto(col,it){
   </div>`;
 }
 function vQuadro(col,lista){
-  const sts=col==="acoes"?ST_PLANO:ST_TRILHA;
-  const cls={"Não iniciada":"idle","Em andamento":"and","Concluída":"ok","Atrasada":"bad"};
+  const sts=(col==="acoes"?["Atrasada","Em andamento","Não iniciada","Concluída","Cancelada"]:["Em andamento","Não iniciada","Concluída","Cancelada"])
+    .filter(st=>st!=="Cancelada"||ehLider()||lista.some(x=>x.status==="Cancelada"));
+  const cls={"Não iniciada":"idle","Em andamento":"and","Concluída":"ok","Atrasada":"bad","Cancelada":"cancel"};
   return `<p class="sub">${podeEscrever()?"Arraste um cartão para outra coluna para mudar o status, ou clique nele para abrir a ficha.":"Clique em um cartão para abrir a ficha da atividade."}</p>
   <div class="board">${sts.map(st=>{const l=lista.filter(x=>x.status===st);return `<section class="bcol" data-drop="${esc(st)}" data-col="${col}">
     <h3><span class="pill p-${cls[st]}">${esc(st)}</span> <span class="num sub">${l.length}</span></h3>
@@ -953,7 +985,7 @@ function vCronograma(lista){
   ini.setDate(1); const fimM=new Date(fim.getFullYear(),fim.getMonth()+1,1);
   const tot=(fimM-ini)/864e5, x=d=>((d-ini)/864e5)/tot*100;
   const meses=[]; for(let d=new Date(ini);d<fimM;d=new Date(d.getFullYear(),d.getMonth()+1,1))meses.push(new Date(d));
-  const cor={"Concluída":"var(--ok)","Em andamento":"var(--warn)","Atrasada":"var(--bad)","Não iniciada":"var(--idle)"};
+  const cor={"Concluída":"var(--ok)","Em andamento":"var(--warn)","Atrasada":"var(--bad)","Não iniciada":"var(--idle)","Cancelada":"var(--line)"};
   const ondas=[...new Set(lista.map(a=>a.onda))].sort();
   return `<p class="sub">Cada barra vai do início ao fim previsto. A linha vertical marca hoje. Clique em uma barra para abrir a ficha.</p>
   <div class="legend"><span style="--c:var(--idle)">não iniciada</span><span style="--c:var(--warn)">em andamento</span><span style="--c:var(--ok)">concluída</span><span style="--c:var(--bad)">atrasada ou vencida</span><span style="--c:var(--ink)">▏prazo original (quando replanejada)</span></div>
@@ -1008,14 +1040,15 @@ function htmlDetalhe(){
   <div class="det-meta"><span><b>Onde:</b> ${esc(it.onde)}</span><span><b>Quem:</b> ${esc(quemTxt(it))}${Array.isArray(it.responsaveis)&&it.responsaveis.length&&it.quem&&it.quem!==quemTxt(it)?` <span class="sub">(${esc(it.quem)})</span>`:""}</span>
     ${ac?`<span class="num"><b>Previsto:</b> ${fmtD(dt.ini)} a ${fmtD(dt.fim)}</span>`:`<span><b>Prazo:</b> ${it.prazo?fmtD(parseISO(it.prazo)):esc(it.prazoTexto||"sem prazo")}</span>`}
     ${(it.replans||[]).length?`<span class="pill p-and">replanejada ${it.replans.length}x</span>`:""}
-    ${it.concluidaEm?`<span><b>Concluída em</b> ${fmtD(parseISO(it.concluidaEm))}</span>`:""}</div>
+    ${it.concluidaEm?`<span><b>Concluída em</b> ${fmtD(parseISO(it.concluidaEm))}</span>`:""}
+    ${it.status==="Cancelada"?`<span><b>Cancelada</b>${it.canceladaEm?" em "+fmtD(parseISO(it.canceladaEm)):""}${it.canceladaPor?" por "+esc(it.canceladaPor):""}${it.motivoCancel?": "+esc(it.motivoCancel):""}</span>`:""}</div>
   ${pr?`<div class="det-prog">${barraProg(it)}</div>`:""}
   <div class="det-tabs" role="tablist">
     ${[["resumo","Resumo"],["passos","Passo a passo"+(pr?` (${pr.f}/${pr.t})`:"")],["hist","Observações e histórico"+(nNotas?` (${nNotas})`:"")]].map(([k,l])=>`<button type="button" role="tab" aria-selected="${aba===k}" class="${aba===k?"on":""}" data-det="aba" data-aba="${k}">${l}</button>`).join("")}
   </div>
   <div class="det-body">${aba==="passos"?htmlPassos(col,it,pode):aba==="hist"?htmlHist(col,it,h):htmlResumo(col,it)}</div>
   <div class="dlg-foot">
-    ${pode&&it.status!=="Concluída"?'<button type="button" class="btn ghost" data-det="prazo">Registrar prazo não cumprido</button>':""}
+    ${pode&&!fechada(it)?'<button type="button" class="btn ghost" data-det="prazo">Registrar prazo não cumprido</button>':""}
     ${pode?`<button type="button" class="btn ghost" data-det="editar">${lider?"Editar plano da atividade":"Editar como fazer"}</button>`:""}
     <button type="button" class="btn" data-det="fechar">Fechar</button>
   </div></div>`;
@@ -1032,7 +1065,7 @@ function htmlResumo(col,it){
 function htmlPassos(col,it,pode){
   const p=it.passos||[], todos=p.length&&p.every(x=>x.feito);
   return `${!p.length?`<p class="sub">Ainda não há passo a passo para esta atividade.${pode?" Quebre a atividade em etapas curtas e marque cada uma quando ficar pronta.":""}</p>`:""}
-  ${todos&&it.status!=="Concluída"&&pode?`<div class="banner ok-b">Todos os passos foram concluídos. <button type="button" class="btn sm" data-det="concluir">Marcar atividade como concluída</button></div>`:""}
+  ${todos&&!fechada(it)&&pode?`<div class="banner ok-b">Todos os passos foram concluídos. <button type="button" class="btn sm" data-det="concluir">Marcar atividade como concluída</button></div>`:""}
   <ol class="passos">${p.map((s,i)=>`<li class="${s.feito?"feito":""}">
     <label class="ps-chk"><input type="checkbox" data-det="passo-ok" data-i="${i}" ${s.feito?"checked":""} ${pode?"":"disabled"}><span>${esc(s.texto)}</span></label>
     <div class="ps-meta">${s.resp?`<span>${esc(s.resp)}</span>`:""}${s.prazo?`<span class="num ${!s.feito&&parseISO(s.prazo)<hoje()?"atras":""}">até ${fmtD(parseISO(s.prazo))}</span>`:""}${s.feito&&s.feitoPor?`<span>feito por ${esc(s.feitoPor)} ${quando(s.feitoEm)}</span>`:""}</div>
@@ -1873,7 +1906,7 @@ function vInicio(){
   if(!S.eu&&window.FB)return `<div class="card"><p class="sub">Carregando seus dados...</p></div>`;
   if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>`;
   const p=pessoa(S.eu), pr=permProd(p), rt=permRot(p), hojeI=iso(hoje());
-  const minhas=[...S.acoes.filter(a=>ehResp(a,S.eu)&&a.status!=="Concluída").map(a=>({...a,col:"acoes",fim:datasAcao(a).fim,venc:vencida(a)})),...S.trilha.filter(t=>ehResp(t,S.eu)&&t.status!=="Concluída").map(t=>({...t,col:"trilha",fim:parseISO(t.prazo),venc:vencidaTrilha(t)}))].sort((a,b)=>(a.fim||9e15)-(b.fim||9e15));
+  const minhas=[...S.acoes.filter(a=>ehResp(a,S.eu)&&!fechada(a)).map(a=>({...a,col:"acoes",fim:datasAcao(a).fim,venc:vencida(a)})),...S.trilha.filter(t=>ehResp(t,S.eu)&&!fechada(t)).map(t=>({...t,col:"trilha",fim:parseISO(t.prazo),venc:vencidaTrilha(t)}))].sort((a,b)=>(a.fim||9e15)-(b.fim||9e15));
   const abertas=S.solic.filter(s=>s.status==="Aberta").length, paraProd=S.ordens.filter(o=>o.status==="Emitida"||o.status==="Em produção").length, paraReceber=S.ordens.filter(o=>o.status==="Enviada").length;
   const locs=rt.includes("temperatura")?locaisTemp():[];
   const faltaTemp=locs.map(l=>{const eqs=S.equip.filter(e=>e.local===l&&e.ativo!==false);const ls=(S.tempDias.find(d=>d._doc===hojeI+"_"+slugP(l))||{}).leituras||[];return {l,total:eqs.length,feitos:eqs.filter(e=>ls.filter(x=>x.equip===e.nome).length>=2).length};});
@@ -1948,7 +1981,7 @@ function vPlano(){
   const ondes=[...new Set(S.acoes.map(a=>a.onde))].sort();
   let l=S.acoes.filter(a=>(!f.onda||String(a.onda)===f.onda)&&(!f.onde||a.onde===f.onde)&&(!f.minhas||ehResp(a,S.eu))&&(!q||(a.oque+" "+a.quem+" "+a.obs+" "+a.id).toLowerCase().includes(q)));
   if(f.status==="vencida") l=l.filter(a=>a.status==="Atrasada"||vencida(a)); else if(f.status) l=l.filter(a=>a.status===f.status);
-  l.sort(ordenarId);
+  l.sort((a,b)=>rankSt(a)-rankSt(b)||ordenarId(a,b));
   const vis=f.vis||"lista";
   return `${subPlano("plano")}<div class="section-head"><h2>Plano de Ação</h2><span class="sub">${l.length} de ${S.acoes.length} ações</span>
     ${seletorVis("plano",[["lista","Lista"],["quadro","Quadro"],["cronograma","Cronograma"]])}
@@ -1961,7 +1994,7 @@ function vPlano(){
     ${S.eu&&verGeral()?`<label class="chk"><input type="checkbox" id="fMinhas" ${f.minhas?"checked":""}> Só as minhas</label>`:""}
   </div>
   ${vis==="lista"?ajudaStatus():(S.eu?"":ajudaStatus())}
-  ${vis==="quadro"?vQuadro("acoes",l):vis==="cronograma"?vCronograma(l):`<div class="list">${l.map(cartaoAcao).join("")||'<p class="empty">Nenhuma ação com esses filtros.</p>'}</div>`}`;
+  ${vis==="quadro"?vQuadro("acoes",l):vis==="cronograma"?vCronograma(l.filter(a=>a.status!=="Cancelada").sort(ordenarId)):`<div class="list">${l.map(cartaoAcao).join("")||'<p class="empty">Nenhuma ação com esses filtros.</p>'}</div>`}`;
 }
 function cartaoAcao(a){
   const {ini,fim}=datasAcao(a), venc=vencida(a), pode=podeEditarItem(a), mine=S.eu&&ehResp(a,S.eu);
@@ -1974,6 +2007,7 @@ function cartaoAcao(a){
       <button class="icon-btn" data-act="abrir" data-col="acoes" data-doc="${esc(a._doc)}">Abrir ficha${histDe("acoes",a._doc).filter(h=>h.tipo==="nota").length?" ("+histDe("acoes",a._doc).filter(h=>h.tipo==="nota").length+" obs.)":""}</button></div>
     <div class="meta"><span>Onda ${esc(a.onda)}</span><span>${esc(a.onde)}</span><span><b>Quem:</b> ${esc(quemTxt(a))}</span><span class="num">${fmtD(ini)} a ${fmtD(fim)}</span>
       ${venc&&a.status!=="Atrasada"?'<span class="pill p-bad">prazo vencido</span>':""}
+      ${a.status==="Cancelada"&&a.motivoCancel?`<span class="sub">Cancelada${a.canceladaPor?" por "+esc(a.canceladaPor):""}: ${esc(a.motivoCancel)}</span>`:""}
       ${reps.length?`<span class="pill p-and">replanejada ${reps.length}x · prazo original ${fmtD(orig)}</span>`:""}
       ${a.status==="Concluída"?(atrasoConc?'<span class="pill p-and">concluída com atraso</span>':'')+(a.rotina?'<span class="pill p-ok">virou rotina</span>':'<span class="pill p-idle">ainda não virou rotina</span>'):""}
       ${ehLider()&&!w5ok(a)?'<span class="pill p-idle">5W2H incompleto</span>':""}
@@ -2103,7 +2137,7 @@ function naoDeu(col,doc){
   const it=(col==="acoes"?S.acoes:S.trilha).find(x=>x._doc===doc); if(!it)return;
   const fimAtual=col==="acoes"?datasAcao(it).fim:parseISO(it.prazo);
   const sug=addDias(new Date(Math.max(hoje(),fimAtual||0)),14);
-  const sts=col==="acoes"?ST_PLANO.filter(s=>s!=="Concluída"):ST_TRILHA.filter(s=>s!=="Concluída");
+  const sts=(col==="acoes"?ST_PLANO:ST_TRILHA).filter(s=>s!=="Concluída"&&s!=="Cancelada");
   abrirDlg(`<h2>Registrar prazo não cumprido</h2><p><b>${esc(it.id)}</b> ${esc(it.oque)}</p>
     <p class="hint">${fimAtual?"Prazo atual: "+fmtD(fimAtual)+". ":"Sem data de prazo. "}O app guarda o prazo original e o motivo, para a gente entender onde o plano trava.</p>
     <div class="field"><label for="nd_m">Por que não deu?</label><select id="nd_m" name="motivo" required>${opts([{v:"",l:"Escolha o motivo"},...MOTIVOS],"")}</select></div>
@@ -2143,7 +2177,7 @@ function confirmar(msg,fn){
 function vTrilha(){
   const f=S.f.trilha,q=f.q.toLowerCase();
   let l=S.trilha.filter(t=>(!f.cat||t.categoria===f.cat)&&(!f.status||t.status===f.status)&&(!f.minhas||ehResp(t,S.eu))&&(!q||(t.oque+" "+t.quem+" "+t.obs+" "+t.id).toLowerCase().includes(q)));
-  l.sort((a,b)=>(a.num||0)-(b.num||0));
+  l.sort((a,b)=>rankSt(a)-rankSt(b)||(a.num||0)-(b.num||0));
   const and=S.trilha.filter(t=>t.status==="Em andamento").length;
   const semCusto=S.trilha.filter(t=>t.status==="Em andamento"&&faltaCustoMargem(t)).length;
   return `${subPlano("trilha")}<div class="section-head"><h2>Trilha Comercial</h2><span class="sub">${l.length} de ${S.trilha.length} iniciativas</span>
@@ -2165,10 +2199,10 @@ function vTrilha(){
       <button class="icon-btn" data-act="abrir" data-col="trilha" data-doc="${esc(t._doc)}">Abrir ficha${histDe("trilha",t._doc).filter(h=>h.tipo==="nota").length?" ("+histDe("trilha",t._doc).filter(h=>h.tipo==="nota").length+" obs.)":""}</button></div>
     <div class="meta"><span class="pill p-acai">${esc(t.categoria)}</span>${ehLider()&&t.sensivel?'<span class="pill p-acai">sensível</span>':""}<span>${esc(t.onde)}</span><span><b>Quem:</b> ${esc(quemTxt(t))}</span><span>${t.prazo?"prazo "+fmtD(parseISO(t.prazo)):esc(t.prazoTexto||"sem prazo")}</span>${venc?'<span class="pill p-bad">prazo vencido</span>':""}
     ${reps.length?`<span class="pill p-and">replanejada ${reps.length}x${t.prazoOrig?" · prazo original "+fmtD(parseISO(t.prazoOrig)):""}</span>`:""}
-    ${falta?(t.status!=="Concluída"?'<span class="pill p-idle">sem custo e margem</span>':""):`<span class="num">custo ${fmtQuanto(t.custo)}${t.preco?" · preço "+fmtQuanto(t.preco):""}${mg!==null?" · margem "+mg.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%":""}</span>`}
+    ${falta?(!fechada(t)?'<span class="pill p-idle">sem custo e margem</span>':""):`<span class="num">custo ${fmtQuanto(t.custo)}${t.preco?" · preço "+fmtQuanto(t.preco):""}${mg!==null?" · margem "+mg.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%":""}</span>`}
     ${t.categoria==="Produto"?(t.aprovada?'<span class="pill p-ok">aprovada pela proprietária</span>':'<span class="pill p-idle">aguardando aprovação da proprietária</span>'):""}
     ${t.statusPor?`<span>status definido por <b>${esc(t.statusPor)}</b> ${quando(t.statusEm)}</span>`:t.atualizado?`<span>atualizado por ${esc(t.atualizado.por)} ${quando(t.atualizado.em)}</span>`:""}
-    ${barraProg(t,true)}</div>
+    ${barraProg(t,true)}${t.status==="Cancelada"&&t.motivoCancel?`<span class="sub">Cancelada${t.canceladaPor?" por "+esc(t.canceladaPor):""}: ${esc(t.motivoCancel)}</span>`:""}</div>
     ${t.obs||reps.length?`<div class="obs">${t.obs?`<div>${esc(t.obs)}</div>`:""}${reps.length?`<div><b>Último atraso:</b> ${esc(reps[reps.length-1].motivo)}${reps[reps.length-1].detalhe?" ("+esc(reps[reps.length-1].detalhe)+")":""}</div>`:""}</div>`:""}</div>`;}).join("")||'<p class="empty">Nenhuma iniciativa com esses filtros.</p>'}</div>`}`;
 }
 function formTrilha(t){
@@ -2654,6 +2688,55 @@ function pendCk(){
   return r;
 }
 
+
+/* ===== Registro de lançamentos (só Liderança, acesso discreto pelo menu da conta) ===== */
+function entradasRegistro(){
+  const E=[], add=(em,por,area,txt,go)=>{ if(!em||!por)return; const d=em instanceof Date?em:new Date(em); if(isNaN(d))return; E.push({d,por:String(por),area,txt,go}); };
+  const nm=x=>`<b>${esc(x.itemId||"")}</b> ${esc(String(x.itemOque||"").slice(0,70))}`;
+  (S.raw.hist||[]).forEach(h=>{const [col,doc]=String(h.alvo||"").split("/"), area=col==="trilha"?"Trilha":"Plano", go=`abrir:${col}:${doc}`;
+    const t={status:`mudou ${nm(h)} para <b>${esc(h.para)}</b>${h.texto?` (${esc(String(h.texto).slice(0,80))})`:""}`,nota:`comentou em ${nm(h)}: “${esc(String(h.texto||"").slice(0,90))}”`,criacao:`criou ${nm(h)}`,alteracao:`alterou ${nm(h)}`,prazo:`registrou prazo não cumprido em ${nm(h)}`,passo:`atualizou um passo de ${nm(h)}`}[h.tipo]||`${esc(h.tipo||"registro")} em ${nm(h)}`;
+    add(h.em,h.por,area,t,go);});
+  (S.raw.lanc||[]).forEach(l=>add(l.lancadoEm,l.lancadoPor,"Indicadores",`lançou <b>${esc(l.indicador)}</b>: ${esc(fmtNum(l.valor))}${l.dataRef?` (ref. ${fmtD(parseISO(l.dataRef))})`:""}`,"indicadores"));
+  (S.caixas||[]).forEach(c=>add(c.em,c.por,"Caixa",`fechou o caixa de ${fmtD(parseISO(c.data))} (${esc(c.turno||"")})${typeof c.diferenca==="number"?`, diferença ${brl(c.diferenca)}`:""}`,"rotinas:caixa"));
+  (S.estMov||[]).forEach(m=>add(m.em,m.por,"Estoque",m.tipo==="retirada"?`retirou ${Math.abs(m.qtd)} caixa(s) de <b>${esc(m.nome)}</b>`:m.tipo==="entrada"?`deu entrada de ${m.qtd} caixa(s) de <b>${esc(m.nome)}</b>`:m.tipo==="contagem"?`contou <b>${esc(m.nome)}</b>: ${m.qtd} caixa(s)`:`${esc(m.tipo)} em ${esc(m.nome)}`,"rotinas:estoque"));
+  (S.tempDias||[]).forEach(d=>(d.leituras||[]).forEach(l=>add(d.data&&l.hora?new Date(d.data+"T"+l.hora):null,l.por,"Temperatura",`registrou ${esc(fmtNum(l.temp))} °C em <b>${esc(l.equip)}</b>${l.dentro===false?' <span class="pill p-bad">fora da faixa</span>':""}`,"rotinas:temperatura")));
+  (S.checklists||[]).forEach(c=>{ if(c.concluido)add(c.concluidoEm,c.feitoPor,"Checklist",`concluiu o checklist de ${esc(c.tipo)} de ${fmtD(parseISO(c.data))}${c.conferidoPor?`, conferido por ${esc(c.conferidoPor)}`:' <span class="pill p-and">sem conferência</span>'}`,"rotinas:checklist");
+    else if(c.atualizadoPor)add(c.atualizadoEm,c.atualizadoPor,"Checklist",`marcou itens do checklist de ${esc(c.tipo)}`,"rotinas:checklist"); });
+  (S.solic||[]).forEach(x=>add(x.em,x.por,"Produção",`pediu produção nº ${esc(x.num)}`,"producao:solic"));
+  (S.ordens||[]).forEach(o=>(o.historico||[]).forEach(h=>add(h.em,h.por,"Produção",`ordem nº ${esc(o.num)}: ${esc(h.status||h.obs||"atualizada")}`,"producao:ordens")));
+  (S.propostas||[]).forEach(x=>add(x.criadoEm,x.propostoPor,"Plano",`propôs “${esc(String(x.oque||"").slice(0,80))}”`,"propostas"));
+  (S.comunicados||[]).forEach(c=>add(c.em,c.por,"Equipe",`publicou o comunicado “${esc(c.titulo)}”`,"usuarios"));
+  (S.ciencias||[]).forEach(c=>add(c.em,c.presencial?c.registradoPor:c.nome,"Equipe",c.presencial?`registrou a ciência de ${esc(c.nome)} em “${esc(c.titulo)}”`:`deu ciência em “${esc(c.titulo)}”`,"usuarios"));
+  (S.vendasProd||[]).forEach(v=>add(v.lancadoEm,v.lancadoPor,"Vendas",`lançou as vendas por produto de ${esc(v.titulo||v._doc)}`,"painel"));
+  S.usuarios.forEach(u=>{ if(u.criadoEm&&u.criadoPor&&u.criadoPor!=="Planilha")add(u.criadoEm,u.criadoPor,"Equipe",`criou o usuário ${esc(u.nome)}`,"usuarios");
+    if(u.alteradoEm&&u.alteradoPor)add(u.alteradoEm,u.alteradoPor,"Equipe",`alterou o usuário ${esc(u.nome)}`,"usuarios"); });
+  return E.sort((a,b)=>b.d-a.d);
+}
+function vRegistro(){
+  if(!ehLider())return `<div class="card"><p class="empty">Área restrita.</p></div>`;
+  const f=S.f.reg||(S.f.reg={dias:7,por:"",area:"",q:"",lim:150});
+  const corte=f.dias?Date.now()-f.dias*864e5:0, q=f.q.toLowerCase();
+  const todas=entradasRegistro().filter(e=>e.d.getTime()>=corte);
+  const l=todas.filter(e=>(!f.por||e.por===f.por)&&(!f.area||e.area===f.area)&&(!q||(e.por+" "+e.txt.replace(/<[^>]+>/g,"")).toLowerCase().includes(q)));
+  const pessoas=[...new Set(todas.map(e=>e.por))].sort(), areas=[...new Set(todas.map(e=>e.area))].sort();
+  const porPessoa=pessoas.map(p=>[p,todas.filter(e=>e.por===p).length]).sort((a,b)=>b[1]-a[1]);
+  let dia="", html="";
+  l.slice(0,f.lim).forEach(e=>{ const dd=e.d.toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"2-digit"});
+    if(dd!==dia){ if(dia)html+="</ul>"; dia=dd; html+=`<h3 class="reg-dia">${esc(dd)}</h3><ul class="reg">`; }
+    html+=`<li><span class="reg-h num">${e.d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span><span class="reg-t"><b>${esc(e.por)}</b> ${e.txt} <span class="reg-a">${esc(e.area)}</span></span>${e.go?`<button type="button" class="icon-btn" data-go="${esc(e.go)}" aria-label="Abrir">Ver</button>`:""}</li>`; });
+  if(dia)html+="</ul>";
+  return `<div class="section-head"><h2>Registro de lançamentos</h2><span class="sub">Tudo o que foi registrado no app, do mais recente para o mais antigo. Só a Liderança vê esta tela.</span></div>
+  <div class="filters">
+    <select id="rgDias" aria-label="Período">${opts([{v:1,l:"Últimas 24 horas"},{v:7,l:"Últimos 7 dias"},{v:30,l:"Últimos 30 dias"},{v:0,l:"Tudo o que está carregado"}],f.dias)}</select>
+    <select id="rgPor" aria-label="Pessoa">${opts([{v:"",l:"Todas as pessoas"},...pessoas],f.por)}</select>
+    <select id="rgArea" aria-label="Área">${opts([{v:"",l:"Todas as áreas"},...areas],f.area)}</select>
+    <input type="search" id="rgQ" placeholder="Buscar" value="${esc(f.q)}">
+  </div>
+  ${porPessoa.length?`<p class="sub">No período: ${porPessoa.map(([p,n])=>`${esc(p)} <b class="num">${n}</b>`).join(" · ")}</p>`:""}
+  <div class="card">${html||'<p class="empty">Nenhum lançamento com esses filtros.</p>'}
+  ${l.length>f.lim?`<p style="text-align:center"><button class="btn ghost sm" data-act="regMais">Mostrar mais (${l.length-f.lim} restantes)</button></p>`:""}</div>
+  <p class="hint">Caixa, temperatura, checklist e estoque mostram os últimos 60 a 90 dias. Correções feitas direto no banco de dados não aparecem aqui.</p>`;
+}
 /* ---------- Eventos ---------- */
 document.addEventListener("click",e=>{
   const v=e.target.closest("[data-vis]"); if(v&&!v.closest("dialog")){S.f[v.dataset.g].vis=v.dataset.vis;render();return;}
@@ -2718,6 +2801,7 @@ document.addEventListener("click",e=>{
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(a==="regMais"){S.f.reg.lim+=150;render();}
 });
 document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open;},true);
 document.addEventListener("change",async e=>{
@@ -2738,17 +2822,18 @@ document.addEventListener("change",async e=>{
   if(t.id==="pCob"){S.f.prod.cob=Number(t.value);S.f.prod.sugOpen=true;render();}
   if(t.id==="vpSel"){S.f.vp=t.value;render();}
   if(t.id==="cxDias"){S.f.rot.diasCx=Number(t.value);render();}
+  if(t.id==="rgDias"||t.id==="rgPor"||t.id==="rgArea"){const r=S.f.reg;r[{rgDias:"dias",rgPor:"por",rgArea:"area"}[t.id]]=t.id==="rgDias"?Number(t.value):t.value;r.lim=150;render();}
   if(t.id==="pMes"){S.f.eq.mesP=t.value;render();}
   if(t.dataset&&t.dataset.ck!==undefined){marcarCk(Number(t.dataset.ck),t.checked);}
   if(t.id==="enData"){S.f.rot.dataEnt=t.value||iso(hoje());render();}
 });
 let qT;
 document.addEventListener("input",e=>{
-  const t=e.target; if(t.id!=="fQ"&&t.id!=="tQ"&&t.id!=="eQ"&&t.id!=="vpQ")return;
-  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
+  const t=e.target; if(!["fQ","tQ","eQ","vpQ","rgQ"].includes(t.id))return;
+  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else if(t.id==="rgQ"){S.f.reg.q=t.value;S.f.reg.lim=150;}else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
 });
 $("#whoBtn").addEventListener("click",menuUsuario);
-function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
+function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas","registro"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
 window.addEventListener("hashchange",rota);
 
 /* ---------- Conexão ---------- */
