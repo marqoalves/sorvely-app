@@ -2,11 +2,12 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-title" content="Sorvely">
 <title>Acompanhamento Sorvely</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 /* Layout: barra fixa com abas; conteúdo em coluna única com cartões, pensado primeiro para celular. */
 :root{
@@ -98,7 +99,7 @@ main{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-direction:col
 
 .pill{display:inline-flex;align-items:center;gap:4px;padding:2px 10px;border-radius:999px;font-size:.78rem;font-weight:700;white-space:nowrap}
 .p-idle{background:var(--idle-bg);color:var(--idle)} .p-and{background:var(--warn-bg);color:var(--warn)} .p-ok{background:var(--ok-bg);color:var(--ok)} .p-bad{background:var(--bad-bg);color:var(--bad)} .p-acai{background:var(--acai-soft);color:var(--acai)}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
 .d-Verde{background:var(--ok)} .d-Amarelo{background:var(--warn)} .d-Vermelho{background:var(--bad)} .d-none{background:var(--line)}
 
 select.status{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:.85rem}
@@ -228,8 +229,8 @@ td.acts{display:flex;gap:4px;align-items:center}
 .eq-ls{display:flex;flex-wrap:wrap;gap:4px}
 .eq-in{display:flex;gap:6px}.eq-in input{flex:1;min-width:0;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
 @media (max-width:700px){.q-grid{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr}}
-a.ajuda{font-weight:700;color:var(--acai);text-decoration:none;padding:6px 10px;border-radius:8px;border:1px solid var(--line)}
-a.ajuda:hover{background:var(--acai-soft)}
+.ajuda{font:inherit;background:none;cursor:pointer;font-weight:700;color:var(--acai);text-decoration:none;padding:6px 10px;border-radius:8px;border:1px solid var(--line)}
+.ajuda:hover{background:var(--acai-soft)}
 .card.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--acai-soft);border-color:transparent}
 .card.hero h2{font-size:1.5rem}
 h3.sec{margin:4px 0 10px;font-size:1rem;color:var(--muted)}
@@ -291,7 +292,10 @@ dialog::backdrop{background:rgba(20,10,25,.45)}
 .empty{color:var(--muted);text-align:center;padding:24px}
 
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:100;max-width:90%}
-#toast.show{opacity:1}
+#toast.show{opacity:1;pointer-events:auto;cursor:pointer}
+#toast{text-align:center}
+details.aj{border:1px solid var(--line);border-radius:10px;padding:0 12px;margin:8px 0}details.aj summary{cursor:pointer;font-weight:700;padding:12px 0;list-style-position:inside}details.aj p{margin:0 0 10px;line-height:1.5}
+.btn[disabled],.icon-btn[disabled]{opacity:.55;cursor:default}
 svg.spark text{fill:var(--muted);font-size:10px;font-family:var(--body)}
 @media (max-width:520px){
   .item{grid-template-columns:auto 1fr}
@@ -323,7 +327,7 @@ nav.tabs .ti{display:none}
   .tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .tile{padding:9px 11px}.tile .v{font-size:1.35rem}.tile .l{font-size:.76rem;line-height:1.25}
   .btn{min-height:40px}.btn.sm{min-height:34px}
-  .icon-btn{min-height:34px;padding:6px 10px}
+  .icon-btn{min-height:40px;padding:6px 12px}
   .seg{display:flex;width:100%}.seg button{flex:1;padding:8px 6px}
   dialog{width:100%;max-width:100%;height:100%;max-height:100%;margin:0;border-radius:0}
   dialog[open]{display:flex;flex-direction:column}
@@ -344,7 +348,7 @@ nav.tabs .ti{display:none}
 <header class="top">
   <div class="top-row">
     <div class="brand"><h1>Sorvely</h1><span>Gestão da loja e da fábrica</span></div>
-    <a class="ajuda" href="https://claude.ai/artifact/XuHYQChPsTPBvK5cYQ2CtA" target="_blank" rel="noopener">Ajuda</a>
+    <button class="ajuda" type="button" data-act="ajuda">Ajuda</button>
     <button class="who" id="whoBtn" type="button" aria-label="Conta e PIN"><span id="whoName">Entrar</span><span class="lvl" id="whoLvl" hidden></span></button>
   </div>
   <nav class="tabs" id="tabs">
@@ -398,7 +402,7 @@ const nivelEu = () => { const p = S.eu && pessoa(S.eu); return p && p.ativo !== 
 const ehLider = () => nivelEu() === "Liderança";
 const verGeral = () => { const p=S.eu&&pessoa(S.eu); return !!p&&p.ativo!==false&&(p.nivel==="Liderança"||p.nivel==="Consulta"||!!p.visaoGeral); };
 const podeEscrever = () => S.canWrite && (nivelEu() === "Liderança" || nivelEu() === "Equipe");
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2600);}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");t.onclick=()=>t.classList.remove("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),Math.min(8000,Math.max(2800,String(m).length*70)));}
 function parseISO(s){if(!s)return null;const [y,m,d]=String(s).slice(0,10).split("-").map(Number);if(!y)return null;return new Date(y,m-1,d);}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function hoje(){const d=new Date();d.setHours(0,0,0,0);return d;}
@@ -453,6 +457,7 @@ function ordenarId(a,b){const [x1,y1]=String(a.id).split(".").map(Number),[x2,y2
 /* ---------- Gravação ---------- */
 async function gravar(fn,okMsg){
   if(!S.db){toast("Sem conexão com os dados agora.");return false;}
+  if(navigator.onLine===false){toast("Sem internet. Nada foi salvo. Tente de novo quando a conexão voltar.");return false;}
   try{ await fn(); if(okMsg)toast(okMsg); return true; }
   catch(e){
     if(e&&e.code==="cancel")return false;
@@ -469,12 +474,21 @@ const carimbo = () => ({por:quemSou(), em:new Date().toISOString()});
 function abrirDlg(html,onSubmit,{onOpen}={}){
   const d=$("#dlg"), f=$("#dlgForm");
   d.classList.remove("wide"); S.detalhe=null;
-  f.innerHTML=html;
+  f.innerHTML=html; delete f.dataset.busy;
   f.onsubmit=async ev=>{
     ev.preventDefault();
     const btn=ev.submitter;
     if(btn&&btn.value==="cancel"){d.close();return;}
-    const r=await onSubmit(new FormData(f),btn?btn.value:"ok",f);
+    if(f.dataset.busy)return;
+    f.dataset.busy="1";
+    const fd=new FormData(f), bs=[...f.querySelectorAll("button")].filter(b=>!b.disabled), txt=btn?btn.textContent:"";
+    bs.forEach(b=>b.disabled=true);
+    const t1=setTimeout(()=>{ if(btn&&btn.isConnected)btn.textContent="Salvando..."; },400);
+    const t2=setTimeout(()=>toast("A conexão está lenta. Aguarde, ainda estou salvando."),12000);
+    let r=false;
+    try{ r=await onSubmit(fd,btn?btn.value:"ok",f); }
+    catch(e){ console.error(e); toast("Algo deu errado e nada foi salvo. Tente de novo."); r=false; }
+    finally{ clearTimeout(t1); clearTimeout(t2); if(bs.every(b=>b.isConnected)){ delete f.dataset.busy; bs.forEach(b=>b.disabled=false); if(btn)btn.textContent=txt; } }
     if(r!==false)d.close();
   };
   if(!d.open)d.showModal();
@@ -588,16 +602,18 @@ function render(){
   const b=$("#propBadge"); b.hidden=!pend; b.textContent=pend;
   const m=$("#main");
   let top="";
-  if(!S.db) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Entre na sua conta Claude para ver e lançar os dados.</div>`;
+  if(navigator.onLine===false) top+=`<div class="banner err">Sem internet. Você pode consultar o que já carregou, mas não dá para salvar agora.</div>`;
+  else if(!S.db) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Entre na sua conta Claude para ver e lançar os dados.</div>`;
   else if(S.slow) top+=`<div class="banner">Os dados estão demorando para chegar. O que aparece pode estar desatualizado.</div>`;
   if(!S.canWrite) top+=`<div class="banner">Você está com acesso só de leitura. Para lançar, peça ao Marco para te convidar como editor.</div>`;
     $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!veRotinas(); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
   const v={painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
   const scroll=window.scrollY, keep={}; let foco=document.activeElement&&m.contains(document.activeElement)?document.activeElement:null;
-  m.querySelectorAll("#enForm input, #enForm select, [data-eqin]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);keep[k]=el.type==="checkbox"?el.checked:el.value;});
+  m.querySelectorAll("#enForm input, #enForm select, [data-eqin], textarea[id]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);keep[k]=el.type==="checkbox"?el.checked:el.value;});
+  const cur=foco&&typeof foco.selectionStart==="number"?foco.selectionStart:null;
   const focoK=foco?(foco.id||(foco.dataset&&foco.dataset.eqin?"eq:"+foco.dataset.eqin:"")):"";
   m.innerHTML=top+v();
-  m.querySelectorAll("#enForm input, #enForm select, [data-eqin]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);if(k in keep){if(el.type==="checkbox")el.checked=keep[k];else el.value=keep[k];}if(k===focoK)el.focus();});
+  m.querySelectorAll("#enForm input, #enForm select, [data-eqin], textarea[id]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);if(k in keep){if(el.type==="checkbox")el.checked=keep[k];else el.value=keep[k];}if(k&&k===focoK){el.focus();if(cur!==null&&el.setSelectionRange){try{el.setSelectionRange(cur,cur);}catch(e){}}}});
   window.scrollTo(0,scroll);
 }
 
@@ -1772,7 +1788,8 @@ function atalho(go,titulo,desc,n,destaque){
   return `<button type="button" class="atalho ${destaque?"forte":""}" data-go="${esc(go)}"><span class="at-t">${titulo}${n?` <span class="badge">${n}</span>`:""}</span><span class="at-d">${desc}</span></button>`;
 }
 function vInicio(){
-  if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <a class="btn ghost" href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir o manual</a></p></div>`;
+  if(!S.eu&&window.FB)return `<div class="card"><p class="sub">Carregando seus dados...</p></div>`;
+  if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>`;
   const p=pessoa(S.eu), pr=permProd(p), rt=permRot(p), hojeI=iso(hoje());
   const minhas=[...S.acoes.filter(a=>ehResp(a,S.eu)&&a.status!=="Concluída").map(a=>({...a,col:"acoes",fim:datasAcao(a).fim,venc:vencida(a)})),...S.trilha.filter(t=>ehResp(t,S.eu)&&t.status!=="Concluída").map(t=>({...t,col:"trilha",fim:parseISO(t.prazo),venc:vencidaTrilha(t)}))].sort((a,b)=>(a.fim||9e15)-(b.fim||9e15));
   const abertas=S.solic.filter(s=>s.status==="Aberta").length, paraProd=S.ordens.filter(o=>o.status==="Emitida"||o.status==="Em produção").length, paraReceber=S.ordens.filter(o=>o.status==="Enviada").length;
@@ -1796,10 +1813,12 @@ function vInicio(){
   if(meusInd.length&&podeEscrever())at.push(atalho("acao:lancar","Lançar indicador",`${meusInd.length} indicador(es) sob sua responsabilidade`,0,false));
   if(podeEscrever())at.push(atalho("acao:propor","Propor uma ação","Sugerir melhoria para a Liderança",0,false));
   if(vePainel())at.push(atalho("painel","Painel geral","Visão do plano e dos indicadores",0,false));
+  if(ehLider())at.push(atalho("usuarios","Equipe","Usuários, ponto, comunicados e checklist",0,false));
   const pend=[];
-  if(rt.includes("checklist"))pend.push(...pendCk());
+  const daLoja=t=>ehLider()?"Loja: "+t.charAt(0).toLowerCase()+t.slice(1):t;
+  if(rt.includes("checklist"))pend.push(...pendCk().map(x=>({...x,t:daLoja(x.t)})));
   faltaTemp.filter(f=>f.total&&f.feitos<f.total).forEach(f=>pend.push({go:"rotinas:temperatura",t:`Temperatura da ${f.l.toLowerCase()==="fábrica"?"fábrica":"sorveteria"}: ${f.total-f.feitos} equipamento(s) sem as 2 leituras de hoje`,c:"and"}));
-  if(rt.includes("caixa")&&!cxHoje&&new Date().getHours()>=17)pend.push({go:"acao:novoCaixa",t:"Nenhum fechamento de caixa registrado hoje",c:"and"});
+  if(rt.includes("caixa")&&!cxHoje&&new Date().getHours()>=17)pend.push({go:"acao:novoCaixa",t:daLoja("Nenhum fechamento de caixa registrado hoje"),c:"and"});
   if(ie&&ie.zer.length)pend.push({go:"rotinas:estoque",t:`Sem caixa no estoque: ${ie.zer.slice(0,6).map(e=>e.nome).join(", ")}${ie.zer.length>6?" e mais "+(ie.zer.length-6):""}`,c:"and"});
   if(emRota)pend.push({go:"rotinas:entregas",t:`${emRota} entrega(s) em rota aguardando confirmação`,c:"and"});
   if(pr.includes("emitir")&&abertas)pend.push({go:"producao:solic",t:`${abertas} solicitação(ões) da loja aguardando ordem de produção`,c:"and"});
@@ -1808,10 +1827,27 @@ function vInicio(){
   if(ehLider()){const pp=S.propostas.filter(x=>x.status==="Aguardando aprovação").length;if(pp)pend.push({go:"propostas",t:`${pp} proposta(s) da equipe aguardando avaliação`,c:"and"});}
   minhas.filter(x=>x.venc).slice(0,5).forEach(x=>pend.push({go:`abrir:${x.col}:${x._doc}`,t:`${x.id} ${x.oque}: prazo vencido em ${fmtD(x.fim)}`,c:"bad"}));
   minhas.filter(x=>!x.venc&&x.fim&&x.fim<=addDias(hoje(),7)).slice(0,5).forEach(x=>pend.push({go:`abrir:${x.col}:${x._doc}`,t:`${x.id} ${x.oque}: vence em ${fmtD(x.fim)}`,c:"idle"}));
-  return `<div class="card hero"><div><h2>${saudacao()}, ${esc(S.eu)}</h2><p class="sub">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})} · ${esc(p?.papel||nivelEu()||"")}</p></div><a class="btn ghost sm" href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir o manual</a></div>
+  return `<div class="card hero"><div><h2>${saudacao()}, ${esc(S.eu)}</h2><p class="sub">${new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})} · ${esc(p?.papel||nivelEu()||"")}</p></div><button class="btn ghost sm" data-act="ajuda">Ajuda</button></div>
   ${cardsComunicados()}
   <section><h3 class="sec">O que você quer fazer?</h3><div class="atalhos">${at.join("")}</div></section>
   <section class="card pend-card"><h3>Para fazer hoje</h3>${pend.length?`<ul class="pend">${pend.map(x=>`<li><button type="button" class="pend-it p-${x.c}" data-go="${esc(x.go)}"><span class="dot d-${x.c==="bad"?"Vermelho":x.c==="and"?"Amarelo":"none"}"></span>${esc(x.t)}</button></li>`).join("")}</ul>`:'<p class="empty">Tudo em dia por aqui.</p>'}</section>`;
+}
+function abrirAjuda(){
+  const p=S.eu?pessoa(S.eu):null, rt=p?permRot(p):[], pr=p?permProd(p):[];
+  const sec=(t,h,ab)=>`<details class="aj"${ab?" open":""}><summary>${t}</summary><div>${h}</div></details>`;
+  const b=[];
+  b.push(sec("Entrar e PIN",`<p>Escolha seu nome e digite seu PIN. No primeiro acesso o app pede para você criar um PIN só seu.</p><p>Para trocar o PIN ou sair, toque no seu nome no alto da tela.</p><p>Esqueceu o PIN? Fale com o Marco para receber um PIN provisório.</p>`,!S.eu));
+  b.push(sec("Colocar o app na tela do celular",`<p><b>iPhone:</b> no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".</p><p><b>Android:</b> no Chrome, toque nos três pontinhos e depois em "Adicionar à tela inicial".</p>`));
+  if(S.eu)b.push(sec("Tela inicial",`<p>"Para fazer hoje" mostra o que está pendente para você. Toque em um item para ir direto à tarefa.</p><p>Os comunicados aparecem no alto até você tocar em "Li e estou ciente".</p>`,true));
+  if(rt.includes("checklist"))b.push(sec("Checklist de abertura e fechamento",`<p>Em Rotinas > Checklist, marque cada item quando estiver feito. Mais de uma pessoa pode marcar.</p><p>No fim, toque em "Concluir e conferir". Outra pessoa olha os itens e confirma com o PIN dela.</p><p>Se algum item ficou sem fazer, escreva o motivo em Pendências.</p>`));
+  if(rt.includes("estoque"))b.push(sec("Estoque de caixas",`<p>Em Rotinas > Estoque de caixas, toque em <b>-1</b> no sabor toda vez que retirar uma caixa. Use a busca para achar o sabor.</p><p>Errou? Toque em "Desfazer" no registro, na lista dos últimos movimentos.</p><p>Quando chegar mercadoria, use "Entrada de caixas". Para acertar o saldo, use "Contagem".</p>`));
+  if(rt.includes("caixa"))b.push(sec("Fechamento de caixa",`<p>Na tela inicial, toque em "Fechar caixa" e preencha os valores do turno. Se houver diferença, escreva a justificativa.</p>`));
+  if(rt.includes("temperatura"))b.push(sec("Temperatura",`<p>Em Rotinas > Temperatura, digite a leitura de cada equipamento e toque em Registrar. São duas leituras por dia.</p>`));
+  if(pr.length)b.push(sec("Produção",`<p><b>Loja:</b> use "Pedir produção" para avisar a fábrica do que está faltando e confira o recebimento quando o envio chegar.</p><p><b>Fábrica:</b> veja as ordens em Produção e atualize o andamento de cada uma.</p>`));
+  if(S.eu)b.push(sec("Plano e indicadores",`<p>Em Plano, abra uma atividade sua para mudar o status ou escrever uma observação.</p><p>Em Indicadores, toque no indicador para lançar o valor do período.</p><p>Tem uma ideia de melhoria? Use "Propor uma ação" na tela inicial.</p>`));
+  b.push(sec("Problemas comuns",`<p><b>"Sem internet":</b> confira o Wi-Fi ou os dados móveis. O que você tentou salvar sem conexão não foi gravado. Salve de novo quando a conexão voltar.</p><p><b>"Você não tem permissão":</b> essa tarefa não está liberada para o seu usuário. Fale com o Marco.</p><p><b>Tela estranha ou travada:</b> feche o app e abra de novo.</p>`));
+  abrirDlg(`<h2>Ajuda</h2>${b.join("")}${ehLider()?`<p class="hint">Liderança: o manual completo está no Claude. <a href="${MANUAL_URL}" target="_blank" rel="noopener">Abrir manual da equipe</a></p>`:""}
+    <div class="dlg-foot"><button class="btn" value="cancel">Fechar</button></div>`,async()=>{});
 }
 function irPara(go){
   const [a,b,c]=go.split(":");
@@ -2599,6 +2635,7 @@ document.addEventListener("click",e=>{
   else if(a==="editUsu")formUsuario(S.usuarios.find(x=>x._doc===d));
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
+  else if(a==="ajuda")abrirAjuda();
 });
 document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open;},true);
 document.addEventListener("change",async e=>{
@@ -2629,11 +2666,13 @@ document.addEventListener("input",e=>{
   clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
 });
 $("#whoBtn").addEventListener("click",menuUsuario);
-function rota(){const h=location.hash.slice(1);S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas"].includes(h)?h:"inicio";render();}
+function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
 window.addEventListener("hashchange",rota);
 
 /* ---------- Conexão ---------- */
 let rT;
+window.addEventListener("offline",()=>{toast("Você ficou sem internet.");agendaRender();});
+window.addEventListener("online",()=>{toast("Internet de volta.");agendaRender();});
 function agendaRender(){cancelAnimationFrame(rT);rT=requestAnimationFrame(()=>{ if(!$("#dlg").open) render(); else { S.pendRender=true; if(S.detalhe)atualizarDetalhe(); } });}
 $("#dlg").addEventListener("close",()=>{ $("#dlg").classList.remove("wide"); S.detalhe=null; if(S.pendRender){S.pendRender=false;render();} });
 $("#dlgForm").addEventListener("click",e=>{ if(!S.detalhe)return; const b=e.target.closest("[data-det]"); if(!b||b.type==="checkbox")return; e.preventDefault(); acaoDetalhe(b); });

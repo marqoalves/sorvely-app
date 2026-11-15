@@ -46,6 +46,33 @@ async def main():
         ok("PIN provisório" in t and "Baixar backup" in t, "tela de usuários mostra PIN provisório e botão de backup")
         await pg.screenshot(path=SH + "4_usuarios.png")
 
+        # Interface: ajuda no app, atalho Equipe, toque duplo, texto preservado, sem internet
+        await pg.goto(URL + "#inicio"); await pg.wait_for_timeout(800)
+        ti = await pg.inner_text("main")
+        ok("Equipe" in ti and "Loja: checklist" in ti, "início da Liderança tem atalho Equipe e pendência da loja identificada")
+        await pg.click("header [data-act=ajuda]"); await pg.wait_for_timeout(300)
+        ok("Problemas comuns" in await pg.inner_text("#dlg"), "Ajuda abre dentro do app")
+        await pg.click("#dlg button[value=cancel]"); await pg.wait_for_timeout(200)
+        await pg.click("[data-go=usuarios]"); await pg.wait_for_timeout(500)
+        ok(await pg.evaluate("location.hash") == "#usuarios", "atalho Equipe leva à tela Equipe")
+        await pg.evaluate("S.f.eq.sub='comunicados';render()")
+        n0 = await pg.evaluate("Object.keys(window.__mockfb.docs).filter(k=>k.startsWith('comunicados/')).length")
+        await pg.click("[data-act=novoCom]"); await pg.fill("#cm_t", "Teste duplo"); await pg.fill("#cm_x", "Texto")
+        await pg.evaluate("(()=>{const f=document.getElementById('dlgForm'),b=f.querySelector('button[value=ok]');f.requestSubmit(b);f.requestSubmit(b);f.requestSubmit(b);})()")
+        await pg.wait_for_timeout(800)
+        n1 = await pg.evaluate("Object.keys(window.__mockfb.docs).filter(k=>k.startsWith('comunicados/')).length")
+        ok(n1 == n0 + 1, f"toque repetido em Publicar grava uma vez só ({n1 - n0})")
+        await pg.evaluate("S.f.eq.sub='checklist';render()"); await pg.wait_for_timeout(200)
+        await pg.focus("#ckc_abertura"); await pg.keyboard.type("ITEM NOVO ")
+        await pg.evaluate("render()"); await pg.wait_for_timeout(200)
+        ok("ITEM NOVO" in await pg.input_value("#ckc_abertura") and await pg.evaluate("document.activeElement.id") == "ckc_abertura", "texto digitado não se perde quando a tela atualiza")
+        await ctx.set_offline(True); await pg.wait_for_timeout(500)
+        ok("Sem internet" in await pg.inner_text("main"), "sem internet mostra aviso na tela")
+        r = await pg.evaluate("gravar(()=>S.db.doc('config/teste').set({a:1}))")
+        ok(r is False and "config/teste" not in await pg.evaluate("Object.keys(window.__mockfb.docs)"), "sem internet o app não finge que salvou")
+        await ctx.set_offline(False); await pg.wait_for_timeout(500)
+        ok("Sem internet" not in await pg.inner_text("main"), "aviso some quando a internet volta")
+
         # Sair
         await pg.evaluate("sair()"); await pg.wait_for_selector("#fbGate #fbLg", timeout=10000)
         opts = await pg.eval_on_selector_all("#fbU option", "o=>o.map(x=>x.textContent)")
@@ -56,6 +83,7 @@ async def main():
             await pg.select_option("#fbU", slug); await pg.fill("#fbP", pin); await pg.click("#fbB")
 
         # 3. PIN errado
+        ok(await pg.input_value("#fbU") == "", "primeira entrada no aparelho não vem com nome escolhido")
         await login("lary", "9999"); await pg.wait_for_selector("#fbE:not([hidden])")
         ok("incorreto" in await pg.inner_text("#fbE"), "PIN errado é recusado")
 
@@ -70,6 +98,13 @@ async def main():
         ok((await pg.inner_text("#whoName")).strip() == "Lary", "Lary continua logada depois de trocar o PIN")
         u = await pg.evaluate("window.__mockfb.docs['usuarios/lary']")
         ok(u.get("trocarPin") is False, "PIN da Lary marcado como pessoal")
+        await pg.goto(URL + "#inicio"); await pg.wait_for_timeout(800)
+        tl = await pg.inner_text("main")
+        ok("Loja:" not in tl and "Usuários, ponto" not in tl, "equipe não vê atalho Equipe nem prefixo Loja")
+        await pg.click("header [data-act=ajuda]"); await pg.wait_for_timeout(300)
+        th = await pg.inner_text("#dlg")
+        ok("Checklist de abertura" in th and "manual completo" not in th, "ajuda da equipe mostra só o que ela usa")
+        await pg.click("#dlg button[value=cancel]"); await pg.wait_for_timeout(200)
         # Lary vê caixa e registra retirada de estoque
         r = await pg.evaluate("firebase.firestore().collection('caixas').get().then(s=>s.docs.length).catch(e=>e.code)")
         ok(isinstance(r, int) and r >= 1, f"Lary (rotina de caixa) consegue ler fechamentos ({r})")

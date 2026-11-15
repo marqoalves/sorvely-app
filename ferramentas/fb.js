@@ -85,6 +85,7 @@ const est=document.createElement("style");
 est.textContent=`#fbGate{position:fixed;inset:0;z-index:9999;background:var(--bg,#f5f3f7);display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px;overflow:auto}
 #fbGate .fb-box{width:100%;max-width:420px}#fbGate h2{margin:0 0 6px}#fbGate .field{margin:12px 0}#fbGate select,#fbGate input{width:100%}
 #fbGate .fb-logo{font-weight:700;font-size:1.4rem;margin-bottom:10px}#fbGate table{width:100%;border-collapse:collapse;margin:10px 0}#fbGate td,#fbGate th{border-bottom:1px solid var(--line,#ddd);padding:6px;text-align:left}
+#fbNova{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:var(--ink,#222);color:var(--bg,#fff);box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:520px;margin:0 auto}
 #fbGate .fb-pin{font-family:monospace;font-size:1.1rem;font-weight:700}`;
 document.head.appendChild(est);
 
@@ -94,10 +95,14 @@ async function telaLogin(){
   const g=tela(`<div class="fb-logo">Sorvely</div><h2>Entrar</h2><p class="hint">Selecione seu nome e digite seu PIN.</p>
     <form id="fbLg"><div class="field"><label for="fbU">Usuário</label><select id="fbU" required><option value="">Selecione seu nome</option>${lista.map(p=>`<option value="${esc(p.slug)}">${esc(p.nome)}</option>`).join("")}</select></div>
     <div class="field"><label for="fbP">PIN</label><input id="fbP" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" required></div>
-    <p class="err-msg" id="fbE" hidden></p><button class="btn" id="fbB">Entrar</button></form>`);
+    <p class="err-msg" id="fbE" hidden></p><button class="btn" id="fbB">Entrar</button></form>
+    <p class="hint" style="margin-top:14px">Esqueceu o PIN? Fale com o Marco para receber um PIN provisório.</p>`);
   const f=g.querySelector("#fbLg"), err=g.querySelector("#fbE"), b=g.querySelector("#fbB");
   const falha=m=>{err.textContent=m;err.hidden=false;b.disabled=false;b.textContent="Entrar";};
+  try{ const av=sessionStorage.getItem("sorvely_aviso"); if(av){ avisoLogin=avisoLogin||av; sessionStorage.removeItem("sorvely_aviso"); } }catch(e){}
   if(avisoLogin){ err.textContent=avisoLogin; err.hidden=false; avisoLogin=""; }
+  /* Lembra o último nome usado neste aparelho, para a pessoa só digitar o PIN */
+  try{ const ult=localStorage.getItem("sorvely_ultimo"), sel=g.querySelector("#fbU"); if(ult&&[...sel.options].some(o=>o.value===ult)){ sel.value=ult; g.querySelector("#fbP").focus(); } }catch(e){}
   f.onsubmit=async ev=>{
     ev.preventDefault(); err.hidden=true;
     const s=g.querySelector("#fbU").value, pin=g.querySelector("#fbP").value.trim();
@@ -106,6 +111,7 @@ async function telaLogin(){
     try{
       const l=await comPrazo(fs.doc("login/"+s).get());
       if(!l.exists)return falha("Esse usuário ainda não tem acesso. Fale com o Marco.");
+      try{ localStorage.setItem("sorvely_ultimo",s); }catch(e){}
       await auth.signInWithEmailAndPassword(l.data().authEmail,senha(pin));
     }catch(e){
       g.querySelector("#fbP").value="";
@@ -131,7 +137,36 @@ async function entrarNoApp(u){
   const atual=JSON.parse(localStorage.getItem("sorvely_sessao")||"null");
   if(!(atual&&atual.nome===nome&&atual.exp>Date.now())) localStorage.setItem("sorvely_sessao",JSON.stringify({nome,inicio:Date.now(),exp:Date.now()+horas*3600e3}));
   fecharTela(); liberado=true; liberar();
+  setInterval(vigiar,20000); setInterval(checarVersao,30*60000);
+  document.addEventListener("visibilitychange",()=>{ if(!document.hidden){ vigiar(); checarVersao(); } });
   if(trocar){ const t=setInterval(()=>{ try{ if(typeof S!=="undefined"&&S.eu===nome&&S.usuarios.length){ clearInterval(t); trocarPin(true); } }catch(e){} },300); setTimeout(()=>clearInterval(t),30000); }
+}
+
+/* Mantém a pessoa logada enquanto o acesso dela vale; se o PIN foi redefinido ou o usuário desativado, volta para a entrada */
+function vigiar(){
+  try{
+    if(!liberado||emProcesso||typeof S==="undefined"||!S.usuarios||!S.usuarios.length) return;
+    const horas=(typeof SESSAO_HORAS!=="undefined"?SESSAO_HORAS:12)*3600e3;
+    const s=S.sessao||JSON.parse(localStorage.getItem("sorvely_sessao")||"null");
+    if(s&&s.exp<Date.now()+3600e3){ s.exp=Date.now()+horas; S.sessao=s; localStorage.setItem("sorvely_sessao",JSON.stringify(s)); }
+    const nome=sessaoValida();
+    if(!nome){ try{ sessionStorage.setItem("sorvely_aviso","Seu acesso mudou. Entre de novo com seu PIN."); }catch(e){} window.FB.sair(); return; }
+    if(!S.eu){ S.eu=nome; aplicarVis(); render(); }
+  }catch(e){}
+}
+/* Avisa quando há versão nova do app publicada */
+let ultChec=0;
+async function checarVersao(){
+  try{
+    if(Date.now()-ultChec<10*60000||navigator.onLine===false||document.getElementById("fbNova")) return; ultChec=Date.now();
+    const m=document.querySelector('meta[name="sorvely-versao"]'); if(!m) return;
+    const t=await (await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();
+    const n=t.match(/sorvely-versao" content="([^"]*)"/); if(!n||n[1]===m.content) return;
+    const b=document.createElement("div"); b.id="fbNova";
+    b.innerHTML='<span>Há uma versão nova do app.</span><button class="btn sm" type="button">Atualizar</button>';
+    b.querySelector("button").onclick=()=>location.reload();
+    document.body.appendChild(b);
+  }catch(e){}
 }
 
 /* A Liderança mantém a lista pública de nomes da tela de entrada */
