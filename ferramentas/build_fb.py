@@ -14,8 +14,8 @@ def troca(velho, novo, n=1):
 import datetime
 VERSAO = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 head = ('<meta name="sorvely-versao" content="' + VERSAO + '">'
-        '<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#5c2a6e">'
-        '<link rel="apple-touch-icon" href="icone-192.png">'
+        '<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff">'
+        '<link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml">'
         '<script src="firebase-config.js"></script>'
         '<script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script>'
         '<script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>\n')

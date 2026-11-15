@@ -21,7 +21,7 @@ try{ fs.settings({experimentalAutoDetectLongPolling:true, merge:true}); }catch(e
 /* Leitura com prazo: se o servidor não responder, mostra mensagem em vez de travar */
 function comPrazo(p,ms){ return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>{const e=new Error("tempo esgotado");e.code="timeout";rej(e);},ms||12000))]); }
 function semConexao(){
-  tela(`<div class="fb-logo">Sorvely</div><h2>Sem conexão com o servidor</h2>
+  tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Sem conexão com o servidor</h2>
     <p class="hint">Não consegui falar com o banco de dados. Confira a internet (Wi-Fi ou dados móveis) e tente de novo.</p>
     <p><button class="btn" onclick="location.reload()">Tentar de novo</button></p>`);
 }
@@ -84,7 +84,7 @@ function fecharTela(){ const g=document.getElementById("fbGate"); if(g)g.remove(
 const est=document.createElement("style");
 est.textContent=`#fbGate{position:fixed;inset:0;z-index:9999;background:var(--bg,#f5f3f7);display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px;overflow:auto}
 #fbGate .fb-box{width:100%;max-width:420px}#fbGate h2{margin:0 0 6px}#fbGate .field{margin:12px 0}#fbGate select,#fbGate input{width:100%}
-#fbGate .fb-logo{font-weight:700;font-size:1.4rem;margin-bottom:10px}#fbGate table{width:100%;border-collapse:collapse;margin:10px 0}#fbGate td,#fbGate th{border-bottom:1px solid var(--line,#ddd);padding:6px;text-align:left}
+#fbGate .fb-logo{margin:0 0 14px}#fbGate .fb-logo img{height:54px;width:auto;display:block}#fbGate h2{font-family:var(--display,inherit);font-weight:400}#fbGate .fb-box{border-radius:22px;padding:22px}#fbGate{background:var(--bg,#F4F7FF) url("marca/simbolo-azul.svg") no-repeat right -60px bottom -70px/260px}#fbGate table{width:100%;border-collapse:collapse;margin:10px 0}#fbGate td,#fbGate th{border-bottom:1px solid var(--line,#ddd);padding:6px;text-align:left}
 #fbNova{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:var(--ink,#222);color:var(--bg,#fff);box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:520px;margin:0 auto}
 #fbGate .fb-pin{font-family:monospace;font-size:1.1rem;font-weight:700}`;
 document.head.appendChild(est);
@@ -92,7 +92,7 @@ document.head.appendChild(est);
 async function telaLogin(){
   let lista=[];
   try{ const d=await comPrazo(fs.doc("publico/login").get()); lista=(d.exists&&d.data().lista)||[]; }catch(e){ if(e.code==="timeout"||e.code==="unavailable") return semConexao(); }
-  const g=tela(`<div class="fb-logo">Sorvely</div><h2>Entrar</h2><p class="hint">Selecione seu nome e digite seu PIN.</p>
+  const g=tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Entrar</h2><p class="hint">Selecione seu nome e digite seu PIN.</p>
     <form id="fbLg"><div class="field"><label for="fbU">Usuário</label><select id="fbU" required><option value="">Selecione seu nome</option>${lista.map(p=>`<option value="${esc(p.slug)}">${esc(p.nome)}</option>`).join("")}</select></div>
     <div class="field"><label for="fbP">PIN</label><input id="fbP" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" required></div>
     <p class="err-msg" id="fbE" hidden></p><button class="btn" id="fbB">Entrar</button></form>
@@ -194,7 +194,7 @@ function pinProvisorio(){
     if(!/^(\d)\1+$/.test(p)&&!"0123456789".includes(p)&&!"9876543210".includes(p)) return p; }
 }
 async function telaSetup(){
-  const g=tela(`<div class="fb-logo">Sorvely</div><h2>Configuração inicial</h2>
+  const g=tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Configuração inicial</h2>
     <p class="hint">Escolha o arquivo de backup baixado do app antigo (Usuários > Baixar backup).</p>
     <div class="field"><input type="file" id="fbF" accept=".json,application/json"></div>
     <div id="fbS2" hidden>
@@ -248,7 +248,7 @@ async function telaSetup(){
       await fs.doc("publico/login").set({lista});
       setupConcluido=true;
       await fs.doc("publico/setup").set({feitoEm:new Date().toISOString(),por:us[eu].nome,registros:ops.length});
-      tela(`<div class="fb-logo">Sorvely</div><h2>Pronto</h2><p class="hint">${ops.length} registros copiados. Anote os PINs provisórios abaixo e entregue a cada pessoa. Eles não ficam salvos em lugar nenhum, e cada pessoa cria o próprio PIN no primeiro acesso.</p>
+      tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Pronto</h2><p class="hint">${ops.length} registros copiados. Anote os PINs provisórios abaixo e entregue a cada pessoa. Eles não ficam salvos em lugar nenhum, e cada pessoa cria o próprio PIN no primeiro acesso.</p>
         <table><tr><th>Pessoa</th><th>PIN provisório</th></tr>${provis.map(([n,p])=>`<tr><td>${esc(n)}</td><td class="fb-pin">${p}</td></tr>`).join("")}</table>
         <button class="btn" onclick="location.reload()">Abrir o app</button>`);
     }catch(e){ console.error(e); err("Parou com erro: "+(e&&(e.code||e.message)||e)+". Fale com o Marco antes de tentar de novo."); btn.disabled=false; }
@@ -256,8 +256,8 @@ async function telaSetup(){
   };
 }
 
-if(document.body) tela('<div class="fb-logo">Sorvely</div><p class="hint">Carregando…</p>');
-else document.addEventListener("DOMContentLoaded",()=>{ if(!liberado&&!document.getElementById("fbGate")) tela('<div class="fb-logo">Sorvely</div><p class="hint">Carregando…</p>'); });
+if(document.body) tela('<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><p class="hint">Carregando…</p>');
+else document.addEventListener("DOMContentLoaded",()=>{ if(!liberado&&!document.getElementById("fbGate")) tela('<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><p class="hint">Carregando…</p>'); });
 auth.onAuthStateChanged(async u=>{
   if(emProcesso||setupConcluido) return;
   if(liberado){ if(!u) location.reload(); return; }
