@@ -431,6 +431,53 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 @media (prefers-reduced-motion: reduce){.btn,.atalho{transition:none}}
 
 
+
+
+/* Funcionários */
+.fu-g h3 .sub{font-weight:500}
+ul.fu-l{list-style:none;margin:8px 0 0;padding:0}
+.fu-it{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}
+.fu-it:first-child{border-top:0}
+.fu-off{opacity:.55}
+.fu-av{flex:none;width:36px;height:36px;border-radius:50%;background:var(--acai-soft);color:var(--acai);display:grid;place-items:center;font-weight:700;font-size:.8rem}
+.fu-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.fu-tx .sub{font-size:.8rem}
+.fu-meta{font-size:.8rem;color:var(--muted)}
+.fu-st{display:flex;flex-wrap:wrap;gap:4px}
+.fu-ac{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.fu-cria{border-color:var(--acai);color:var(--acai);font-weight:600}
+@media (max-width:600px){.fu-it{flex-wrap:wrap}.fu-ac{width:100%;justify-content:flex-start;padding-left:48px}}
+/* Dicas discretas */
+details.dica{margin:2px 0 10px}
+details.dica>summary{display:inline-flex;align-items:center;gap:5px;cursor:pointer;list-style:none;color:var(--muted);font-size:.8rem;font-weight:500;padding:3px 8px 3px 4px;border-radius:999px}
+details.dica>summary::-webkit-details-marker{display:none}
+details.dica>summary:hover{color:var(--acai);background:var(--acai-soft)}
+details.dica[open]>summary{color:var(--acai)}
+.dica-c{margin-top:6px;padding:9px 12px;border-left:3px solid var(--azul);background:var(--surface);border-radius:0 10px 10px 0;font-size:.86rem;line-height:1.5;color:var(--ink);max-width:70ch}
+/* Painel */
+.pn-acts{display:flex;gap:6px;margin-left:auto}
+.pn-hero{display:flex;flex-direction:column;gap:12px}
+.pn-k{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.pn-v{display:flex;align-items:baseline;gap:6px;margin:2px 0}
+.pn-v b{font:400 2.4rem/1 var(--display);color:var(--acai)}
+.pn-v span{color:var(--muted);font-weight:600}
+.stk{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--idle-bg);gap:2px}
+.stk i{display:block;min-width:4px}
+.stk .k-ok{background:var(--ok)}.stk .k-and{background:var(--warn)}.stk .k-idle{background:color-mix(in srgb,var(--idle) 35%,var(--idle-bg))}.stk .k-bad{background:var(--bad)}
+.pn-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pchip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
+.pchip:hover{background:var(--bg)}
+.pchip b{font-size:1.35rem;line-height:1.1}.pchip span{font-size:.78rem;color:var(--muted)}
+.c-ok{--c:var(--ok)}.c-and{--c:var(--warn)}.c-idle{--c:var(--idle)}.c-bad{--c:var(--bad)}
+.sd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.card h3+.sd,.card .sub+.sd{border-top:0}
+.sd>div{display:flex;flex-direction:column;min-width:0}.sd .sub{font-size:.78rem}
+.sd .pill{flex:none;white-space:nowrap}
+.sd-v{display:flex;gap:8px;align-items:center}
+details.pn-det{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+details.pn-det>summary{cursor:pointer;font-weight:600;color:var(--acai);font-size:.92rem}
+details.pn-det[open]>summary{margin-bottom:8px}
+@media (max-width:600px){.pn-chips{grid-template-columns:1fr 1fr}.pn-acts{margin-left:0}}
 /* Atalhos essenciais */
 .atalhos2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .at2{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:12px 12px 11px;min-height:86px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:left;font:inherit}
@@ -593,7 +640,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-15 23:33"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-15 23:46"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -619,9 +666,9 @@ const S = {
   db:null, user:null, uid:null, owner:false, canWrite:true,
   eu:null, // nome escolhido
   geral:{dataInicio:"2026-09-20"},
-  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
+  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], func:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
   loaded:{}, view:"painel",
-  f:{plano:{onda:"",status:"",onde:"",minhas:false,q:"",vis:"lista"}, trilha:{cat:"",status:"",minhas:false,q:"",vis:"lista"}, prod:{sub:null,solSt:"ativas",sel:new Set(),dias:15}, rot:{sub:null,dataEnt:null,diasCx:7,localT:null,ultCanal:"",ckTipo:null}, eq:{sub:"usuarios",mesP:null}}
+  f:{plano:{onda:"",status:"",onde:"",minhas:false,q:"",vis:"lista"}, trilha:{cat:"",status:"",minhas:false,q:"",vis:"lista"}, prod:{sub:null,solSt:"ativas",sel:new Set(),dias:15}, rot:{sub:null,dataEnt:null,diasCx:7,localT:null,ultCanal:"",ckTipo:null}, eq:{sub:"funcionarios",mesP:null}}
 };
 
 /* ---------- Utilidades ---------- */
@@ -881,52 +928,54 @@ function vPainel(){
   const minhas = S.eu ? [...S.acoes.filter(a=>ehResp(a,S.eu)&&!fechada(a)).map(a=>({...a,tipo:"plano",fim:datasAcao(a).fim})),
      ...S.trilha.filter(x=>ehResp(x,S.eu)&&!fechada(x)).map(x=>({...x,tipo:"trilha",fim:parseISO(x.prazo)}))]
      .sort((a,b)=>(a.fim||9e15)-(b.fim||9e15)) : [];
-  return `
-  <div class="section-head"><h2>Painel do plano</h2>
-    <span class="sub">Início em <b>${fmtD(ini)}</b> · hoje é o dia <b class="num">${dia}</b> do plano</span>
-    ${ehLider()?'<button class="btn ghost sm" data-act="dataIni">Alterar data de início</button>':""}
-    ${ehLider()?'<button class="btn sm" data-act="excel">Baixar em Excel</button>':""}
-  </div>
-  <div class="tiles">
-    <div class="tile acai"><span class="v num">${m.tot}</span><span class="l">ações de controle${m.canc?` (sem as ${m.canc} canceladas)`:""}</span></div>
-    <div class="tile ok"><span class="v num">${m.conc}</span><span class="l">concluídas</span></div>
-    <div class="tile warn"><span class="v num">${m.and}</span><span class="l">em andamento</span></div>
-    <div class="tile"><span class="v num">${m.nao}</span><span class="l">não iniciadas</span></div>
-    <div class="tile ${m.atr?"bad":"ok"}"><span class="v num">${m.atr}</span><span class="l">atrasadas ou com prazo vencido</span></div>
-    <div class="tile acai"><span class="v num">${t.length}</span><span class="l">iniciativas comerciais (${tConc} concluídas)</span></div>
-    <div class="tile ${m.replanejadas?"warn":""}"><span class="v num">${m.replanejadas}</span><span class="l">atividades com prazo não cumprido e replanejadas</span></div>
-    <div class="tile ${m.w5===m.tot?"ok":""}"><span class="v num">${m.w5}<small style="font-size:1rem;color:var(--muted)"> de ${m.tot}</small></span><span class="l">ações com 5W2H completo</span></div>
-  </div>
+  const temLoja=ehLider()&&(S.vendasProd.length||S.estoque.length), aba=temLoja&&S.f.painelAba==="loja"?"loja":"plano";
+  const head=`<div class="section-head"><h2>Painel</h2>
+    ${temLoja?`<div class="seg">${[["plano","Plano"],["loja","Loja e vendas"]].map(([k,l])=>`<button type="button" class="${aba===k?"on":""}" data-act="painelAba" data-aba="${k}" aria-pressed="${aba===k}">${l}</button>`).join("")}</div>`:""}
+    ${aba==="plano"&&ehLider()?`<span class="pn-acts"><button class="btn ghost sm" data-act="dataIni">Data de início</button><button class="btn ghost sm" data-act="excel">Baixar em Excel</button></span>`:""}</div>`;
+  if(aba==="loja")return head+cardEstoquePainel()+cardVendasProd();
+  const ac=S.acoes.filter(a=>a.status!=="Cancelada");
+  const cAtr=ac.filter(a=>a.status!=="Concluída"&&(a.status==="Atrasada"||vencida(a))).length;
+  const cConc=ac.filter(a=>a.status==="Concluída").length;
+  const cAnd=ac.filter(a=>a.status==="Em andamento"&&!vencida(a)).length;
+  const cNao=Math.max(0,ac.length-cConc-cAnd-cAtr);
+  const pct=ac.length?Math.round(cConc/ac.length*100):0;
+  const seg=[["ok",cConc,"Concluídas","Concluída"],["and",cAnd,"Em andamento","Em andamento"],["idle",cNao,"Não iniciadas","Não iniciada"],["bad",cAtr,"Atrasadas","vencida"]];
+  const linhaS=(t,sub,val,cls)=>`<div class="sd"><div><b>${t}</b>${sub?`<span class="sub">${sub}</span>`:""}</div><span class="pill p-${cls}">${val}</span></div>`;
+  return head+`
+  <section class="card pn-hero">
+    <div class="pn-top"><div><span class="pn-k">Progresso do plano</span><div class="pn-v"><b class="num">${pct}%</b> <span>concluído</span></div>
+      <span class="sub">${cConc} de ${ac.length} ações de controle${m.canc?` (sem as ${m.canc} canceladas)`:""} · dia <b class="num">${dia}</b> do plano, iniciado em ${fmtD(ini)}</span></div></div>
+    <div class="stk" role="img" aria-label="${seg.map(x=>x[1]+" "+x[2].toLowerCase()).join(", ")}">${seg.map(([c,n])=>n?`<i class="k-${c}" style="flex:${n}"></i>`:"").join("")}</div>
+    <div class="pn-chips">${seg.map(([c,n,l,st])=>`<button type="button" class="pchip c-${c}" data-go="planoSt:${st}"><b class="num">${n}</b><span>${l}</span></button>`).join("")}</div>
+  </section>
   <div class="grid2">
-    <div class="card"><h3>Limites de execução simultânea</h3>
-      <div class="limit"><div><b>Trilha de controle</b><div class="sub">no máximo ${LIM_PLANO} ações em andamento (seção 4.3)</div></div><div>${m.and>LIM_PLANO?`<span class="pill p-bad">${m.and} de ${LIM_PLANO} · acima do limite</span>`:`<span class="pill p-ok">${m.and} de ${LIM_PLANO} · dentro do limite</span>`}</div></div>
-      <div class="limit"><div><b>Trilha comercial</b><div class="sub">no máximo ${LIM_TRILHA} iniciativas em andamento</div></div><div>${tAnd>LIM_TRILHA?`<span class="pill p-bad">${tAnd} de ${LIM_TRILHA} · acima do limite</span>`:`<span class="pill p-ok">${tAnd} de ${LIM_TRILHA} · dentro do limite</span>`}</div></div>
+    <div class="card"><h3>Saúde do plano</h3>
+      ${linhaS("Ações em andamento",`limite de ${LIM_PLANO} ao mesmo tempo`,`${m.and} de ${LIM_PLANO}`,m.and>LIM_PLANO?"bad":"ok")}
+      ${linhaS("Trilha comercial",`${t.length} iniciativas, ${tConc} concluídas · limite de ${LIM_TRILHA}`,`${tAnd} de ${LIM_TRILHA} em andamento`,tAnd>LIM_TRILHA?"bad":"ok")}
+      ${linhaS("5W2H completo","ações com todos os campos preenchidos",`${m.w5} de ${m.tot}`,m.w5===m.tot?"ok":"and")}
+      ${linhaS("Prazos replanejados","atividades com prazo não cumprido",String(m.replanejadas),m.replanejadas?"and":"ok")}
     </div>
-    <div class="card"><h3>Validação do plano (calculado agora)</h3>
+    <div class="card"><h3>Validação do plano</h3><p class="sub">calculado agora</p>
       ${[["Aderência ao plano",m.aderencia,"%"],["Ações em atraso",m.atr,"contagem"],["Ações em execução simultânea",m.and,"contagem"],["Ações que viraram rotina",m.pctRotina,"%"]].map(([n,v,u])=>{
         const ind=S.indicadores.find(i=>i.nome===n)||{}; const f=farolAuto(v,ind.direcao,ind.limVerde,ind.limAmarelo)||"Amarelo";
-        return `<div class="limit"><div><b>${esc(n)}</b><div class="sub">meta: ${esc(ind.metaTexto||"")}</div></div><div class="num" style="display:flex;gap:8px;align-items:center"><b>${fmtNum(Math.round(v*10)/10,u)}</b><span class="dot d-${f}" title="${f}"></span></div></div>`;}).join("")}
-      ${ehLider()?'<div style="margin-top:8px"><button class="btn sm" data-act="autoInd">Registrar estes valores nos indicadores</button></div>':""}
+        return `<div class="sd"><div><b>${esc(n)}</b>${ind.metaTexto?`<span class="sub">meta: ${esc(ind.metaTexto)}</span>`:""}</div><span class="num sd-v"><b>${fmtNum(Math.round(v*10)/10,u)}</b><span class="dot d-${f}" title="${f}"></span></span></div>`;}).join("")}
+      ${ehLider()?'<button class="btn ghost sm" data-act="autoInd" style="margin-top:10px">Registrar nos indicadores</button>':""}
     </div>
   </div>
-  ${S.eu?`<div class="card"><div class="section-head"><h3>Pendências de ${esc(S.eu)}</h3><span class="sub">${minhas.length} em aberto, prazo mais próximo primeiro</span></div>
-    <div class="list" style="margin-top:10px">${minhas.slice(0,8).map(x=>{const venc=x.tipo==="plano"?vencida(x):vencidaTrilha(x);return `<div class="item s-${stClass(x.status,venc)}"><span class="id">${esc(x.id)}</span><span class="what">${esc(x.oque)}</span><span>${pillStatus(x.status,venc)}</span><div class="meta"><span>${x.tipo==="plano"?"Plano de ação":"Trilha comercial"}</span><span>${x.fim?"prazo "+fmtD(x.fim):esc(x.prazoTexto||"sem prazo")}</span></div></div>`;}).join("")||'<p class="empty">Nada pendente. Bom trabalho!</p>'}
-    ${minhas.length>8?`<a href="#plano" class="sub">Ver todas as ${minhas.length} pendências</a>`:""}</div></div>`:""}
-  ${cardRecentes()}
-  ${cardMotivos()}
   <div class="grid2">
-    <div class="card"><h3>Ações de controle por onda</h3>
-      <div class="legend" style="margin:8px 0"><span style="--c:var(--ok)">concluída</span><span style="--c:var(--warn)">em andamento</span><span style="--c:var(--bad)">atrasada</span><span style="--c:var(--idle-bg)">não iniciada</span></div>
-      <div class="bars">${ondas.map(o=>`<div class="bar-row"><span>Onda ${o.o}</span><div class="bar" style="width:${o.tot/maxO*100}%"><i style="width:${o.tot?o.conc/o.tot*100:0}%;background:var(--ok)"></i><i style="width:${o.tot?o.and/o.tot*100:0}%;background:var(--warn)"></i><i style="width:${o.tot?Math.max(0,o.atr-0)/o.tot*100:0}%;background:var(--bad)"></i></div><span class="num">${o.tot}</span></div>`).join("")}</div>
+    <div class="card"><h3>Por onda</h3>
+      <div class="bars" style="margin-top:10px">${ondas.map(o=>`<div class="bar-row"><span>Onda ${o.o}</span><div class="bar" style="width:${o.tot/maxO*100}%"><i style="width:${o.tot?o.conc/o.tot*100:0}%;background:var(--ok)"></i><i style="width:${o.tot?o.and/o.tot*100:0}%;background:var(--warn)"></i><i style="width:${o.tot?o.atr/o.tot*100:0}%;background:var(--bad)"></i></div><span class="num">${o.conc}/${o.tot}</span></div>`).join("")}</div>
+      <div class="legend" style="margin-top:8px"><span style="--c:var(--ok)">concluída</span><span style="--c:var(--warn)">em andamento</span><span style="--c:var(--bad)">atrasada</span><span style="--c:var(--idle-bg)">não iniciada</span></div>
     </div>
-    <div class="card"><h3>Ações por responsável</h3><p class="sub">Controle e comercial juntos, contando onde o nome aparece</p>
-      <div class="bars" style="margin-top:8px">${resp.map(r=>`<div class="bar-row"><span>${esc(r.p.nome)}</span><div class="bar" style="width:${r.tot/maxR*100}%"><i style="width:${r.tot?r.conc/r.tot*100:0}%;background:var(--ok)"></i><i style="width:${r.tot?r.aberto/r.tot*100:0}%;background:var(--acai)"></i></div><span class="num">${r.tot}</span></div>`).join("")}</div>
+    <div class="card"><h3>Por responsável</h3>
+      <div class="bars" style="margin-top:10px">${resp.map(r=>`<div class="bar-row"><span>${esc(r.p.nome)}</span><div class="bar" style="width:${r.tot/maxR*100}%"><i style="width:${r.tot?r.conc/r.tot*100:0}%;background:var(--ok)"></i><i style="width:${r.tot?r.aberto/r.tot*100:0}%;background:var(--acai)"></i></div><span class="num">${r.conc}/${r.tot}</span></div>`).join("")}</div>
       <div class="legend" style="margin-top:8px"><span style="--c:var(--ok)">concluídas</span><span style="--c:var(--acai)">em aberto</span></div>
     </div>
   </div>
-  <div class="card"><div class="section-head"><h3>Painel vital</h3><a href="#indicadores" class="sub">Ver todos os indicadores</a></div>
-    <div class="list" style="margin-top:10px">${vitais.map(cartaoInd).join("")||'<p class="empty">Sem indicadores vitais.</p>'}</div></div>
-  ${ehLider()?cardEstoquePainel()+cardVendasProd():""}`;
+  ${vitais.length?`<div class="card"><div class="section-head"><h3>Indicadores vitais</h3><a href="#indicadores" class="sub">Ver todos</a></div>
+    <div class="list" style="margin-top:10px">${vitais.map(cartaoInd).join("")}</div></div>`:""}
+  ${cardRecentes()}
+  ${cardMotivos()}`;
 }
 
 
@@ -1016,10 +1065,12 @@ async function baixarExcel(btn){
     else toast("Não foi possível gerar o arquivo"+(e&&e.code?" ("+e.code+")":"")+".");
   }finally{btn.disabled=false;btn.textContent=txt;}
 }
+function detOpen(k){ return !!(S.f.det&&S.f.det[k]); }
+function dica(html,k){ return `<details class="dica" data-keep="dica_${k}"${detOpen("dica_"+k)?" open":""}><summary><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Como funciona</summary><div class="dica-c">${html}</div></details>`; }
 function ajudaStatus(){
   if(!S.eu) return `<div class="banner" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">Entre com seu nome e PIN para ver e atualizar as suas atividades. <button class="btn sm" data-act="entrar">Entrar</button></div>`;
   if(!podeEscrever()) return `<p class="sub">Aqui você só consulta.</p>`;
-  return `<details class="card help help-d"><summary><b>Como atualizar as atividades</b></summary><p style="margin:8px 0 0">Na caixa <b>Status</b> de cada atividade, escolha Em andamento, Concluída etc. A mudança salva na hora. Se a atividade não ficou pronta a tempo, escolha <b>Prazo não cumprido</b> na mesma caixa, informe o motivo e defina o novo prazo.${ehLider()?"":(verGeral()?" Você só consegue mudar as atividades em que seu nome aparece em “Quem”. Marque “Só as minhas” para ver apenas elas.":" Aqui aparecem só as atividades em que seu nome está em “Quem”.")}</p></details>`;
+  return dica(`Na caixa <b>Status</b> de cada atividade, escolha Em andamento, Concluída etc. A mudança salva na hora. Se a atividade não ficou pronta a tempo, escolha <b>Prazo não cumprido</b> na mesma caixa, informe o motivo e defina o novo prazo.${ehLider()?"":(verGeral()?" Você só consegue mudar as atividades em que seu nome aparece em “Quem”. Marque “Só as minhas” para ver apenas elas.":" Aqui aparecem só as atividades em que seu nome está em “Quem”.")}`,"plano");
 }
 /* ---------- Atividades: visualizações, ficha, passos, observações e histórico ---------- */
 const ROT_CAMPOS={oque:"O que",porque:"Por quê",onde:"Onde",quem:"Quem",como:"Como",quanto:"Quanto custa",criterio:"Pronto quando",diaIni:"Início previsto",diaFim:"Fim previsto",obs:"Observações fixas",rotina:"Virou rotina",categoria:"Categoria",prazo:"Prazo",prazoTexto:"Prazo (texto)",custo:"Custo",preco:"Preço de venda",aprovada:"Aprovada pela proprietária",sensivel:"Sensível",responsaveis:"Responsáveis"};
@@ -1337,7 +1388,7 @@ function ajudaProducao(p){
   if(p.includes("solicitar"))t.push("<b>Loja:</b> use <b>Nova solicitação</b> para pedir o que está faltando. Quando a ordem chegar como <b>Enviada</b>, confira e clique em <b>Confirmar recebimento</b>.");
   if(p.includes("emitir"))t.push("<b>Emissão:</b> marque as solicitações abertas e clique em <b>Emitir ordem com as selecionadas</b>. Você pode ajustar as quantidades antes de emitir.");
   if(p.includes("produzir"))t.push("<b>Fábrica:</b> abra a ordem, clique em <b>Iniciar produção</b>, depois registre o que foi produzido e o envio.");
-  return t.length?`<div class="card help">${t.join("<br>")}</div>`:"";
+  return t.length?dica(t.join("<br>"),"prod"):"";
 }
 function cartaoSol(s,sel){
   const c=CLS_SOL[s.status]||"idle", podeSel=podeProd("emitir")&&s.status==="Aberta";
@@ -1781,12 +1832,13 @@ function cardVendasProd(){
     <div class="tiles" style="margin-top:10px">${["A","B","C"].map(c=>{const l=cls(c),v=l.reduce((s,i)=>s+i.v,0);return `<div class="tile ${c==="A"?"acai":""}"><span class="v num">${l.length}</span><span class="l">produtos classe ${c} · ${Math.round(v/p.total*100)}% da venda</span></div>`;}).join("")}</div>
     <h4 style="margin:14px 0 6px">Venda por família</h4>
     <div class="bars">${famL.map(([f,v])=>`<div class="bar-row vp-row"><span>${esc(f)}</span><div class="bar" style="width:${v/maxF*100}%"><i style="width:100%;background:var(--acai)"></i></div><span class="num">${Math.round(v/p.total*100)}%</span></div>`).join("")}</div>
-    ${ps.length>1?(()=>{const cols=ps.slice().reverse(),fs=cols.map(famVP),nomes=[...new Set(fs.flatMap(f=>Object.keys(f)))].sort((a,b)=>(fs[fs.length-1][b]||0)-(fs[fs.length-1][a]||0));return `<h4 style="margin:14px 0 6px">Comparação entre períodos</h4><div class="tbl"><table><thead><tr><th>Família</th>${cols.map(c=>`<th class="num">${esc(c.sigla||c._doc)}</th>`).join("")}</tr></thead><tbody>${nomes.map(n=>`<tr><td>${esc(n)}</td>${cols.map((c,k)=>`<td class="num">${brl(fs[k][n]||0)}<div class="sub">${Math.round((fs[k][n]||0)/c.total*100)}%</div></td>`).join("")}</tr>`).join("")}<tr><td><b>Total</b></td>${cols.map(c=>`<td class="num"><b>${brl(c.total)}</b></td>`).join("")}</tr></tbody></table></div><p class="sub">Períodos parciais têm menos dias; compare as porcentagens.</p>`;})():""}
-    <h4 style="margin:14px 0 6px">Curva ABC</h4>
+    ${ps.length>1?(()=>{const cols=ps.slice().reverse(),fs=cols.map(famVP),nomes=[...new Set(fs.flatMap(f=>Object.keys(f)))].sort((a,b)=>(fs[fs.length-1][b]||0)-(fs[fs.length-1][a]||0));return `<details class="pn-det" data-keep="vpComp"${detOpen("vpComp")?" open":""}><summary>Comparação entre períodos</summary><div class="tbl"><table><thead><tr><th>Família</th>${cols.map(c=>`<th class="num">${esc(c.sigla||c._doc)}</th>`).join("")}</tr></thead><tbody>${nomes.map(n=>`<tr><td>${esc(n)}</td>${cols.map((c,k)=>`<td class="num">${brl(fs[k][n]||0)}<div class="sub">${Math.round((fs[k][n]||0)/c.total*100)}%</div></td>`).join("")}</tr>`).join("")}<tr><td><b>Total</b></td>${cols.map(c=>`<td class="num"><b>${brl(c.total)}</b></td>`).join("")}</tr></tbody></table></div><p class="sub">Períodos parciais têm menos dias; compare as porcentagens.</p></details>`;})():""}
+    <details class="pn-det" data-keep="vpAbc"${detOpen("vpAbc")||S.f.vpQ?" open":""}><summary>Curva ABC dos produtos</summary>
     <div class="filters"><input id="vpQ" type="search" placeholder="Buscar produto" value="${esc(S.f.vpQ||"")}" aria-label="Buscar produto"></div>
     <div class="tbl"><table><thead><tr><th>Produto</th><th class="num">Qtd.</th><th class="num">Venda</th><th class="num vp-ac">% acum.</th><th>Classe</th></tr></thead><tbody>
     ${lst.map(i=>`<tr><td>${esc(i.nome)}<div class="sub">${esc(i.familia)}</div></td><td class="num">${Number(i.q).toLocaleString("pt-BR",{maximumFractionDigits:1})} ${esc((i.und||"").toLowerCase())}</td><td class="num">${brl(i.v)}</td><td class="num vp-ac">${Math.round(i.acum)}%</td><td><span class="pill ${i.cls==="A"?"p-acai":i.cls==="B"?"p-and":"p-idle"}">${i.cls}</span></td></tr>`).join("")}</tbody></table></div>
     ${!q&&itens.length>20?`<button class="btn ghost sm" data-act="vpTodos" style="margin-top:8px">${todos?"Mostrar só os 20 primeiros":"Mostrar todos os "+itens.length}</button>`:""}
+    </details>
   </div>`;
 }
 
@@ -1829,7 +1881,7 @@ function vFotos(){
       <span class="foto-th">${x.thumbs&&x.thumbs[0]?`<img src="${x.thumbs[0]}" alt="" loading="lazy">`:""}${(x.n||1)>1?`<span class="foto-n">${x.n}</span>`:""}</span>
       <span class="foto-tx"><b>${esc(x.tipo)}</b><span class="sub">${esc(x.local||"")} · ${esc(x.por)} · ${new Date(x.em).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</span>${x.obs?`<span class="foto-obs">${esc(x.obs)}</span>`:""}</span></button>`).join("")}</div>`
     :`<div class="card"><p class="empty">Nenhum registro com foto ${f.tipo||f.por||q?"com esses filtros":"no período"}.</p></div>`}
-  <p class="hint">A lista mostra os últimos 30 dias. Quem registrou ou a Liderança pode apagar um registro.</p>`;
+  ${dica("A lista mostra os últimos 30 dias. Quem registrou ou a Liderança pode apagar um registro.","fotos")}`;
 }
 function formFoto(tipoIni){
   const fotos=[]; const p=pessoa(S.eu)||{}, papel=String(p.papel||"").toLowerCase();
@@ -2257,6 +2309,7 @@ function irPara(go){
   const [a,b,c]=go.split(":");
   if(a==="acao"){({novoCaixa:()=>formCaixa(),novaSol:()=>formSol(),lancar:()=>formLanc(),propor:()=>formPropor(),novaFoto:()=>formFoto()})[b]?.();return;}
   if(a==="abrir"){abrirDetalhe(b,c);return;}
+  if(a==="planoSt"){S.f.plano.status=b;S.f.plano.minhas=false;S.f.plano.vis="lista";location.hash="plano";if(location.hash==="#plano")render();return;}
   if(a==="minhas"){S.f.plano.minhas=true;S.f.trilha.minhas=true;location.hash="plano";return;}
   if(a==="rotinas")S.f.rot.sub=b;
   if(a==="producao")S.f.prod.sub=b;
@@ -2755,7 +2808,7 @@ function cardAprovacoes(){
   return `<section class="card apr-card" id="aprovacoes"><div class="section-head"><h3>Aguardando sua aprovação <span class="badge">${n}</span></h3>
     ${props.length>1?`<button class="btn ghost sm" data-act="aprovTodas">Aprovar todas as propostas (${props.length})</button>`:""}</div>
     <ul class="apr">${props.map(linhaAprovProp).join("")}${prods.map(linhaAprovProd).join("")}</ul>
-    <p class="hint">"Aprovar" inclui a proposta como foi sugerida. "Ajustar" deixa mudar destino, onda, categoria e responsável antes de aprovar.</p></section>`;
+    ${dica("<b>Aprovar</b> inclui a proposta como foi sugerida. <b>Ajustar</b> deixa mudar destino, onda, categoria e responsável antes de aprovar.","aprov")}</section>`;
 }
 async function aprovarTodas(){
   const {props}=pendAprov(); if(!props.length)return;
@@ -2773,8 +2826,62 @@ function formDataIni(){
 /* ---------- Usuários ---------- */
 function vEquipe(){
   if(!ehLider())return vUsuarios();
-  const op=[["usuarios","Usuários"],["ponto","Ponto"],["comunicados","Comunicados"],["checklist","Checklist"]], sub=op.some(o=>o[0]===S.f.eq.sub)?S.f.eq.sub:"usuarios";
-  return `<div class="seg eq-seg">${op.map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-eqsub="${k}">${l}</button>`).join("")}</div>`+(sub==="ponto"?vPonto():sub==="comunicados"?vComunicados():sub==="checklist"?vCkConfig():vUsuarios());
+  const op=[["funcionarios","Funcionários"],["usuarios","Usuários"],["ponto","Ponto"],["comunicados","Comunicados"],["checklist","Checklist"]], sub=op.some(o=>o[0]===S.f.eq.sub)?S.f.eq.sub:"funcionarios";
+  return `<div class="seg eq-seg">${op.map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-eqsub="${k}">${l}</button>`).join("")}</div>`+(sub==="funcionarios"?vFuncionarios():sub==="ponto"?vPonto():sub==="comunicados"?vComunicados():sub==="checklist"?vCkConfig():vUsuarios());
+}
+
+/* ===== Funcionários (cadastro guardado junto do ponto: só a Liderança vê) ===== */
+const LOCAIS_F=["Loja","Fábrica","Gestão"];
+const SEMENTE_F=[["Lary","","Gerente da loja","Loja"],["Alê","","Gerente da loja","Loja"],["Fábio","","Operador de fábrica","Fábrica"],["Gustavo","","Operador de fábrica","Fábrica"],["João","","Fábrica","Fábrica"],["Babi","","RH e pessoas","Gestão"],["Eliete","","Proprietária","Gestão"],["Marco","","Líder do plano","Gestão"]];
+function usuarioDe(f){ const n=normEst(f.usuario||f.nome); return S.usuarios.find(u=>normEst(u.nome)===n)||S.usuarios.find(u=>(u.chaves||[]).some(c=>normEst(c)===n)); }
+function pontoDe(f){ const n=normEst(f.nome); return S.ponto.filter(p=>normEst(p.nome)===n).sort((a,b)=>a.mes.localeCompare(b.mes)); }
+async function semearFuncionarios(){
+  const ja=new Set((S.func||[]).map(f=>normEst(f.nome))), novos={};
+  S.ponto.forEach(p=>{const k=normEst(p.nome); if(!ja.has(k)&&!novos[k])novos[k]={nome:p.nome,nomeCompleto:p.nomeCompleto||"",funcao:p.funcao||"",local:"Loja",admissao:p.admissao||""};});
+  SEMENTE_F.forEach(([nome,comp,funcao,local])=>{const k=normEst(nome); if(!ja.has(k)&&!novos[k])novos[k]={nome,nomeCompleto:comp,funcao,local,admissao:""};});
+  const b=S.db.batch(); Object.entries(novos).forEach(([k,v])=>b.set(S.db.doc("ponto/func_"+k),{...v,cadastro:true,ativo:true,em:new Date().toISOString(),por:S.eu}));
+  await b.commit(); return Object.keys(novos).length;
+}
+function vFuncionarios(){
+  const fs=(S.func||[]).slice().sort((a,b)=>(a.ativo===false)-(b.ativo===false)||a.nome.localeCompare(b.nome,"pt-BR"));
+  const ativos=fs.filter(f=>f.ativo!==false), comU=ativos.filter(f=>usuarioDe(f)&&usuarioDe(f).ativo!==false).length;
+  const head=`<div class="section-head"><h2>Funcionários</h2><div class="actions"><button class="btn" data-act="novoFunc">Novo funcionário</button></div></div>`;
+  if(!fs.length)return head+`<div class="card"><p>Nenhum funcionário cadastrado ainda.</p><p class="sub">Monte a lista com as pessoas do cartão de ponto e os usuários do app. Depois é só ajustar.</p><button class="btn" data-act="semearFunc">Montar lista pelo ponto</button></div>`;
+  const linha=f=>{const u=usuarioDe(f), pt=pontoDe(f), ult=pt[pt.length-1];
+    const st=!u?`<span class="pill p-idle">sem usuário</span>`:u.ativo===false?`<span class="pill p-bad">usuário bloqueado</span>`:`<span class="pill p-ok">usuário ${esc(u.nome)}</span> <span class="pill p-${u.nivel==="Liderança"?"acai":"and"}">${esc(u.nivel)}</span>${!u.pinHash?' <span class="pill p-bad">sem PIN</span>':u.trocarPin?' <span class="pill p-and">PIN provisório</span>':""}`;
+    return `<li class="fu-it${f.ativo===false?" fu-off":""}">
+      <span class="fu-av">${esc(f.nome.slice(0,2).toUpperCase())}</span>
+      <div class="fu-tx"><b>${esc(f.nome)}</b>${f.nomeCompleto&&f.nomeCompleto!==f.nome?` <span class="sub">${esc(f.nomeCompleto)}</span>`:""}
+        <span class="fu-meta">${esc(f.funcao||"sem função")}${f.admissao?` · desde ${fmtD(parseISO(f.admissao))}`:""}${ult?` · ponto até ${esc(ult.mes.slice(5))}/${esc(ult.mes.slice(2,4))}, banco ${fmtHm(ult.bancoMin,true)}`:" · sem cartão de ponto"}${f.ativo===false?" · desligado":""}</span>
+        <span class="fu-st">${st}</span></div>
+      <div class="fu-ac">${u?`<button class="icon-btn" data-act="editUsu" data-doc="${esc(u._doc)}">Usuário</button>`:(f.ativo!==false?`<button class="icon-btn fu-cria" data-act="criarUsuFunc" data-doc="${esc(f._doc)}">Criar usuário</button>`:"")}<button class="icon-btn" data-act="editFunc" data-doc="${esc(f._doc)}">Editar</button></div></li>`;};
+  const grupos=[...LOCAIS_F,...new Set(fs.map(f=>f.local).filter(l=>l&&!LOCAIS_F.includes(l)))];
+  return head+`<div class="tiles">
+      <div class="tile acai"><span class="v num">${ativos.length}</span><span class="l">funcionários ativos</span></div>
+      <div class="tile ok"><span class="v num">${comU}</span><span class="l">com usuário no app</span></div>
+      <div class="tile ${ativos.length-comU?"warn":""}"><span class="v num">${ativos.length-comU}</span><span class="l">ainda sem usuário</span></div></div>
+    ${dica("O cadastro fica guardado junto do cartão de ponto e só a Liderança vê. O app liga cada pessoa ao usuário de mesmo nome. Para quem ainda não usa o app, toque em <b>Criar usuário</b>.","func")}
+    ${grupos.map(g=>{const l=fs.filter(f=>(f.local||"Loja")===g); return l.length?`<section class="card fu-g"><h3>${g==="Loja"?"Loja de Caetité":g}<span class="sub"> · ${l.filter(f=>f.ativo!==false).length}</span></h3><ul class="fu-l">${l.map(linha).join("")}</ul></section>`:"";}).join("")}
+    ${S.ponto.some(p=>!fs.some(f=>normEst(f.nome)===normEst(p.nome)))?`<p class="sub">Há pessoas no ponto fora desta lista. <button class="linkbtn" data-act="semearFunc">Incluir</button></p>`:""}`;
+}
+function formFuncionario(f){
+  const novo=!f; f=f||{nome:"",nomeCompleto:"",funcao:"",local:"Loja",admissao:"",ativo:true};
+  abrirDlg(`<h2>${novo?"Novo funcionário":"Editar "+esc(f.nome)}</h2>
+    <div class="row2"><div class="field"><label for="ff_n">Nome curto</label><input id="ff_n" name="nome" value="${esc(f.nome)}" required placeholder="ex.: João"></div>
+      <div class="field"><label for="ff_l">Onde trabalha</label><select id="ff_l" name="local">${opts(LOCAIS_F,f.local||"Loja")}</select></div></div>
+    <div class="field"><label for="ff_c">Nome completo</label><input id="ff_c" name="nomeCompleto" value="${esc(f.nomeCompleto||"")}"></div>
+    <div class="row2"><div class="field"><label for="ff_f">Função</label><input id="ff_f" name="funcao" value="${esc(f.funcao||"")}" placeholder="ex.: Balconista"></div>
+      <div class="field"><label for="ff_a">Admissão</label><input id="ff_a" name="admissao" type="date" value="${esc(f.admissao||"")}"></div></div>
+    <div class="field"><label for="ff_u">Usuário do app</label><select id="ff_u" name="usuario"><option value="">Mesmo nome (automático)</option>${S.usuarios.map(u=>`<option value="${esc(u.nome)}" ${f.usuario===u.nome?"selected":""}>${esc(u.nome)}</option>`).join("")}</select></div>
+    ${novo?"":`<label class="chk"><input type="checkbox" name="ativo" ${f.ativo!==false?"checked":""}> Trabalha na empresa (desmarque quando a pessoa sair)</label>`}
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
+  async fd=>{
+    const nome=String(fd.get("nome")).trim(); if(!nome){toast("Digite o nome.");return false;}
+    const id=novo?"func_"+normEst(nome):f._doc;
+    if(novo&&(S.func||[]).some(x=>x._doc===id)){toast("Já existe um funcionário com esse nome.");return false;}
+    const d={nome,nomeCompleto:String(fd.get("nomeCompleto")||"").trim(),funcao:String(fd.get("funcao")||"").trim(),local:fd.get("local"),admissao:fd.get("admissao")||"",usuario:fd.get("usuario")||"",ativo:novo?true:!!fd.get("ativo"),cadastro:true,em:new Date().toISOString(),por:S.eu};
+    return gravar(()=>S.db.doc("ponto/"+id).set(d,{merge:true}),"Funcionário salvo.");
+  });
 }
 function vUsuarios(){
   if(!ehLider()) return `<div class="card"><h2>Usuários</h2><p class="sub">Área restrita.</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
@@ -2794,8 +2901,8 @@ function vUsuarios(){
   <p class="sub">O PIN fica guardado de forma embaralhada (ninguém consegue ler o PIN de outra pessoa no app). Ele funciona como a senha da planilha: separa quem está usando o mesmo aparelho e registra quem lançou cada dado. Depois de ${MAX_TENT} erros seguidos, o aparelho fica 5 minutos sem poder tentar aquele nome.</p>`;
 }
 function liderancasAtivas(excetoDoc){return S.usuarios.filter(u=>u.nivel==="Liderança"&&u.ativo!==false&&u._doc!==excetoDoc).length;}
-function formUsuario(u){
-  const novo=!u; u=u||{nome:"",nivel:"Equipe",papel:"",chaves:[],ativo:true};
+function formUsuario(u,pre){
+  const novo=!u; u=u||{nome:(pre&&pre.nome)||"",nivel:"Equipe",papel:(pre&&pre.papel)||"",chaves:[],ativo:true};
   abrirDlg(`<h2>${novo?"Novo usuário":"Editar "+esc(u.nome)}</h2>
     <div class="row2"><div class="field"><label for="fu_n">Nome</label><input id="fu_n" name="nome" value="${esc(u.nome)}" ${novo?"required":"readonly"}></div>
     <div class="field"><label for="fu_l">Nível de acesso</label><select id="fu_l" name="nivel">${opts(Object.keys(NIVEIS),u.nivel)}</select></div></div>
@@ -2916,7 +3023,7 @@ async function darCiencia(doc,btn){
 function vComunicados(){
   const l=S.comunicados.slice().sort((a,b)=>String(b.em).localeCompare(a.em));
   return `<div class="section-head"><h3>Comunicados</h3>${podeEscrever()?'<button class="btn" data-act="novoCom">Novo comunicado</button>':""}</div>
-  <p class="hint">Cada pessoa vê o comunicado na tela inicial até tocar em "Li e estou ciente". Quem não usa o app pode ter a ciência registrada aqui.</p>
+  ${dica("Cada pessoa vê o comunicado na tela inicial até tocar em <b>Li e estou ciente</b>. Quem não usa o app pode ter a ciência registrada aqui.","com")}
   <div class="list">${l.map(c=>{const d=destinatarios(c), ci=cienciasDe(c), ok=new Set(ci.map(x=>x.nome)), falta=d.filter(n=>!ok.has(n));
     return `<details class="card com-item"${c.ativo===false?' style="opacity:.6"':""}><summary><b>${esc(c.titulo)}</b> <span class="pill ${falta.length?"p-and":"p-ok"}">${ci.length} ciente(s)${falta.length?`, faltam ${falta.length}`:""}</span>${c.ativo===false?' <span class="pill p-idle">arquivado</span>':""}<br><span class="hint">${fmtD(new Date(c.em))} · ${esc(c.por||"")} · para ${c.para==="todos"?"todos":esc(d.join(", "))}</span></summary>
       <div class="com-txt">${esc(c.texto)}</div>
@@ -2969,7 +3076,7 @@ function vChecklist(){
   return `<div class="card"><div class="section-head"><h3>Checklist de ${tipo} · hoje</h3>
     <div class="seg">${CK_TIPOS.map(([k,l])=>`<button type="button" class="${tipo===k?"on":""}" data-cktipo="${k}">${l}</button>`).join("")}</div></div>
   ${feito?`<div class="banner ${c.conferidoPor?"ok":""}">Concluído por ${esc(c.feitoPor)} às ${new Date(c.concluidoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}. ${c.conferidoPor?"Conferido por <b>"+esc(c.conferidoPor)+"</b> com PIN.":"<b>Sem conferência.</b>"}${c.pendencias?"<br>Pendências: "+esc(c.pendencias):""}</div>`
-    :`<p class="hint">Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim, outra pessoa confere e confirma com o PIN dela.</p>`}
+    :dica("Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim, outra pessoa confere e confirma com o PIN dela.","ck")}
   <ul class="ck-list">${base.map((t,i)=>{const m=marc[i];return `<li><label class="chk ck-it ${m?"on":""}"><input type="checkbox" data-ck="${i}" ${m?"checked":""} ${pode?"":"disabled"}> <span>${esc(t)}${m?`<span class="hint"> · ${esc(m.por)} ${esc(m.hora||"")}</span>`:""}</span></label></li>`;}).join("")}</ul>
   ${pode?`<div class="field"><label for="ckPend">Pendências ou observações</label><textarea id="ckPend" rows="2" placeholder="O que ficou pendente e por quê">${esc((c&&c.pendencias)||"")}</textarea></div>
     <p><button class="btn" data-act="ckConcluir" data-tipo="${tipo}">Concluir e conferir (${n} de ${base.length})</button></p>`:""}
@@ -3089,7 +3196,7 @@ function vRegistro(){
   ${porPessoa.length?`<p class="sub">No período: ${porPessoa.map(([p,n])=>`${esc(p)} <b class="num">${n}</b>`).join(" · ")}</p>`:""}
   <div class="card">${html||'<p class="empty">Nenhum lançamento com esses filtros.</p>'}
   ${l.length>f.lim?`<p style="text-align:center"><button class="btn ghost sm" data-act="regMais">Mostrar mais (${l.length-f.lim} restantes)</button></p>`:""}</div>
-  <p class="hint">Caixa, temperatura, checklist e estoque mostram os últimos 60 a 90 dias. Correções feitas direto no banco de dados não aparecem aqui.</p>`;
+  ${dica("Caixa, temperatura, checklist e estoque mostram os últimos 60 a 90 dias. Correções feitas direto no banco de dados não aparecem aqui.","reg")}`;
 }
 /* ---------- Eventos ---------- */
 document.addEventListener("click",e=>{
@@ -3154,10 +3261,15 @@ document.addEventListener("click",e=>{
   else if(a==="ckReabrir"){const id=iso(hoje())+"_"+b.dataset.tipo;pergunta("Reabrir checklist","O checklist volta a ficar pendente e a conferência é apagada.","Reabrir").then(ok=>{if(ok)gravar(()=>S.db.doc("checklists/"+id).update({concluido:false,conferidoPor:"",conferidoEm:""}),"Checklist reaberto.");});}
   else if(a==="ckCfgSalvar")salvarCkCfg();
   else if(a==="novoUsu")formUsuario();
+  else if(a==="novoFunc")formFuncionario();
+  else if(a==="editFunc")formFuncionario((S.func||[]).find(x=>x._doc===b.dataset.doc));
+  else if(a==="criarUsuFunc"){const f=(S.func||[]).find(x=>x._doc===b.dataset.doc); if(f)formUsuario(null,{nome:f.nome,papel:f.funcao});}
+  else if(a==="semearFunc"){b.disabled=true; semearFuncionarios().then(n=>toast(n?`${n} funcionário(s) incluído(s).`:"Nada novo para incluir.")).catch(e=>{b.disabled=false;toast("Não deu para salvar: "+(e.code||e.message));});}
   else if(a==="editUsu")formUsuario(S.usuarios.find(x=>x._doc===d));
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(a==="painelAba"){S.f.painelAba=b.dataset.aba;render();}
   else if(a==="pendMin"){S.f.pend.min=!S.f.pend.min;lsSet("sorvely_pendmin",S.f.pend.min);render();}
   else if(a==="pendCat"){S.f.pend.cat=b.dataset.cat;S.f.pend.mais=false;render();}
   else if(a==="pendMais"){S.f.pend.mais=!S.f.pend.mais;render();}
@@ -3175,7 +3287,7 @@ document.addEventListener("click",e=>{
   }
   else if(a==="regMais"){S.f.reg.lim+=150;render();}
 });
-document.addEventListener("toggle",e=>{if(e.target.matches&&e.target.matches("details.at-mais"))S.f.atMais=e.target.open;if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open; if(e.target.matches&&e.target.matches("details[data-fid]")){S.f.filtAb=S.f.filtAb||{};S.f.filtAb[e.target.dataset.fid]=e.target.open;}},true);
+document.addEventListener("toggle",e=>{const dk=e.target.dataset&&e.target.dataset.keep; if(dk){(S.f.det||(S.f.det={}))[dk]=e.target.open;}if(e.target.matches&&e.target.matches("details.at-mais"))S.f.atMais=e.target.open;if(e.target.matches&&e.target.matches("details[data-sug]"))S.f.prod.sugOpen=e.target.open; if(e.target.matches&&e.target.matches("details[data-fid]")){S.f.filtAb=S.f.filtAb||{};S.f.filtAb[e.target.dataset.fid]=e.target.open;}},true);
 document.addEventListener("change",async e=>{
   const t=e.target;
   if(t.matches("select.status")){
@@ -3276,7 +3388,7 @@ function assinar(col,key,map){
   { const cut=iso(addDias(hoje(),-62)); const sub=(col,key)=>db.collection(col).where("data",">=",cut).onSnapshot(sn=>{S[key]=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     S.subRot=sub; sub("temperaturas","tempDias"); sub("checklists","checklists"); ajustarAssinaturas();
     db.collection("fotos").where("em",">=",new Date(Date.now()-31*864e5).toISOString()).onSnapshot(sn=>{S.fotos=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
-    db.collection("ponto").onSnapshot(sn=>{S.ponto=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
+    db.collection("ponto").onSnapshot(sn=>{const l=sn.docs.map(d=>({...d.data(),_doc:d.id}));S.ponto=l.filter(x=>!x.cadastro);S.func=l.filter(x=>x.cadastro);agendaRender();},()=>{});
     db.collection("comunicados").onSnapshot(sn=>{S.comunicados=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     db.collection("ciencias").onSnapshot(sn=>{S.ciencias=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     db.doc("config/checklist").onSnapshot(s=>{S.ckCfg=s.exists?s.data():null;agendaRender();},()=>{});
