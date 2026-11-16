@@ -83,7 +83,7 @@ function Q(col,filtros=[]){ return {
   doc:(id)=>D(col+"/"+(id||("n"+Math.random().toString(36).slice(2,12)))),
   add:async(d)=>{const r=D(col+"/n"+Math.random().toString(36).slice(2,12));await r.set(d);return r;},
   _docs(){return Object.keys(st.docs).filter(p=>p.startsWith(col+"/")&&p.split("/").length===col.split("/").length+1).map(snapDoc)
-    .filter(s=>filtros.every(([f,op,v])=>{const x=s.data()[f];return op===">="?x>=v:op==="=="?x===v:op==="<="?x<=v:true;}));},
+    .filter(s=>filtros.every(([f,op,v])=>{const x=s.data()[f];return op===">="?x>=v:op==="=="?x===v:op==="<="?x<=v:op==="<"?x<v:op===">"?x>v:true;}));},
   get:async function(){chk("list",col+"/x");return {docs:this._docs(),metadata:{fromCache:false}};},
   onSnapshot(cb,eb){if(cb&&typeof cb==='object'&&!cb.docs){cb=eb;eb=arguments[2];}let viva=true;const self=this;const run=()=>{if(!viva)return;try{chk("list",col+"/x");cb({docs:self._docs(),metadata:{fromCache:false}});}catch(e){viva=false;eb&&eb(e);}};subs.push(run);later(run);return()=>{viva=false;};}
 };}

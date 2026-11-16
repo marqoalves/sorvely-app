@@ -434,6 +434,52 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 
 
 
+
+/* Menu em grupos */
+.nav-sec{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 12px 4px}
+.nav-sec:first-child{padding-top:2px}
+.nav-sec[hidden]{display:none}
+body.nav-min .nav-sec{font-size:0;padding:6px 0;border-top:1px solid var(--line);margin:6px 8px 0}
+body.nav-min .nav-sec:first-child{border-top:0;margin-top:0}
+nav.tabs a{padding-top:8px;padding-bottom:8px}
+/* Lançamentos: abas roláveis */
+.rot-seg{max-width:100%;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.rot-seg::-webkit-scrollbar{display:none}
+.rot-seg button{flex:none}
+/* Estoque mais compacto */
+.stk{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px}
+.stk-it{padding:6px 6px 6px 10px;gap:8px}
+.stk-n b{font-size:.9rem;line-height:1.2}
+.stk-q{font-size:1.25rem}
+.stk-it .btn{min-width:44px;min-height:40px;padding:4px 8px}
+@media (max-width:600px){.stk{grid-template-columns:repeat(2,minmax(0,1fr))}.stk-it{flex-wrap:wrap;row-gap:4px;align-items:flex-end}.stk-n{flex:1 1 100%}.stk-q{margin-right:auto;text-align:left}.stk-it .btn{min-height:40px}}
+.subnav.seg{max-width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.subnav.seg::-webkit-scrollbar{display:none}.subnav.seg>a{flex:none;white-space:nowrap}
+/* Tudo junto */
+.tj-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tj-bar input[type=search]{flex:1 1 220px;min-width:0;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font:inherit}
+.tj-g{border-left:4px solid var(--c,var(--line))}
+.tj-g.tj-bad{--c:var(--bad)}.tj-g.tj-and{--c:var(--warn)}.tj-g.tj-idle{--c:var(--idle)}.tj-g.tj-ok{--c:var(--ok)}
+.tj-g h3{display:flex;align-items:center;gap:8px}
+ul.tj-l{list-style:none;margin:6px 0 0;padding:0}
+.tj-l li+li{border-top:1px solid var(--line)}
+.tj-it{width:100%;display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 4px;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:var(--ink);border-radius:10px}
+.tj-it:hover{background:var(--bg)}
+.tj-tag{grid-column:1;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.tj-trilha .tj-tag{color:var(--rosa-ink,#b4236b)}.tj-acoes .tj-tag{color:var(--acai)}
+.tj-t{grid-column:1;font-weight:600;font-size:.92rem;line-height:1.3}.tj-t .id{color:var(--muted);font-weight:700;margin-right:2px}
+.tj-m{grid-column:1;font-size:.78rem;color:var(--muted)}
+.tj-s{grid-column:2;grid-row:1/4;align-self:center;display:flex;flex-direction:column;gap:3px;align-items:flex-end}
+@media (max-width:600px){.tj-it{grid-template-columns:1fr}.tj-s{grid-column:1;grid-row:auto;flex-direction:row;align-items:center}}
+/* Galeria */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.gal-it{position:relative;padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--bg);cursor:pointer;aspect-ratio:1;font:inherit}
+.gal-it img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-c{position:absolute;left:0;right:0;bottom:0;padding:16px 6px 5px;background:linear-gradient(transparent,rgba(20,18,40,.75));color:#fff;font-size:.68rem;line-height:1.25;text-align:left}
+.gal-it .foto-n{position:absolute;top:6px;right:6px;bottom:auto}
+.gal-sem{display:grid;place-items:center;height:100%;font-size:.75rem;color:var(--muted)}
+.gal-lb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.gal-lb select{padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit}
+@media (max-width:600px){.gal{grid-template-columns:repeat(3,1fr);gap:5px}}
 /* Telas de lançamento */
 .lanc-top{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
 .lanc-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -648,13 +694,16 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
     <button class="who" id="whoBtn" type="button" aria-label="Conta e PIN"><span id="whoName">Entrar</span><span class="lvl" id="whoLvl" hidden></span></button>
   </div>
   <nav class="tabs" id="tabs">
+    <div class="nav-sec">Dia a dia</div>
     <a href="#inicio" data-v="inicio"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg><span class="tl-l">Início</span></a>
-    <a href="#rotinas" data-v="rotinas" id="tabRot" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12l2 2 4-4"/></svg><span class="tl-l">Rotinas</span></a>
+    <a href="#rotinas" data-v="rotinas" id="tabRot" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 12l2 2 4-4"/></svg><span class="tl-l">Lançamentos</span></a>
     <a href="#producao" data-v="producao" id="tabProd" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V10l6 4V10l6 4V6l6 4v11z"/></svg><span class="tl-l">Produção</span><span class="badge" id="prodBadge" hidden></span></a>
-    <a href="#plano" data-v="plano" id="tabPlano"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h1M4 12h1M4 18h1"/></svg><span class="tl-l">Plano</span><span class="badge" id="propBadge" hidden></span></a>
+    <div class="nav-sec" id="navSecA">Acompanhamento</div>
+    <a href="#acomp" data-v="plano" id="tabPlano"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h1M4 12h1M4 18h1"/></svg><span class="tl-l">Plano</span><span class="badge" id="propBadge" hidden></span></a>
     <a href="#indicadores" data-v="indicadores" id="tabInd"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="tl-l">Indicadores</span></a>
     <a href="#painel" data-v="painel" id="tabPainel" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="tl-l">Painel</span></a>
-    <a href="#rotinas" data-v="rotinas" data-sub="fotos" id="tabFotos" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span class="tl-l">Registros com foto</span></a>
+    <div class="nav-sec" id="navSecG" hidden>Gestão</div>
+    <a href="#registro" data-v="registro" id="tabReg" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v4l3 2"/><path d="M3.05 11a9 9 0 1 1 .5 4"/><path d="M3 4v5h5"/></svg><span class="tl-l">Histórico</span></a>
     <a href="#usuarios" data-v="usuarios" id="tabUsu" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 4a3 3 0 010 6M21 20c0-2-1-4-3-5"/></svg><span class="tl-l">Equipe</span></a>
     <div class="nav-foot"><button type="button" class="nav-aj" data-act="ajuda"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg><span class="tl-l">Ajuda</span></button><span class="nav-ver" id="navVer"></span></div>
   </nav>
@@ -667,7 +716,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-15 23:56"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-16 00:04"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -870,7 +919,7 @@ function menuUsuario(){
   if(!S.eu){entrar(false);return;}
   const p=pessoa(S.eu);
   abrirDlg(`<h2>${esc(S.eu)}</h2><p class="hint">${ehLider()?esc(p?.papel||"")+" · nível "+esc(nivelEu()||"-")+". "+esc(NIVEIS[nivelEu()]?.desc||""):esc(p?.papel||"")}</p>
-    ${ehLider()?'<p style="margin:0"><button type="submit" class="linkbtn" value="reg">Registro de lançamentos</button></p>':""}
+    ${ehLider()?'<p style="margin:0"><button type="submit" class="linkbtn" value="reg">Histórico</button></p>':""}
     ${rodapeVersao()}
     <div class="dlg-foot"><button class="btn ghost" value="cancel">Fechar</button>${ehLider()?'<button class="btn ghost" value="usu">Equipe e usuários</button>':""}${S.canWrite?'<button class="btn ghost" value="pin">Trocar meu PIN</button>':""}<button class="btn" value="sair">Sair</button></div>`,
   async (fd,btn)=>{ if(btn==="sair")setTimeout(sair,0); if(btn==="pin")setTimeout(()=>trocarPin(false),0); if(btn==="usu")location.hash="usuarios"; if(btn==="reg")location.hash="registro"; });
@@ -903,8 +952,8 @@ function trocarPin(obrig){
 function render(){
   $("#whoName").innerHTML = S.eu?`<b>${esc(S.eu)}</b>`:"Entrar";
   const lv=$("#whoLvl"); lv.hidden=!S.eu; lv.textContent=ehLider()?"Liderança":(pessoa(S.eu)?.papel||"");
-  const grupo={trilha:"plano",propostas:"plano"}[S.view]||S.view;
-  document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===grupo&&(a.dataset.sub?S.f.rot.sub===a.dataset.sub:!(grupo==="rotinas"&&S.f.rot.sub==="fotos"&&$("#tabFotos")&&!$("#tabFotos").hidden))));
+  const grupo={trilha:"plano",propostas:"plano",acomp:"plano"}[S.view]||S.view;
+  document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===grupo));
   $("#tabPainel").hidden=!vePainel(); $("#tabUsu").hidden=!ehLider(); $("#tabPlano").hidden=!S.eu; $("#tabInd").hidden=!S.eu;
   const pend=pendAprov().n;
   const b=$("#propBadge"); b.hidden=!pend; b.textContent=pend;
@@ -914,10 +963,10 @@ function render(){
   else if(!S.db&&S.tentouDb) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Confira a internet e abra o app de novo.</div>`;
   else if(S.slow) top+=`<div class="banner">Os dados estão demorando para chegar. O que aparece pode estar desatualizado.</div>`;
   if(!S.canWrite) top+=`<div class="banner">Você está com acesso só de leitura. Para lançar, peça ao Marco para te convidar como editor.</div>`;
-    $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!(S.eu&&permRot(pessoa(S.eu)).some(x=>x!=="fotos")); $("#tabFotos").hidden=!podeRot("fotos"); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
+    $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!(S.eu&&permRot(pessoa(S.eu)).length); $("#tabReg").hidden=!ehLider(); $("#navSecG").hidden=!ehLider(); $("#navSecA").hidden=!S.eu; const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
   $("#menuDot").hidden=![...document.querySelectorAll("#tabs .badge")].some(x=>!x.hidden&&x.closest("a")&&!x.closest("a").hidden);
   const nv=$("#navVer"); if(nv)nv.textContent=versaoApp()?"versão de "+versaoApp():"";
-  const v={registro:vRegistro,painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
+  const v={acomp:vAcomp,registro:vRegistro,painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
   const scroll=window.scrollY, keep={}; let foco=document.activeElement&&m.contains(document.activeElement)?document.activeElement:null;
   m.querySelectorAll("#enForm input, #enForm select, [data-eqin], textarea[id]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);keep[k]=el.type==="checkbox"?el.checked:el.value;});
   const cur=foco&&typeof foco.selectionStart==="number"?foco.selectionStart:null;
@@ -1870,12 +1919,11 @@ function cardVendasProd(){
 }
 
 function vRotinas(){
-  if(!veRotinas())return `<div class="card"><h2>Rotinas diárias</h2><p class="sub">${S.eu?"Seu usuário não tem rotinas diárias. Se precisar, fale com o Marco.":"Entre com seu nome e PIN para registrar as rotinas."}</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
+  if(!veRotinas())return `<div class="card"><h2>Lançamentos</h2><p class="sub">${S.eu?"Seu usuário não tem rotinas diárias. Se precisar, fale com o Marco.":"Entre com seu nome e PIN para registrar as rotinas."}</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
   const perms=permRot(pessoa(S.eu)), opcoes=[["checklist","Checklist"],["estoque","Estoque"],["caixa","Caixa"],["temperatura","Temperatura"],["fotos","Fotos"]].filter(([k])=>perms.includes(k));
   const sub=opcoes.some(o=>o[0]===S.f.rot.sub)?S.f.rot.sub:opcoes[0][0];
-  if(sub==="fotos")return vFotos();
-  return `<div class="section-head"><h2>Rotinas diárias</h2>
-    <div class="seg">${opcoes.filter(o=>o[0]!=="fotos").map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-rsub="${k}">${l}</button>`).join("")}</div></div>
+  return `<div class="section-head"><h2>Lançamentos</h2>
+    <div class="seg rot-seg">${opcoes.map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-rsub="${k}">${l}</button>`).join("")}</div></div>
   ${sub==="fotos"?vFotos():sub==="checklist"?vChecklist():sub==="estoque"?vEstoque():sub==="caixa"?vCaixa():sub==="entregas"?vEntregas():vTemperatura()}`;
 }
 
@@ -2211,7 +2259,7 @@ function saudacao(){const h=new Date().getHours();return h<12?"Bom dia":h<18?"Bo
 function vePainel(){return ehLider()||(!!S.eu&&verGeral());}
 function subPlano(atual){
   const pend=S.propostas.filter(p=>p.status==="Aguardando aprovação"&&(verGeral()||p.propostoPor===S.eu)).length;
-  return `<div class="subnav seg" role="tablist" aria-label="Partes do plano">${[["plano","Plano de Ação"],["trilha","Trilha Comercial"],["propostas","Propostas"+(pend&&ehLider()?` (${pend})`:"")]].map(([k,l])=>`<a href="#${k}" role="tab" aria-selected="${atual===k}" class="${atual===k?"on":""}">${l}</a>`).join("")}</div>`;
+  return `<div class="subnav seg" role="tablist" aria-label="Partes do plano">${[["acomp","Tudo junto"],["trilha","Trilha Comercial"],["plano","Plano de Ação"],["propostas","Propostas"+(pend&&ehLider()?` (${pend})`:"")]].map(([k,l])=>`<a href="#${k}" role="tab" aria-selected="${atual===k}" class="${atual===k?"on":""}">${l}</a>`).join("")}</div>`;
 }
 const AT_ICON={"ck": "<rect x=\"5\" y=\"4\" width=\"14\" height=\"17\" rx=\"2\"/><path d=\"M9 4h6v3H9z\"/><path d=\"M9 12l2 2 4-4\"/>", "est": "<path d=\"M3 8l9-5 9 5v8l-9 5-9-5z\"/><path d=\"M3 8l9 5 9-5M12 13v8\"/>", "cx": "<rect x=\"3\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\"/><path d=\"M6 9v.01M18 15v.01\"/>", "tmp": "<path d=\"M10 14V5a2 2 0 1 1 4 0v9a4 4 0 1 1-4 0z\"/><path d=\"M12 9v7\"/>", "rec": "<path d=\"M3 7h11v9H3zM14 10h4l3 3v3h-7\"/><circle cx=\"7\" cy=\"17.5\" r=\"1.6\"/><circle cx=\"17\" cy=\"17.5\" r=\"1.6\"/>", "ord": "<path d=\"M9 6h11M9 12h11M9 18h11\"/><path d=\"M4 6h.01M4 12h.01M4 18h.01\"/>", "prod": "<path d=\"M3 21V10l6 4V10l6 4V6l6 4v11z\"/>", "foto": "<path d=\"M4 8h3l2-3h6l2 3h3v11H4z\"/><circle cx=\"12\" cy=\"13\" r=\"3.5\"/>", "ind": "<path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/>", "min": "<circle cx=\"9\" cy=\"8\" r=\"3.5\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><path d=\"M16 11l2 2 4-4\"/>", "prop": "<path d=\"M9 18h6M10 21h4\"/><path d=\"M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z\"/>"};
 function at2(go,titulo,ic,sub,n){
@@ -2339,7 +2387,7 @@ function irPara(go){
   if(a==="acao"){({novoCaixa:()=>formCaixa(),novaSol:()=>formSol(),lancar:()=>formLanc(),propor:()=>formPropor(),novaFoto:()=>formFoto()})[b]?.();return;}
   if(a==="abrir"){abrirDetalhe(b,c);return;}
   if(a==="planoSt"){S.f.plano.status=b;S.f.plano.minhas=false;S.f.plano.vis="lista";location.hash="plano";if(location.hash==="#plano")render();return;}
-  if(a==="minhas"){S.f.plano.minhas=true;S.f.trilha.minhas=true;location.hash="plano";return;}
+  if(a==="minhas"){S.f.plano.minhas=true;S.f.trilha.minhas=true;(S.f.acomp||(S.f.acomp={mostrar:"abertas",q:""})).minhas=true;S.f.acomp.mostrar="abertas";location.hash="acomp";if(location.hash==="#acomp")render();return;}
   if(a==="rotinas")S.f.rot.sub=b;
   if(a==="producao")S.f.prod.sub=b;
   if(location.hash==="#"+a)render();else location.hash=a;
@@ -2347,6 +2395,34 @@ function irPara(go){
 
 /* ---------- Plano de ação ---------- */
 function podeEditarItem(it){ return podeEscrever() && (ehLider() || ehResp(it,S.eu)); }
+
+/* ===== Tudo junto: trilha e plano numa lista só ===== */
+function vAcomp(){
+  if(!S.eu)return `<div class="card"><p>Entre com seu nome e PIN para ver o plano.</p><button class="btn" data-act="entrar">Entrar</button></div>`;
+  const f=S.f.acomp||(S.f.acomp={mostrar:"abertas",minhas:!verGeral()&&!ehLider(),q:"",onde:""}), q=normEst(f.q);
+  const it=[...S.trilha.map(t=>({...t,col:"trilha",ord:0,fim:parseISO(t.prazo),venc:vencidaTrilha(t),tag:"Trilha · "+(t.categoria||"")})),
+            ...S.acoes.map(a=>({...a,col:"acoes",ord:1,fim:datasAcao(a).fim,venc:vencida(a),tag:"Plano · Onda "+a.onda}))]
+    .filter(x=>x.status!=="Cancelada")
+    .filter(x=>!f.minhas||ehResp(x,S.eu))
+    .filter(x=>!q||normEst(x.oque+" "+x.id+" "+quemTxt(x)).includes(q))
+    .filter(x=>f.mostrar==="todas"||(f.mostrar==="concluidas"?x.status==="Concluída":x.status!=="Concluída"));
+  const grupo=x=>x.status==="Concluída"?3:(x.venc||x.status==="Atrasada")?0:x.status==="Em andamento"?1:2;
+  const G=[["Atrasadas ou com prazo vencido","bad"],["Em andamento","and"],["Não iniciadas","idle"],["Concluídas","ok"]];
+  it.sort((a,b)=>grupo(a)-grupo(b)||a.ord-b.ord||(a.fim||9e15)-(b.fim||9e15));
+  const nT=it.filter(x=>x.col==="trilha").length, nP=it.length-nT;
+  const linha=x=>`<li><button type="button" class="tj-it tj-${x.col}" data-act="abrir" data-col="${x.col}" data-doc="${esc(x._doc)}">
+      <span class="tj-tag">${esc(x.tag)}</span>
+      <span class="tj-t"><span class="id">${esc(x.id)}</span> ${esc(x.oque)}</span>
+      <span class="tj-m">${esc(quemTxt(x))}${x.fim?` · ${x.status==="Concluída"?"prazo":"até"} ${fmtD(x.fim)}`:""}</span>
+      <span class="tj-s">${pillStatus(x.status,x.venc)}</span></button></li>`;
+  return `${subPlano("acomp")}<div class="section-head"><h2>Tudo junto</h2><span class="sub">${nT} da trilha e ${nP} do plano</span>
+    ${podeEscrever()?`<button class="btn ghost sm" data-act="propor">Propor uma ação</button>`:""}</div>
+  <div class="tj-bar"><input type="search" id="tjQ" placeholder="Buscar ação ou pessoa" value="${esc(f.q)}" aria-label="Buscar">
+    <div class="seg sm">${[["abertas","Abertas"],["concluidas","Concluídas"],["todas","Todas"]].map(([k,l])=>`<button type="button" class="${f.mostrar===k?"on":""}" data-act="tjMostrar" data-k="${k}">${l}</button>`).join("")}</div>
+    <label class="chk"><input type="checkbox" id="tjMinhas" ${f.minhas?"checked":""}> Só as minhas</label></div>
+  ${it.length?G.map((g,i)=>{const l=it.filter(x=>grupo(x)===i);return l.length?`<section class="card tj-g tj-${g[1]}"><h3>${g[0]} <span class="pend-n">${l.length}</span></h3><ul class="tj-l">${l.map(linha).join("")}</ul></section>`:"";}).join(""):'<div class="card"><p class="empty">Nada por aqui com esses filtros.</p></div>'}
+  ${dica("A trilha comercial aparece primeiro em cada grupo. Toque em uma atividade para abrir a ficha, mudar o status ou escrever uma observação. As abas <b>Trilha Comercial</b> e <b>Plano de Ação</b> continuam com o quadro e o cronograma.","tj")}`;
+}
 function vPlano(){
   const f=S.f.plano, q=f.q.toLowerCase();
   const ondes=[...new Set(S.acoes.map(a=>a.onde))].sort();
@@ -3202,8 +3278,45 @@ function entradasRegistro(){
     if(u.alteradoEm&&u.alteradoPor)add(u.alteradoEm,u.alteradoPor,"Equipe",`alterou o usuário ${esc(u.nome)}`,"usuarios"); });
   return E.sort((a,b)=>b.d-a.d);
 }
+
+/* ===== Galeria de fotos e limpeza ===== */
+function vGaleria(){
+  const fs=(S.fotos||[]).slice().sort((a,b)=>String(b.em).localeCompare(a.em));
+  const g=S.f.gal||(S.f.gal={meses:3,velhas:null,checando:false});
+  const porTipo={}; fs.forEach(x=>porTipo[x.tipo]=(porTipo[x.tipo]||0)+(x.n||1));
+  const nImg=fs.reduce((s,x)=>s+(x.n||1),0);
+  let dia="", html="";
+  fs.forEach(x=>{const d=new Date(x.em), dd=d.toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit"});
+    if(dd!==dia){ if(dia)html+="</div>"; dia=dd; html+=`<h3 class="reg-dia">${esc(dd)}</h3><div class="gal">`; }
+    html+=`<button type="button" class="gal-it" data-foto="${esc(x._doc)}" title="${esc(x.tipo)} · ${esc(x.por)}">${(x.thumbs||[])[0]?`<img src="${x.thumbs[0]}" alt="${esc(x.tipo)}" loading="lazy">`:'<span class="gal-sem">sem miniatura</span>'}${(x.n||1)>1?`<span class="foto-n">${x.n}</span>`:""}<span class="gal-c">${esc(x.tipo)}<br>${esc(x.por)} · ${d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></button>`;});
+  if(dia)html+="</div>";
+  return `<div class="tiles"><div class="tile acai"><span class="v num">${fs.length}</span><span class="l">registros nos últimos 30 dias</span></div><div class="tile"><span class="v num">${nImg}</span><span class="l">fotos nesse período</span></div></div>
+  ${Object.keys(porTipo).length?`<p class="sub">${Object.entries(porTipo).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`${esc(t)} <b class="num">${n}</b>`).join(" · ")}</p>`:""}
+  <div class="card">${html||'<p class="empty">Nenhuma foto nos últimos 30 dias.</p>'}</div>
+  <div class="card gal-limpa"><h3>Limpar fotos antigas</h3>
+    <p class="sub">As fotos ocupam espaço no banco de dados gratuito (até 1 GB). Apague as antigas de tempos em tempos para o app continuar leve.</p>
+    <div class="gal-lb"><label for="galM">Apagar fotos com mais de</label><select id="galM">${opts([{v:2,l:"2 meses"},{v:3,l:"3 meses"},{v:6,l:"6 meses"},{v:12,l:"1 ano"}],g.meses)}</select>
+    <button class="btn ghost sm" data-act="galChecar" ${g.checando?"disabled":""}>${g.checando?"Verificando...":"Verificar"}</button></div>
+    ${g.velhas===null?"":g.velhas.length?`<p><b>${g.velhas.length}</b> registro(s) com ${g.velhas.reduce((s,x)=>s+(x.n||1),0)} foto(s) anteriores a ${fmtD(addDias(hoje(),-g.meses*30))}.</p><button class="btn danger sm" data-act="galApagar">Apagar ${g.velhas.length} registro(s)</button>`:`<p class="sub">Nenhuma foto com mais de ${g.meses} ${g.meses>1?"meses":"mês"}.</p>`}
+  </div>`;
+}
+async function checarFotosVelhas(){
+  const g=S.f.gal; g.checando=true; g.velhas=null; render();
+  try{ const corte=addDias(hoje(),-g.meses*30).toISOString(); const sn=await S.db.collection("fotos").where("em","<",corte).get(); g.velhas=sn.docs.map(d=>({_doc:d.id,n:d.data().n||1})); }
+  catch(e){ toast("Não consegui verificar: "+(e.code||e.message)); }
+  g.checando=false; render();
+}
+async function apagarFotosVelhas(){
+  const g=S.f.gal, l=g.velhas||[]; if(!l.length)return;
+  if(!await pergunta("Apagar fotos antigas",`Apagar ${l.length} registro(s) com fotos de mais de ${g.meses} meses? Isso não pode ser desfeito.`,"Apagar"))return;
+  let ok=0; for(const x of l){ try{ for(let i=0;i<(x.n||1);i++){ try{await S.db.doc("fotosDados/"+x._doc+"_"+i).delete();}catch(e){} } await S.db.doc("fotos/"+x._doc).delete(); ok++; }catch(e){} }
+  g.velhas=null; toast(`${ok} registro(s) apagado(s).`); render();
+}
 function vRegistro(){
   if(!ehLider())return `<div class="card"><p class="empty">Área restrita.</p></div>`;
+  const hs=S.f.histSub==="fotos"?"fotos":"log";
+  const segH=`<div class="section-head"><h2>Histórico</h2><div class="seg">${[["log","Lançamentos"],["fotos","Galeria de fotos"]].map(([k,l])=>`<button type="button" class="${hs===k?"on":""}" data-act="histSub" data-k="${k}">${l}</button>`).join("")}</div></div>`;
+  if(hs==="fotos")return segH+vGaleria();
   const f=S.f.reg||(S.f.reg={dias:7,por:"",area:"",q:"",lim:150});
   const corte=f.dias?Date.now()-f.dias*864e5:0, q=f.q.toLowerCase();
   const todas=entradasRegistro().filter(e=>e.d.getTime()>=corte);
@@ -3215,7 +3328,7 @@ function vRegistro(){
     if(dd!==dia){ if(dia)html+="</ul>"; dia=dd; html+=`<h3 class="reg-dia">${esc(dd)}</h3><ul class="reg">`; }
     html+=`<li><span class="reg-h num">${e.d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span><span class="reg-t"><b>${esc(e.por)}</b> ${e.txt} <span class="reg-a">${esc(e.area)}</span></span>${e.go?`<button type="button" class="icon-btn" data-go="${esc(e.go)}" aria-label="Abrir">Ver</button>`:""}</li>`; });
   if(dia)html+="</ul>";
-  return `<div class="section-head"><h2>Registro de lançamentos</h2><span class="sub">Tudo o que foi registrado no app, do mais recente para o mais antigo. Só a Liderança vê esta tela.</span></div>
+  return `${segH}
   ${blocoFiltros("registro",`<input type="search" id="rgQ" placeholder="Buscar" value="${esc(f.q)}">`,
     `<select id="rgDias" aria-label="Período">${opts([{v:1,l:"Últimas 24 horas"},{v:7,l:"Últimos 7 dias"},{v:30,l:"Últimos 30 dias"},{v:0,l:"Tudo o que está carregado"}],f.dias)}</select>
     <select id="rgPor" aria-label="Pessoa">${opts([{v:"",l:"Todas as pessoas"},...pessoas],f.por)}</select>
@@ -3225,7 +3338,7 @@ function vRegistro(){
   ${porPessoa.length?`<p class="sub">No período: ${porPessoa.map(([p,n])=>`${esc(p)} <b class="num">${n}</b>`).join(" · ")}</p>`:""}
   <div class="card">${html||'<p class="empty">Nenhum lançamento com esses filtros.</p>'}
   ${l.length>f.lim?`<p style="text-align:center"><button class="btn ghost sm" data-act="regMais">Mostrar mais (${l.length-f.lim} restantes)</button></p>`:""}</div>
-  ${dica("Caixa, temperatura, checklist e estoque mostram os últimos 60 a 90 dias. Correções feitas direto no banco de dados não aparecem aqui.","reg")}`;
+  ${dica("Tudo o que foi registrado no app, do mais recente para o mais antigo. Só a Liderança vê esta tela. Caixa, temperatura, checklist e estoque mostram os últimos 60 a 90 dias. Correções feitas direto no banco de dados não aparecem aqui.","reg")}`;
 }
 /* ---------- Eventos ---------- */
 document.addEventListener("click",e=>{
@@ -3298,6 +3411,10 @@ document.addEventListener("click",e=>{
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(a==="histSub"){S.f.histSub=b.dataset.k;render();}
+  else if(a==="galChecar")checarFotosVelhas();
+  else if(a==="galApagar")apagarFotosVelhas();
+  else if(a==="tjMostrar"){S.f.acomp.mostrar=b.dataset.k;render();}
   else if(a==="painelAba"){S.f.painelAba=b.dataset.aba;render();}
   else if(a==="pendMin"){S.f.pend.min=!S.f.pend.min;lsSet("sorvely_pendmin",S.f.pend.min);render();}
   else if(a==="pendCat"){S.f.pend.cat=b.dataset.cat;S.f.pend.mais=false;render();}
@@ -3338,16 +3455,18 @@ document.addEventListener("change",async e=>{
   if(t.id==="foTipo"||t.id==="foDias"||t.id==="foPor"){const r=S.f.fotos;r[{foTipo:"tipo",foDias:"dias",foPor:"por"}[t.id]]=t.id==="foDias"?Number(t.value):t.value;render();}
   if(t.id==="rgDias"||t.id==="rgPor"||t.id==="rgArea"){const r=S.f.reg;r[{rgDias:"dias",rgPor:"por",rgArea:"area"}[t.id]]=t.id==="rgDias"?Number(t.value):t.value;r.lim=150;render();}
   if(t.id==="pMes"){S.f.eq.mesP=t.value;render();}
+  if(t.id==="tjMinhas"){S.f.acomp.minhas=t.checked;render();}
+  if(t.id==="galM"){S.f.gal.meses=Number(t.value);S.f.gal.velhas=null;render();}
   if(t.dataset&&t.dataset.ck!==undefined){marcarCk(Number(t.dataset.ck),t.checked);}
   if(t.id==="enData"){S.f.rot.dataEnt=t.value||iso(hoje());render();}
 });
 let qT;
 document.addEventListener("input",e=>{
-  const t=e.target; if(!["fQ","tQ","eQ","vpQ","rgQ","foQ"].includes(t.id))return;
-  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else if(t.id==="rgQ"){S.f.reg.q=t.value;S.f.reg.lim=150;}else if(t.id==="foQ"){S.f.fotos.q=t.value;}else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
+  const t=e.target; if(!["fQ","tQ","eQ","vpQ","rgQ","foQ","tjQ"].includes(t.id))return;
+  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else if(t.id==="rgQ"){S.f.reg.q=t.value;S.f.reg.lim=150;}else if(t.id==="foQ"){S.f.fotos.q=t.value;}else if(t.id==="tjQ"){S.f.acomp.q=t.value;}else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
 });
 $("#whoBtn").addEventListener("click",menuUsuario);
-function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas","registro"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
+function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas","registro","acomp"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
 window.addEventListener("hashchange",rota);
 
 /* ---------- Menu lateral ---------- */
