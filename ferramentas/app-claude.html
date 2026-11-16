@@ -429,6 +429,43 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
   .seg button{font-size:.84rem;padding:8px 4px}
 }
 @media (prefers-reduced-motion: reduce){.btn,.atalho{transition:none}}
+
+/* Para fazer hoje */
+.pend-card{padding:14px 16px}
+.pend-h{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.pend-tg{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:0;color:var(--ink);cursor:pointer;font:inherit}
+.pend-tg h3{margin:0;display:flex;align-items:center;gap:8px}
+.pend-tg svg{color:var(--muted);transition:transform .15s}
+.pend-min .pend-tg svg{transform:rotate(-90deg)}
+.pend-n{display:inline-block;min-width:22px;padding:1px 7px;border-radius:11px;background:var(--acai-soft);color:var(--acai);font-size:.78rem;text-align:center}
+.pend-res{display:flex;gap:6px;flex-wrap:wrap}
+.ps{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.ps-bad{background:var(--bad-bg);color:var(--bad)}.ps-and{background:var(--warn-bg);color:var(--warn)}.ps-idle{background:var(--idle-bg);color:var(--idle)}
+.pend-cats{display:flex;gap:6px;margin:10px 0 2px;overflow-x:auto;scrollbar-width:none}
+.pend-cats::-webkit-scrollbar{display:none}
+.pc{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 11px;font:500 .82rem var(--body);cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.pc span{color:var(--muted);font-size:.74rem}
+.pc.on{background:var(--acai);border-color:var(--acai);color:#fff}.pc.on span{color:rgba(255,255,255,.8)}
+ul.pend2{list-style:none;margin:8px 0 0;padding:0}
+.pr{display:flex;align-items:stretch;border-top:1px solid var(--line)}
+.pr:first-child{border-top:0}
+.pr-go{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:9px 4px;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink);font:inherit;border-radius:10px}
+.pr-go:hover{background:var(--bg)}
+.pr-dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--idle)}
+.pr-bad .pr-dot{background:var(--bad)}.pr-and .pr-dot{background:var(--warn)}
+.pr-tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.pr-t{font-weight:600;font-size:.92rem;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pr-bad .pr-t{color:var(--bad)}
+.pr-d{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pr-ch{flex:none;color:var(--muted)}
+.pr-x{flex:none;width:36px;border:0;background:none;color:var(--muted);font-size:1.15rem;cursor:pointer;border-radius:10px}
+.pr-x:hover{background:var(--bg);color:var(--ink)}
+.pr-oc{opacity:.55}
+.pend-pe{display:flex;justify-content:space-between;align-items:center;margin-top:6px;min-height:20px}
+.pend-pe .linkbtn{font-size:.82rem;color:var(--acai);text-decoration:none;font-weight:600;opacity:1}
+.pend-vazio{display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:var(--ok);font-weight:600}
+.pend-ok{padding:12px 16px}
+@media (prefers-reduced-motion: reduce){.pend-tg svg{transition:none}}
 /* ===== Layout limpo + menu lateral ===== */
 :root{--side:240px;--side-min:76px;--hdr:58px}
 body{background:var(--bg)}
@@ -2077,6 +2114,33 @@ function subPlano(atual){
 function atalho(go,titulo,desc,n,destaque){
   return `<button type="button" class="atalho ${destaque?"forte":""}" data-go="${esc(go)}"><span class="at-t">${titulo}${n?` <span class="badge">${n}</span>`:""}</span><span class="at-d">${desc}</span></button>`;
 }
+
+/* ===== Para fazer hoje: compacto e interativo ===== */
+const PEND_MAX=4;
+function catPend(go){ const a=String(go).split(":")[0]; return a==="rotinas"||go==="acao:novoCaixa"?"Rotinas":a==="producao"?"Produção":a==="abrir"||a==="minhas"?"Plano":"Outros"; }
+function chavePend(x){ let h=0; const t=x.go+"|"+x.t.replace(/\d+/g,"#"); for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0; return "k"+(h>>>0).toString(36); }
+function ocultosPend(){ const k="sorvely_pendoc_"+slugP(S.eu||""), v=lsGet(k)||{}; return v.dia===iso(hoje())?new Set(v.ids||[]):new Set(); }
+function salvarOcultos(set){ lsSet("sorvely_pendoc_"+slugP(S.eu||""),{dia:iso(hoje()),ids:[...set]}); }
+function cardPendencias(pend){
+  const f=S.f.pend||(S.f.pend={cat:"",mais:false,verOc:false,min:!!lsGet("sorvely_pendmin")});
+  const ord={bad:0,and:1,idle:2};
+  const todos=pend.map((x,i)=>({...x,i,k:chavePend(x),cat:catPend(x.go)})).sort((a,b)=>(ord[a.c]??1)-(ord[b.c]??1)||a.i-b.i);
+  const oc=ocultosPend(), vis=todos.filter(x=>f.verOc||!oc.has(x.k)), nOc=todos.length-todos.filter(x=>!oc.has(x.k)).length;
+  const cats=[...new Set(vis.map(x=>x.cat))], cat=cats.includes(f.cat)?f.cat:"";
+  const lista=vis.filter(x=>!cat||x.cat===cat), mostrar=f.mais?lista:lista.slice(0,PEND_MAX);
+  const nB=vis.filter(x=>x.c==="bad").length, nA=vis.filter(x=>x.c==="and").length, nI=vis.filter(x=>x.c==="idle").length;
+  const resumo=[nB?`<span class="ps ps-bad">${nB} urgente${nB>1?"s":""}</span>`:"",nA?`<span class="ps ps-and">${nA} para hoje</span>`:"",nI?`<span class="ps ps-idle">${nI} na semana</span>`:""].join("");
+  const linha=x=>{ const k=x.t.indexOf(": "), tit=k>0?x.t.slice(0,k):x.t, det=k>0?x.t.slice(k+2):"";
+    return `<li class="pr pr-${x.c}${oc.has(x.k)?" pr-oc":""}"><button type="button" class="pr-go" data-go="${esc(x.go)}"><span class="pr-dot"></span><span class="pr-tx"><span class="pr-t">${esc(tit)}</span><span class="pr-d">${esc(x.cat)}${x.loja?" · loja":""}${det?" · "+esc(det):""}</span></span><svg class="pr-ch" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>${oc.has(x.k)?`<button type="button" class="pr-x" data-act="pendVolta" data-k="${x.k}" aria-label="Voltar a mostrar" title="Voltar a mostrar">↺</button>`:`<button type="button" class="pr-x" data-act="pendOculta" data-k="${x.k}" aria-label="Ocultar até amanhã: ${esc(tit)}" title="Ocultar até amanhã">×</button>`}</li>`; };
+  if(!todos.length)return `<section class="card pend-card pend-ok"><div class="pend-h"><h3>Para fazer hoje</h3></div><p class="pend-vazio"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg> Tudo em dia por aqui.</p></section>`;
+  return `<section class="card pend-card${f.min?" pend-min":""}">
+    <div class="pend-h"><button type="button" class="pend-tg" data-act="pendMin" aria-expanded="${!f.min}"><h3>Para fazer hoje <span class="pend-n">${vis.length}</span></h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <span class="pend-res">${resumo}</span></div>
+    ${f.min?"":`${cats.length>1?`<div class="pend-cats">${["",...cats].map(c=>`<button type="button" class="pc${c===cat?" on":""}" data-act="pendCat" data-cat="${esc(c)}">${c||"Tudo"}<span>${c?vis.filter(x=>x.cat===c).length:vis.length}</span></button>`).join("")}</div>`:""}
+    ${mostrar.length?`<ul class="pend2">${mostrar.map(linha).join("")}</ul>`:`<p class="pend-vazio">Nada pendente aqui.</p>`}
+    <div class="pend-pe">${lista.length>PEND_MAX?`<button type="button" class="linkbtn" data-act="pendMais">${f.mais?"Mostrar menos":`Ver mais ${lista.length-PEND_MAX}`}</button>`:"<span></span>"}${nOc?`<button type="button" class="linkbtn" data-act="pendVerOc">${f.verOc?"Esconder ocultos":`${nOc} oculto${nOc>1?"s":""} até amanhã`}</button>`:""}</div>`}
+  </section>`;
+}
 function vInicio(){
   if(!S.eu&&window.FB)return `<div class="card"><p class="sub">Carregando seus dados...</p></div>`;
   if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>${rodapeVersao()}`;
@@ -2106,10 +2170,10 @@ function vInicio(){
   if(podeRot("fotos")){const hj=(S.fotos||[]).filter(x=>x.data===iso(hoje())).length; at.push(atalho("rotinas:fotos","Registrar com foto",hj?`${hj} registro(s) hoje`:"Reposição, recebimento, limpeza",0,false));}
   if(ehLider())at.push(atalho("usuarios","Equipe","Usuários, ponto, comunicados e checklist",0,false));
   const pend=[];
-  const daLoja=t=>ehLider()?"Loja: "+t.charAt(0).toLowerCase()+t.slice(1):t;
-  if(rt.includes("checklist"))pend.push(...pendCk().map(x=>({...x,t:daLoja(x.t)})));
+  const daLoja=t=>t;
+  if(rt.includes("checklist"))pend.push(...pendCk().map(x=>({...x,loja:ehLider()})));
   faltaTemp.filter(f=>f.total&&f.feitos<f.total).forEach(f=>pend.push({go:"rotinas:temperatura",t:`Temperatura da ${f.l.toLowerCase()==="fábrica"?"fábrica":"sorveteria"}: ${f.total-f.feitos} equipamento(s) sem as 2 leituras de hoje`,c:"and"}));
-  if(rt.includes("caixa")&&!cxHoje&&new Date().getHours()>=17)pend.push({go:"acao:novoCaixa",t:daLoja("Nenhum fechamento de caixa registrado hoje"),c:"and"});
+  if(rt.includes("caixa")&&!cxHoje&&new Date().getHours()>=17)pend.push({go:"acao:novoCaixa",t:"Nenhum fechamento de caixa registrado hoje",c:"and",loja:ehLider()});
   if(ie&&ie.zer.length)pend.push({go:"rotinas:estoque",t:`Sem caixa no estoque: ${ie.zer.slice(0,6).map(e=>e.nome).join(", ")}${ie.zer.length>6?" e mais "+(ie.zer.length-6):""}`,c:"and"});
   if(emRota)pend.push({go:"rotinas:entregas",t:`${emRota} entrega(s) em rota aguardando confirmação`,c:"and"});
   if(pr.includes("emitir")&&abertas)pend.push({go:"producao:solic",t:`${abertas} solicitação(ões) da loja aguardando ordem de produção`,c:"and"});
@@ -2121,7 +2185,7 @@ function vInicio(){
   ${cardsComunicados()}
   ${cardAprovacoes()}
   <section><h3 class="sec">O que você quer fazer?</h3><div class="atalhos">${at.join("")}</div></section>
-  <section class="card pend-card"><h3>Para fazer hoje</h3>${pend.length?`<ul class="pend">${pend.map(x=>`<li><button type="button" class="pend-it p-${x.c}" data-go="${esc(x.go)}"><span class="dot d-${x.c==="bad"?"Vermelho":x.c==="and"?"Amarelo":"none"}"></span>${esc(x.t)}</button></li>`).join("")}</ul>`:'<p class="empty">Tudo em dia por aqui.</p>'}</section>
+  ${cardPendencias(pend)}
   ${rodapeVersao()}`;
 }
 function versaoApp(){
@@ -3066,6 +3130,11 @@ document.addEventListener("click",e=>{
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(a==="pendMin"){S.f.pend.min=!S.f.pend.min;lsSet("sorvely_pendmin",S.f.pend.min);render();}
+  else if(a==="pendCat"){S.f.pend.cat=b.dataset.cat;S.f.pend.mais=false;render();}
+  else if(a==="pendMais"){S.f.pend.mais=!S.f.pend.mais;render();}
+  else if(a==="pendVerOc"){S.f.pend.verOc=!S.f.pend.verOc;render();}
+  else if(a==="pendOculta"||a==="pendVolta"){const o=ocultosPend(); a==="pendOculta"?o.add(b.dataset.k):o.delete(b.dataset.k); salvarOcultos(o); if(a==="pendOculta")toast("Ocultado até amanhã."); render();}
   else if(a==="novaFoto")formFoto();
   else if(["aprovProp","recProp","aprovProd","aprovTodas"].includes(a)){
     if(b.dataset.busy)return; b.dataset.busy="1"; b.disabled=true;
