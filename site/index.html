@@ -317,23 +317,13 @@ svg.spark text{fill:var(--muted);font-size:10px;font-family:var(--body)}
   .row2{grid-template-columns:1fr}
   .bar-row{grid-template-columns:90px 1fr 36px}
 }
-nav.tabs .ti{display:none}
 @media (max-width:600px){
   header.top{position:sticky}
   .top-row{padding:8px 12px;gap:8px;flex-wrap:nowrap}
   .brand h1{font-size:1.1rem}
   .who{padding:3px 5px 3px 10px;min-width:0}
   #whoLvl{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:none;margin:0;padding:2px 2px calc(2px + env(safe-area-inset-bottom));gap:0;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.06);overflow:visible}
-  nav.tabs a{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 1px 6px;font-size:.64rem;border-bottom:0;border-top:3px solid transparent;position:relative;letter-spacing:-.01em}
-  nav.tabs a.on{border-top-color:var(--acai);border-bottom:0}
-  nav.tabs a[hidden]{display:none}
-  nav.tabs .ti{display:block;width:22px;height:22px}
-  nav.tabs .tl-l{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  nav.tabs a .badge{position:absolute;top:3px;left:calc(50% + 5px);margin:0;font-size:.62rem;min-width:16px}
-  #tabUsu{display:none!important}
-  main{padding:12px 12px calc(86px + env(safe-area-inset-bottom));gap:12px}
-  #toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+  main{padding:12px 12px calc(24px + env(safe-area-inset-bottom));gap:12px}
   input,select,textarea{font-size:16px!important}
   .card{padding:14px}
   .card.hero{padding:14px 16px}.card.hero h2{font-size:1.25rem}.card.hero .btn{display:none}
@@ -408,7 +398,6 @@ dialog{border-radius:22px}
 dialog::backdrop{background:rgba(31,29,66,.45)}
 .dlg>*{flex-shrink:0}
 .dlg h2{color:var(--acai)}
-nav.tabs a.on{color:var(--acai);border-bottom-color:var(--rosa)}
 .ck-it.on{border-color:var(--ok)}
 details.aj{border-radius:14px}
 .btn.feito,.btn.feito:disabled{background:var(--ok-bg);border-color:transparent;color:var(--ok);opacity:1;box-shadow:none;display:inline-flex;align-items:center;gap:6px;cursor:default}
@@ -417,7 +406,7 @@ details.aj{border-radius:14px}
 .ver{margin:6px 0 0;text-align:center;font-size:.72rem;color:var(--muted);opacity:.75}
 .apr-card{border:2px solid var(--azul)}.apr-card h3 .badge{display:inline-block;min-width:22px;padding:0 7px;border-radius:11px;background:var(--rosa);color:#fff;font-size:.78rem;text-align:center;vertical-align:middle;font-family:var(--body)}
 ul.apr{list-style:none;margin:10px 0 0;padding:0}.apr-it{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
-.apr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.apr-obs{font-size:.86rem;color:var(--muted);background:var(--bg);border-radius:10px;padding:6px 10px}
+.apr-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.apr-t>.pill{align-self:flex-start}.apr-obs{font-size:.86rem;color:var(--muted);background:var(--bg);border-radius:10px;padding:6px 10px}
 .apr-b{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
 @media (max-width:600px){.apr-it{flex-direction:column}.apr-b{justify-content:flex-start;width:100%}.apr-b .btn,.apr-b .icon-btn{flex:1}}
 .linkbtn{background:none;border:0;padding:0;color:var(--muted);font:inherit;font-size:.78rem;text-decoration:underline;cursor:pointer;opacity:.8}
@@ -428,10 +417,6 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) #toast{background:var(--amarelo);color:#1F1D42}}
 @media (max-width:600px){
   .brand .logo{height:30px}
-  nav.tabs{background:var(--surface)}
-  nav.tabs a{font-weight:600;font-size:.66rem}
-  nav.tabs a.on{border-top-color:var(--rosa);color:var(--acai)}
-  nav.tabs a.on .ti{color:var(--acai)}
   .card.hero{padding:16px 18px}.card.hero h2{font-size:1.35rem}
   .card.hero::after{width:96px;height:96px;right:-18px;bottom:-30px;opacity:.75}
   .card.hero>div{padding-right:58px}
@@ -444,11 +429,90 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
   .seg button{font-size:.84rem;padding:8px 4px}
 }
 @media (prefers-reduced-motion: reduce){.btn,.atalho{transition:none}}
+/* ===== Layout limpo + menu lateral ===== */
+:root{--side:240px;--side-min:76px;--hdr:58px}
+body{background:var(--bg)}
+.top-row{gap:10px;min-height:var(--hdr)}
+.menu-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;margin-left:-6px;border:0;border-radius:12px;background:transparent;color:var(--ink);cursor:pointer;flex:none}
+.menu-btn:hover{background:var(--acai-soft)}
+.menu-dot{position:absolute;top:8px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--rosa);border:2px solid var(--surface)}
+.brand span{display:none}
+/* navegação */
+nav.tabs{display:flex;flex-direction:column;gap:2px;margin:0;max-width:none;background:var(--surface);overflow-y:auto;overflow-x:hidden}
+nav.tabs a,nav.tabs .nav-aj{display:flex;align-items:center;gap:12px;padding:10px 12px;border:0;border-radius:12px;text-decoration:none;color:var(--ink);font:500 .95rem/1.2 var(--body);white-space:nowrap;position:relative;background:none;cursor:pointer;text-align:left;width:100%}
+nav.tabs a[hidden]{display:none}
+nav.tabs .ti{display:block;width:22px;height:22px;flex:none;color:var(--muted)}
+nav.tabs a:hover,nav.tabs .nav-aj:hover{background:var(--bg)}
+nav.tabs a.on{background:var(--acai-soft);color:var(--acai);font-weight:600}
+nav.tabs a.on .ti{color:var(--acai)}
+nav.tabs a .badge{margin-left:auto;position:static}
+.nav-foot{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.nav-ver{font-size:.7rem;color:var(--muted);padding:4px 12px 2px;opacity:.8}
+#navBack{position:fixed;inset:0;background:rgba(31,29,66,.42);z-index:49}
+body.nav-open header.top{z-index:60}
+header.top>.top-row>.ajuda{display:none}
+@media (min-width:1000px){
+  nav.tabs{position:fixed;top:var(--hdr);left:0;bottom:0;width:var(--side);padding:14px 12px;border-right:1px solid var(--line);z-index:9;transition:width .15s ease}
+  main{max-width:none;margin:0 0 0 var(--side);padding:24px max(24px,calc((100vw - var(--side) - 1040px)/2)) 40px;transition:margin .15s ease}
+  body.nav-min nav.tabs{width:var(--side-min)}
+  body.nav-min main{margin-left:var(--side-min);padding-left:max(24px,calc((100vw - var(--side-min) - 1040px)/2));padding-right:max(24px,calc((100vw - var(--side-min) - 1040px)/2))}
+  body.nav-min nav.tabs .tl-l,body.nav-min .nav-ver{display:none}
+  body.nav-min nav.tabs a,body.nav-min nav.tabs .nav-aj{justify-content:center;padding:10px}
+  body.nav-min nav.tabs a .badge{position:absolute;top:4px;right:6px;margin:0;font-size:.62rem;min-width:16px}
+  .top-row{max-width:none;padding:0 20px}
+}
+@media (max-width:999px){
+  nav.tabs{position:fixed;top:0;left:0;bottom:0;width:min(84vw,300px);padding:calc(16px + env(safe-area-inset-top)) 12px calc(14px + env(safe-area-inset-bottom));z-index:50;transform:translateX(-104%);transition:transform .22s ease;box-shadow:8px 0 30px rgba(31,29,66,.2);border-radius:0 20px 20px 0}
+  body.nav-open nav.tabs{transform:none}
+  body.nav-open{overflow:hidden}
+  nav.tabs a,nav.tabs .nav-aj{padding:13px 14px;font-size:1rem}
+}
+@media (prefers-reduced-motion: reduce){nav.tabs,main{transition:none}}
+/* visual mais limpo */
+.btn{font-family:var(--body);font-weight:600;letter-spacing:0;box-shadow:none!important}
+.btn:not(.ghost):not(.danger):hover{filter:brightness(1.08)}
+.card{border:1px solid var(--line);box-shadow:none;padding:18px}
+.card.hero{border:0}
+.at-t{font-family:var(--body);font-weight:700;font-size:1rem;color:var(--ink)}
+.atalho{border:1px solid var(--line);box-shadow:none;background:var(--surface)}
+.atalho:hover{border-color:var(--azul)}
+.atalho.forte{border:1.5px solid var(--azul);background:var(--surface)}
+.at-d{color:var(--muted)}
+h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.tile{border:1px solid var(--line);box-shadow:none}
+.tile .v{font-family:var(--body);font-weight:700}
+.section-head h2{font-size:1.45rem}
+.card h3{font-size:1.02rem}
+.sub{color:var(--muted)}
+/* registros com foto */
+.fotos-topo{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.fotos-topo h3{margin:0 0 4px}.fotos-topo .sub{margin:0;max-width:560px}
+.fotos-topo .btn{display:inline-flex;align-items:center;gap:8px}
+.foto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.foto-it{display:flex;flex-direction:column;text-align:left;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);overflow:hidden;cursor:pointer;font:inherit;color:inherit}
+.foto-it:hover{border-color:var(--azul)}
+.foto-th{position:relative;display:block;aspect-ratio:4/3;background:var(--bg)}
+.foto-th img{width:100%;height:100%;object-fit:cover;display:block}
+.foto-n{position:absolute;right:8px;bottom:8px;background:rgba(31,29,66,.75);color:#fff;font-size:.75rem;font-weight:700;border-radius:999px;padding:2px 9px}
+.foto-tx{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
+.foto-obs{font-size:.86rem;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.foto-prev{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.fp{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.fp img{width:100%;height:100%;object-fit:cover}
+.fp-x{position:absolute;top:3px;right:3px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(31,29,66,.75);color:#fff;font-size:1rem;line-height:1;cursor:pointer}
+.foto-add{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+.foto-add[hidden]{display:none}
+.lbl{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+.foto-full{display:flex;flex-direction:column;gap:10px}
+.foto-full img{width:100%;border-radius:12px;background:var(--bg)}
+@media (max-width:600px){.foto-grid{grid-template-columns:1fr 1fr;gap:8px}.foto-tx{padding:8px 10px 10px}.foto-tx .sub{font-size:.75rem}.fotos-topo .btn{width:100%;justify-content:center}}
+
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-row">
+    <button class="menu-btn" id="menuBtn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="tabs"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="menu-dot" id="menuDot" hidden></span></button>
     <div class="brand"><h1 aria-label="Sorvely"><svg class="logo" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="317.91 154.09 95.70 26.41" role="img" aria-label="Sorvely"><path fill-rule="evenodd" fill="currentColor" d="M 329.78125 157.945312 C 329.957031 158.292969 329.820312 158.714844 329.476562 158.890625 C 329.132812 159.066406 328.710938 158.933594 328.535156 158.589844 C 327.75 157.070312 326.4375 156.523438 325.246094 156.605469 C 324.734375 156.640625 324.242188 156.789062 323.832031 157.027344 C 323.433594 157.257812 323.109375 157.566406 322.90625 157.925781 C 322.550781 158.566406 322.585938 159.414062 323.308594 160.34375 C 323.546875 160.648438 323.488281 161.089844 323.183594 161.328125 C 323.074219 161.410156 322.949219 161.457031 322.824219 161.472656 C 321.683594 161.6875 320.933594 162.226562 320.585938 162.875 C 320.40625 163.210938 320.332031 163.574219 320.367188 163.941406 C 320.398438 164.3125 320.546875 164.695312 320.808594 165.054688 C 321.4375 165.90625 322.703125 166.597656 324.660156 166.738281 C 328.382812 167.011719 329.964844 166.078125 329.96875 166.078125 C 330.308594 165.886719 330.734375 166.007812 330.921875 166.34375 C 331.113281 166.683594 330.992188 167.109375 330.65625 167.300781 C 330.648438 167.300781 328.710938 168.441406 324.558594 168.136719 C 322.148438 167.960938 320.527344 167.035156 319.679688 165.882812 C 319.261719 165.316406 319.027344 164.691406 318.972656 164.0625 C 318.914062 163.425781 319.042969 162.792969 319.351562 162.21875 C 319.777344 161.417969 320.554688 160.738281 321.65625 160.34375 C 321.097656 159.207031 321.1875 158.132812 321.683594 157.246094 C 322.011719 156.660156 322.519531 156.171875 323.132812 155.816406 C 323.730469 155.472656 324.429688 155.257812 325.15625 155.207031 C 326.84375 155.089844 328.695312 155.847656 329.78125 157.945312 Z M 329.269531 162.09375 C 328.914062 162.023438 328.53125 161.96875 328.113281 161.941406 C 327.789062 161.914062 327.390625 161.9375 326.996094 162.019531 C 326.613281 162.097656 326.246094 162.226562 325.980469 162.417969 C 325.792969 162.558594 325.660156 162.730469 325.644531 162.941406 L 325.644531 162.949219 C 325.640625 163.023438 325.644531 163.097656 325.660156 163.179688 C 325.722656 163.46875 326.066406 163.628906 326.507812 163.660156 C 326.792969 163.683594 327.109375 163.648438 327.429688 163.5625 C 327.757812 163.472656 328.082031 163.328125 328.367188 163.136719 C 328.742188 162.882812 329.066406 162.535156 329.269531 162.09375 Z M 328.140625 168.945312 C 328.515625 168.855469 328.890625 169.085938 328.984375 169.460938 C 329.074219 169.835938 328.84375 170.214844 328.46875 170.304688 C 327.265625 170.597656 325.980469 170.675781 324.722656 170.578125 C 324.054688 170.527344 323.390625 170.421875 322.742188 170.273438 C 324.140625 172.625 325.691406 175.515625 326.542969 177.128906 C 327.398438 175.351562 329.023438 172.042969 330.519531 169.476562 C 330.726562 169.121094 330.917969 168.8125 331.101562 168.515625 L 331.429688 167.984375 C 332 167.042969 332.316406 166.15625 332.375 165.367188 C 332.417969 164.804688 332.328125 164.296875 332.101562 163.859375 C 331.878906 163.417969 331.519531 163.039062 331.011719 162.734375 C 330.890625 162.660156 330.761719 162.59375 330.625 162.527344 C 330.316406 163.28125 329.78125 163.875 329.152344 164.296875 L 329.148438 164.296875 C 328.722656 164.582031 328.257812 164.789062 327.792969 164.917969 C 327.324219 165.042969 326.84375 165.089844 326.402344 165.058594 C 325.347656 164.980469 324.496094 164.453125 324.289062 163.460938 C 324.246094 163.246094 324.234375 163.042969 324.246094 162.855469 L 324.246094 162.835938 C 324.296875 162.164062 324.652344 161.65625 325.164062 161.285156 C 325.601562 160.96875 326.160156 160.761719 326.714844 160.648438 C 327.242188 160.539062 327.78125 160.507812 328.21875 160.542969 C 328.667969 160.574219 329.085938 160.632812 329.480469 160.707031 C 329.464844 160.550781 329.441406 160.390625 329.398438 160.226562 C 329.3125 159.847656 329.546875 159.472656 329.921875 159.382812 C 330.300781 159.296875 330.679688 159.53125 330.765625 159.90625 C 330.867188 160.335938 330.910156 160.742188 330.90625 161.121094 C 331.207031 161.242188 331.484375 161.378906 331.738281 161.535156 C 332.472656 161.976562 333.011719 162.550781 333.355469 163.222656 C 333.695312 163.894531 333.835938 164.652344 333.773438 165.46875 C 333.699219 166.476562 333.316406 167.578125 332.628906 168.710938 L 332.292969 169.257812 C 332.105469 169.558594 331.910156 169.875 331.734375 170.175781 C 329.703125 173.660156 327.449219 178.480469 327.226562 178.957031 L 327.222656 178.960938 C 327.160156 179.113281 327.050781 179.242188 326.894531 179.320312 C 326.550781 179.5 326.128906 179.363281 325.953125 179.019531 C 325.941406 179 322.734375 172.789062 320.585938 169.445312 C 320.472656 169.261719 320.441406 169.03125 320.523438 168.8125 C 320.664062 168.453125 321.070312 168.273438 321.429688 168.414062 C 322.472656 168.820312 323.640625 169.085938 324.824219 169.179688 C 325.953125 169.269531 327.089844 169.199219 328.136719 168.945312 Z M 328.140625 168.945312 "/><path fill-rule="evenodd" fill="currentColor" d="M 411.164062 163.121094 C 410.367188 163.121094 409.722656 162.472656 409.722656 161.675781 C 409.722656 160.878906 410.367188 160.230469 411.164062 160.230469 C 411.960938 160.230469 412.609375 160.878906 412.609375 161.675781 C 412.609375 162.472656 411.960938 163.121094 411.164062 163.121094 Z M 411.164062 160.457031 C 410.492188 160.457031 409.945312 161.003906 409.945312 161.675781 C 409.945312 162.347656 410.492188 162.894531 411.164062 162.894531 C 411.835938 162.894531 412.386719 162.347656 412.386719 161.675781 C 412.386719 161.003906 411.835938 160.457031 411.164062 160.457031 Z M 411.429688 161.726562 C 411.53125 161.789062 411.582031 161.90625 411.605469 162.019531 C 411.632812 162.128906 411.667969 162.320312 411.71875 162.417969 L 411.742188 162.464844 L 411.472656 162.464844 L 411.460938 162.449219 C 411.414062 162.367188 411.378906 162.183594 411.359375 162.085938 C 411.324219 161.925781 411.273438 161.832031 411.09375 161.824219 L 410.949219 161.824219 L 410.949219 162.464844 L 410.691406 162.464844 L 410.691406 160.945312 L 410.714844 160.9375 C 410.835938 160.914062 410.96875 160.90625 411.089844 160.90625 C 411.246094 160.90625 411.417969 160.925781 411.542969 161.035156 C 411.628906 161.113281 411.667969 161.226562 411.667969 161.34375 C 411.667969 161.515625 411.578125 161.652344 411.429688 161.726562 Z M 410.949219 161.613281 L 411.109375 161.613281 C 411.265625 161.613281 411.410156 161.539062 411.410156 161.363281 C 411.410156 161.179688 411.265625 161.121094 411.101562 161.121094 C 411.054688 161.121094 410.996094 161.121094 410.949219 161.132812 Z M 410.949219 161.613281 "/><path fill-rule="nonzero" fill="currentColor" d="M 409.175781 168.417969 C 409.175781 169.6875 408.785156 170.730469 408.132812 171.503906 C 407.9375 171.738281 407.988281 172.085938 408.246094 172.25 C 409.011719 172.734375 409.375 173.550781 409.390625 174.394531 C 409.390625 175.558594 408.613281 176.726562 407.253906 177.199219 C 406.328125 177.503906 405.292969 177.632812 404.277344 177.632812 C 402.394531 177.632812 400.625 177.179688 399.128906 176.355469 C 398.902344 176.230469 398.808594 175.953125 398.917969 175.714844 L 399.695312 174.003906 C 399.816406 173.734375 400.148438 173.628906 400.398438 173.785156 C 401.449219 174.441406 402.796875 174.847656 404.277344 174.847656 C 405.03125 174.847656 405.875 174.761719 406.542969 174.480469 C 407.058594 174.265625 407.191406 173.898438 407.082031 173.445312 C 406.953125 173.097656 406.632812 172.925781 406.304688 172.925781 C 406.199219 172.925781 406.109375 172.949219 406.003906 172.972656 C 405.460938 173.121094 404.902344 173.1875 404.277344 173.1875 C 401.597656 173.1875 399.355469 171.585938 399.355469 168.417969 L 399.355469 163.515625 C 399.355469 163.242188 399.578125 163.023438 399.851562 163.023438 L 401.925781 163.023438 C 402.195312 163.023438 402.417969 163.242188 402.417969 163.515625 L 402.417969 168.4375 C 402.417969 169.6875 403.132812 170.507812 404.277344 170.507812 C 405.398438 170.507812 406.066406 169.6875 406.066406 168.4375 L 406.066406 163.515625 C 406.066406 163.242188 406.289062 163.023438 406.5625 163.023438 L 408.558594 163.023438 C 408.898438 163.023438 409.175781 163.296875 409.175781 163.636719 Z M 409.175781 168.417969 "/><path fill-rule="nonzero" fill="currentColor" d="M 397.214844 172.441406 L 397.214844 160.132812 C 397.214844 159.746094 396.898438 159.433594 396.511719 159.433594 L 394.820312 159.433594 C 394.4375 159.433594 394.125 159.746094 394.125 160.128906 L 394.125 172.445312 C 394.125 172.828125 394.4375 173.140625 394.820312 173.140625 L 396.511719 173.140625 C 396.898438 173.140625 397.214844 172.828125 397.214844 172.441406 "/><path fill-rule="nonzero" fill="currentColor" d="M 381.730469 168.046875 C 381.730469 171.480469 384.511719 173.207031 387.558594 173.207031 C 389.15625 173.207031 390.738281 172.773438 391.753906 171.957031 C 391.976562 171.78125 392.007812 171.460938 391.824219 171.246094 L 390.785156 170.035156 C 390.617188 169.839844 390.328125 169.804688 390.121094 169.957031 C 389.441406 170.445312 388.527344 170.769531 387.601562 170.769531 C 386.417969 170.769531 385.339844 170.160156 384.914062 169.144531 C 384.84375 168.972656 384.96875 168.785156 385.152344 168.785156 L 391.8125 168.785156 C 392.042969 168.785156 392.25 168.625 392.296875 168.398438 C 392.367188 168.039062 392.390625 167.691406 392.390625 167.359375 C 392.390625 164.574219 390.015625 162.890625 387.253906 162.890625 C 383.890625 162.890625 381.730469 164.898438 381.730469 168.046875 Z M 389.347656 167.011719 L 385.121094 167.011719 C 384.949219 167.011719 384.820312 166.851562 384.859375 166.683594 C 385.078125 165.757812 386.035156 165.136719 387.058594 165.136719 C 388.265625 165.136719 389.347656 165.78125 389.347656 167.011719 "/><path fill-rule="nonzero" fill="currentColor" d="M 370.917969 163.65625 L 373.957031 172.71875 C 374.027344 172.921875 374.214844 173.058594 374.425781 173.058594 L 377.644531 173.058594 C 377.855469 173.058594 378.042969 172.921875 378.113281 172.71875 L 381.144531 163.671875 C 381.253906 163.351562 381.015625 163.023438 380.679688 163.023438 L 378.578125 163.023438 C 378.363281 163.023438 378.171875 163.160156 378.109375 163.367188 L 376.507812 168.417969 C 376.359375 168.878906 375.710938 168.878906 375.5625 168.417969 L 373.964844 163.367188 C 373.902344 163.160156 373.710938 163.023438 373.496094 163.023438 L 371.375 163.023438 C 371.046875 163.023438 370.8125 163.34375 370.917969 163.65625 "/><path fill-rule="nonzero" fill="currentColor" d="M 350.894531 168.179688 C 350.894531 171.15625 353.378906 173.339844 356.355469 173.339844 C 359.3125 173.339844 361.796875 171.15625 361.796875 168.179688 C 361.796875 165.160156 359.441406 163.023438 356.355469 163.023438 C 353.269531 163.023438 350.894531 165.160156 350.894531 168.179688 Z M 358.753906 168.179688 C 358.753906 169.558594 357.671875 170.574219 356.355469 170.574219 C 355.058594 170.574219 353.9375 169.558594 353.9375 168.179688 C 353.9375 166.777344 355.015625 165.78125 356.355469 165.78125 C 357.695312 165.78125 358.753906 166.777344 358.753906 168.179688 "/><path fill-rule="nonzero" fill="currentColor" d="M 338.660156 164.011719 C 338.699219 165.4375 339.734375 166.734375 341.398438 167.359375 C 342.5 167.792969 344.054688 168.09375 345.261719 168.371094 C 345.976562 168.566406 346.578125 168.890625 346.578125 169.496094 C 346.578125 170.183594 345.734375 170.464844 344.960938 170.464844 C 343.546875 170.464844 341.800781 170.152344 340.367188 169.699219 C 340.101562 169.613281 339.820312 169.761719 339.742188 170.027344 L 339.21875 171.816406 C 339.144531 172.066406 339.277344 172.335938 339.527344 172.417969 C 340.914062 172.894531 342.902344 173.207031 344.59375 173.207031 C 348.003906 173.207031 349.859375 171.523438 349.792969 169.34375 C 349.730469 167.917969 348.714844 166.625 347.03125 165.976562 C 345.929688 165.523438 344.375 165.222656 343.1875 164.960938 C 342.433594 164.765625 341.871094 164.425781 341.871094 163.863281 C 341.871094 163.148438 342.691406 162.867188 343.511719 162.867188 C 344.925781 162.867188 346.65625 163.183594 348.089844 163.625 C 348.351562 163.703125 348.628906 163.558594 348.707031 163.292969 L 349.230469 161.542969 C 349.304688 161.285156 349.164062 161.015625 348.910156 160.929688 C 347.535156 160.460938 345.523438 160.148438 343.839844 160.148438 C 340.425781 160.148438 338.59375 161.832031 338.660156 164.011719 "/><path fill-rule="nonzero" fill="currentColor" d="M 363.253906 163.585938 L 363.253906 172.648438 C 363.253906 172.921875 363.476562 173.144531 363.75 173.144531 L 365.847656 173.144531 C 366.121094 173.144531 366.34375 172.921875 366.34375 172.648438 L 366.34375 168.523438 C 366.34375 166.648438 367.722656 166.128906 369.253906 166.128906 C 369.382812 166.128906 369.40625 166.128906 369.53125 166.132812 C 369.984375 166.144531 370.089844 165.8125 370.058594 165.421875 L 370.046875 163.523438 C 370.019531 163.210938 369.691406 163.066406 369.464844 163.09375 C 368.265625 163.222656 367.339844 163.660156 366.664062 164.46875 C 366.554688 164.601562 366.34375 164.523438 366.34375 164.355469 L 366.34375 163.601562 C 366.34375 163.332031 366.125 163.109375 365.851562 163.109375 C 365.273438 163.109375 364.324219 163.09375 363.75 163.09375 C 363.476562 163.09375 363.253906 163.316406 363.253906 163.585938 "/></svg></h1><span>Gestão da loja e da fábrica</span></div>
     <button class="ajuda" type="button" data-act="ajuda">Ajuda</button>
     <button class="who" id="whoBtn" type="button" aria-label="Conta e PIN"><span id="whoName">Entrar</span><span class="lvl" id="whoLvl" hidden></span></button>
@@ -460,8 +524,11 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
     <a href="#plano" data-v="plano" id="tabPlano"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h1M4 12h1M4 18h1"/></svg><span class="tl-l">Plano</span><span class="badge" id="propBadge" hidden></span></a>
     <a href="#indicadores" data-v="indicadores" id="tabInd"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="tl-l">Indicadores</span></a>
     <a href="#painel" data-v="painel" id="tabPainel" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="tl-l">Painel</span></a>
+    <a href="#rotinas" data-v="rotinas" data-sub="fotos" id="tabFotos" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span class="tl-l">Registros com foto</span></a>
     <a href="#usuarios" data-v="usuarios" id="tabUsu" hidden><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 4a3 3 0 010 6M21 20c0-2-1-4-3-5"/></svg><span class="tl-l">Equipe</span></a>
+    <div class="nav-foot"><button type="button" class="nav-aj" data-act="ajuda"><svg class="ti" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14"/><circle cx="12" cy="17.2" r=".6" fill="currentColor"/></svg><span class="tl-l">Ajuda</span></button><span class="nav-ver" id="navVer"></span></div>
   </nav>
+  <div id="navBack" hidden></div>
 </header>
 <main id="main">
   <div class="card"><p class="sub">Carregando os dados da sorveteria...</p></div>
@@ -470,7 +537,7 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-15 18:19"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-15 23:12"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -707,7 +774,7 @@ function render(){
   $("#whoName").innerHTML = S.eu?`<b>${esc(S.eu)}</b>`:"Entrar";
   const lv=$("#whoLvl"); lv.hidden=!S.eu; lv.textContent=ehLider()?"Liderança":(pessoa(S.eu)?.papel||"");
   const grupo={trilha:"plano",propostas:"plano"}[S.view]||S.view;
-  document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===grupo));
+  document.querySelectorAll("#tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===grupo&&(a.dataset.sub?S.f.rot.sub===a.dataset.sub:!(grupo==="rotinas"&&S.f.rot.sub==="fotos"&&$("#tabFotos")&&!$("#tabFotos").hidden))));
   $("#tabPainel").hidden=!vePainel(); $("#tabUsu").hidden=!ehLider(); $("#tabPlano").hidden=!S.eu; $("#tabInd").hidden=!S.eu;
   const pend=pendAprov().n;
   const b=$("#propBadge"); b.hidden=!pend; b.textContent=pend;
@@ -717,7 +784,9 @@ function render(){
   else if(!S.db&&S.tentouDb) top+=`<div class="banner err">Não consegui conectar ao banco de dados. Confira a internet e abra o app de novo.</div>`;
   else if(S.slow) top+=`<div class="banner">Os dados estão demorando para chegar. O que aparece pode estar desatualizado.</div>`;
   if(!S.canWrite) top+=`<div class="banner">Você está com acesso só de leitura. Para lançar, peça ao Marco para te convidar como editor.</div>`;
-    $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!veRotinas(); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
+    $("#tabProd").hidden=!veProducao(); $("#tabRot").hidden=!(S.eu&&permRot(pessoa(S.eu)).some(x=>x!=="fotos")); $("#tabFotos").hidden=!podeRot("fotos"); const pp=pendProducao(), pb=$("#prodBadge"); pb.hidden=!pp; pb.textContent=pp;
+  $("#menuDot").hidden=![...document.querySelectorAll("#tabs .badge")].some(x=>!x.hidden&&x.closest("a")&&!x.closest("a").hidden);
+  const nv=$("#navVer"); if(nv)nv.textContent=versaoApp()?"versão de "+versaoApp():"";
   const v={registro:vRegistro,painel:vPainel,plano:vPlano,trilha:vTrilha,indicadores:vIndicadores,propostas:vPropostas,usuarios:vEquipe,producao:vProducao,rotinas:vRotinas,inicio:vInicio}[S.view]||vInicio;
   const scroll=window.scrollY, keep={}; let foco=document.activeElement&&m.contains(document.activeElement)?document.activeElement:null;
   m.querySelectorAll("#enForm input, #enForm select, [data-eqin], textarea[id]").forEach(el=>{const k=el.id||("eq:"+el.dataset.eqin);keep[k]=el.type==="checkbox"?el.checked:el.value;});
@@ -827,7 +896,7 @@ function carregarXLSX(){
   if(window.XLSX)return Promise.resolve();
   return new Promise((res,rej)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=res;sc.onerror=()=>rej(new Error("lib"));document.head.appendChild(sc);});
 }
-const COLS_BKP=["config","usuarios","acoes","trilha","indicadores","lancamentos","propostas","solicitacoes","ordens","produtos","caixas","entregas","temperaturas","equipamentos","estoque","estoqueMov","historico","vendasProduto","ponto","comunicados","ciencias","checklists"];
+const COLS_BKP=["config","usuarios","acoes","trilha","indicadores","lancamentos","propostas","solicitacoes","ordens","produtos","caixas","entregas","temperaturas","equipamentos","estoque","estoqueMov","historico","vendasProduto","ponto","comunicados","ciencias","checklists","fotos"];
 function lerColecao(c){
   return new Promise((res,rej)=>{let un=null,fim=false;
     const ok=sn=>{if(fim)return;fim=true;clearTimeout(t);setTimeout(()=>un&&un(),0);res(Object.fromEntries(sn.docs.map(d=>{const x={...d.data()};if(c==="usuarios"){delete x.pinHash;delete x.pinSalt;}return [d.id,x];})));};
@@ -1414,11 +1483,12 @@ const EQUIP_SUGERIDOS={
 };
 function permRot(p){
   if(!p||p.ativo===false)return [];
-  if(p.nivel==="Liderança")return ["checklist","caixa","temperatura","estoque"];
-  if(Array.isArray(p.rotinas))return p.rotinas.filter(x=>x!=="entregas");
+  if(p.nivel==="Liderança")return ["checklist","caixa","temperatura","estoque","fotos"];
+  if(Array.isArray(p.rotinas))return [...p.rotinas.filter(x=>x!=="entregas"&&x!=="fotos"),"fotos"];
   const papel=String(p.papel||"").toLowerCase(), r=[];
   if(papel.includes("loja"))r.push("checklist","caixa","temperatura","estoque");
   if(papel.includes("fábrica")||papel.includes("fabrica"))r.push("temperatura");
+  r.push("fotos");
   return [...new Set(r)];
 }
 const podeRot=x=>S.canWrite&&!!S.eu&&permRot(pessoa(S.eu)).includes(x);
@@ -1666,13 +1736,100 @@ function cardVendasProd(){
 
 function vRotinas(){
   if(!veRotinas())return `<div class="card"><h2>Rotinas diárias</h2><p class="sub">${S.eu?"Seu usuário não tem rotinas diárias. Se precisar, fale com o Marco.":"Entre com seu nome e PIN para registrar as rotinas."}</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
-  const perms=permRot(pessoa(S.eu)), opcoes=[["checklist","Checklist"],["estoque","Estoque de caixas"],["caixa","Fechamento de caixa"],["temperatura","Temperatura"]].filter(([k])=>perms.includes(k));
+  const perms=permRot(pessoa(S.eu)), opcoes=[["checklist","Checklist"],["estoque","Estoque"],["caixa","Caixa"],["temperatura","Temperatura"],["fotos","Fotos"]].filter(([k])=>perms.includes(k));
   const sub=opcoes.some(o=>o[0]===S.f.rot.sub)?S.f.rot.sub:opcoes[0][0];
+  if(sub==="fotos")return vFotos();
   return `<div class="section-head"><h2>Rotinas diárias</h2>
-    <div class="seg">${opcoes.map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-rsub="${k}">${l}</button>`).join("")}</div></div>
-  ${sub==="checklist"?vChecklist():sub==="estoque"?vEstoque():sub==="caixa"?vCaixa():sub==="entregas"?vEntregas():vTemperatura()}`;
+    <div class="seg">${opcoes.filter(o=>o[0]!=="fotos").map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-rsub="${k}">${l}</button>`).join("")}</div></div>
+  ${sub==="fotos"?vFotos():sub==="checklist"?vChecklist():sub==="estoque"?vEstoque():sub==="caixa"?vCaixa():sub==="entregas"?vEntregas():vTemperatura()}`;
 }
 
+
+/* ===== Registros com foto ===== */
+const TIPOS_FOTO=["Reposição dos freezers","Recebimento de mercadoria","Limpeza","Organização","Vitrine e exposição","Validade","Avaria ou perda","Equipamento com problema","Outro"];
+const MAX_FOTOS=4;
+function lerImagem(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), im=new Image(); im.onload=()=>{URL.revokeObjectURL(u);res(im);}; im.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("imagem"));}; im.src=u; }); }
+function reduzir(im,max,q){ const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)), c=document.createElement("canvas"); c.width=Math.round(im.naturalWidth*k); c.height=Math.round(im.naturalHeight*k); const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height); return c.toDataURL("image/jpeg",q); }
+async function prepararFoto(file){
+  const im=await lerImagem(file);
+  let max=1280,q=.68,img=reduzir(im,max,q);
+  while(img.length>650000&&q>.35){ q-=.08; if(q<.5)max=1024; img=reduzir(im,max,q); }
+  return {img, mini:reduzir(im,260,.6)};
+}
+function vFotos(){
+  const f=S.f.fotos||(S.f.fotos={tipo:"",dias:7,por:"",q:""}), q=f.q.toLowerCase();
+  const corte=f.dias?Date.now()-f.dias*864e5:0;
+  const todas=(S.fotos||[]).filter(x=>new Date(x.em).getTime()>=corte).sort((a,b)=>String(b.em).localeCompare(a.em));
+  const l=todas.filter(x=>(!f.tipo||x.tipo===f.tipo)&&(!f.por||x.por===f.por)&&(!q||(x.tipo+" "+x.local+" "+(x.obs||"")+" "+x.por).toLowerCase().includes(q)));
+  const pessoas=[...new Set(todas.map(x=>x.por))].sort();
+  return `<div class="card fotos-topo"><div><h3>Registros com foto</h3><p class="sub">Fotografe a reposição dos freezers, o recebimento de mercadoria, a limpeza ou qualquer situação que precise ficar registrada.</p></div>
+    <button class="btn" data-act="novaFoto"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Novo registro com foto</button></div>
+  ${blocoFiltros("fotos",`<input type="search" id="foQ" placeholder="Buscar nos registros" value="${esc(f.q)}">`,
+    `<select id="foTipo" aria-label="Tipo">${opts([{v:"",l:"Todos os tipos"},...TIPOS_FOTO],f.tipo)}</select>
+     <select id="foDias" aria-label="Período">${opts([{v:1,l:"Hoje e ontem"},{v:7,l:"Últimos 7 dias"},{v:30,l:"Últimos 30 dias"}],f.dias)}</select>
+     ${pessoas.length>1?`<select id="foPor" aria-label="Pessoa">${opts([{v:"",l:"Todas as pessoas"},...pessoas],f.por)}</select>`:""}`,
+    [f.tipo,f.dias!==7,f.por].filter(Boolean).length)}
+  ${l.length?`<div class="foto-grid">${l.map(x=>`<button type="button" class="foto-it" data-foto="${esc(x._doc)}">
+      <span class="foto-th">${x.thumbs&&x.thumbs[0]?`<img src="${x.thumbs[0]}" alt="" loading="lazy">`:""}${(x.n||1)>1?`<span class="foto-n">${x.n}</span>`:""}</span>
+      <span class="foto-tx"><b>${esc(x.tipo)}</b><span class="sub">${esc(x.local||"")} · ${esc(x.por)} · ${new Date(x.em).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</span>${x.obs?`<span class="foto-obs">${esc(x.obs)}</span>`:""}</span></button>`).join("")}</div>`
+    :`<div class="card"><p class="empty">Nenhum registro com foto ${f.tipo||f.por||q?"com esses filtros":"no período"}.</p></div>`}
+  <p class="hint">A lista mostra os últimos 30 dias. Quem registrou ou a Liderança pode apagar um registro.</p>`;
+}
+function formFoto(tipoIni){
+  const fotos=[]; const p=pessoa(S.eu)||{}, papel=String(p.papel||"").toLowerCase();
+  const localIni=papel.includes("fábrica")||papel.includes("fabrica")?"Fábrica":"Loja";
+  abrirDlg(`<h2>Novo registro com foto</h2>
+    <div class="field"><label for="fo_t">O que você está registrando?</label><select id="fo_t" name="tipo">${opts([{v:"",l:"Escolha"},...TIPOS_FOTO],tipoIni||"")}</select></div>
+    <div class="field"><span class="lbl">Onde</span><div class="seg" id="fo_l">${["Loja","Fábrica"].map(x=>`<button type="button" class="${x===localIni?"on":""}" data-fol="${x}">${x}</button>`).join("")}</div><input type="hidden" name="local" value="${localIni}"></div>
+    <div class="field"><span class="lbl">Fotos (até ${MAX_FOTOS})</span>
+      <div class="foto-prev" id="fo_prev"></div>
+      <label class="btn ghost foto-add" id="fo_add"><input type="file" id="fo_f" accept="image/*" capture="environment" multiple hidden><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Tirar ou escolher foto</label>
+      <span class="hint" id="fo_st"></span></div>
+    <div class="field"><label for="fo_o">Observação</label><textarea id="fo_o" name="obs" rows="2" placeholder="ex.: freezer 2 reposto com 6 caixas de açaí"></textarea></div>
+    <p class="err-msg" id="fo_e" hidden></p>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar registro</button></div>`,
+  async (fd,btn,f)=>{
+    const err=m=>{const e=f.querySelector("#fo_e");e.textContent=m;e.hidden=false;return false;};
+    const tipo=String(fd.get("tipo")||""); if(!tipo)return err("Escolha o que você está registrando.");
+    if(f.dataset.preparando)return err("Espere as fotos terminarem de carregar.");
+    if(!fotos.length)return err("Tire ou escolha pelo menos uma foto.");
+    const ref=S.db.collection("fotos").doc(), id=ref.id, em=new Date().toISOString(), por=quemSou();
+    return gravar(async()=>{
+      for(let i=0;i<fotos.length;i++) await S.db.doc("fotosDados/"+id+"_"+i).set({foto:id,i,img:fotos[i].img,por,em});
+      await ref.set({tipo,local:String(fd.get("local")||""),obs:String(fd.get("obs")||"").trim(),por,em,data:iso(hoje()),n:fotos.length,thumbs:fotos.map(x=>x.mini)});
+    },"Registro com foto salvo.");
+  },{onOpen:f=>{
+    const prev=f.querySelector("#fo_prev"), st=f.querySelector("#fo_st"), add=f.querySelector("#fo_add");
+    const desenhar=()=>{ prev.innerHTML=fotos.map((x,i)=>`<span class="fp"><img src="${x.mini}" alt="Foto ${i+1}"><button type="button" class="fp-x" data-fpx="${i}" aria-label="Tirar a foto ${i+1}">×</button></span>`).join(""); add.hidden=fotos.length>=MAX_FOTOS; };
+    prev.addEventListener("click",e=>{const b=e.target.closest("[data-fpx]"); if(b){fotos.splice(Number(b.dataset.fpx),1);desenhar();}});
+    f.querySelector("#fo_l").addEventListener("click",e=>{const b=e.target.closest("[data-fol]"); if(!b)return; f.querySelectorAll("#fo_l button").forEach(x=>x.classList.toggle("on",x===b)); f.querySelector("input[name=local]").value=b.dataset.fol;});
+    f.querySelector("#fo_f").addEventListener("change",async e=>{
+      const arq=[...e.target.files].slice(0,MAX_FOTOS-fotos.length); e.target.value="";
+      if(!arq.length)return; f.dataset.preparando="1"; st.textContent="Preparando foto...";
+      for(const a of arq){ try{ fotos.push(await prepararFoto(a)); desenhar(); }catch(x){ toast("Não consegui abrir essa imagem."); } }
+      delete f.dataset.preparando; st.textContent="";
+    });
+    desenhar();
+  }});
+}
+async function verFoto(doc){
+  const x=(S.fotos||[]).find(y=>y._doc===doc); if(!x)return;
+  const pode=S.canWrite&&(x.por===S.eu||ehLider());
+  abrirDlg(`<h2>${esc(x.tipo)}</h2><p class="sub">${esc(x.local||"")} · ${esc(x.por)} · ${new Date(x.em).toLocaleString("pt-BR",{weekday:"short",day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</p>
+    ${x.obs?`<p>${esc(x.obs)}</p>`:""}
+    <div class="foto-full" id="fo_full">${(x.thumbs||[]).map((t,i)=>`<img src="${t}" data-fi="${i}" alt="Foto ${i+1} de ${x.n||1}">`).join("")}</div>
+    <p class="hint" id="fo_carr">Carregando as fotos em tamanho real...</p>
+    <div class="dlg-foot">${pode?'<button class="btn danger" value="del" formnovalidate>Apagar registro</button>':""}<button class="btn" value="cancel">Fechar</button></div>`,
+  async (fd,btn)=>{
+    if(btn!=="del")return true;
+    if(!(await pergunta("Apagar registro","As fotos deste registro serão apagadas e não dá para desfazer.","Apagar")))return false;
+    return gravar(async()=>{ await S.db.doc("fotos/"+doc).delete(); for(let i=0;i<(x.n||1);i++){ try{await S.db.doc("fotosDados/"+doc+"_"+i).delete();}catch(e){} } },"Registro apagado.");
+  });
+  for(let i=0;i<(x.n||1);i++){
+    try{ const d=await S.db.doc("fotosDados/"+doc+"_"+i).get(); const im=document.querySelector(`#fo_full img[data-fi="${i}"]`); if(d.exists&&im)im.src=d.data().img; }catch(e){}
+  }
+  const c=document.getElementById("fo_carr"); if(c)c.remove();
+}
 /* ===== Fechamento de caixa ===== */
 function vCaixa(){
   const ind=indRaw("quebra-de-caixa")||{}, lim=Number(ind.limVerde??0.2);
@@ -1948,6 +2105,7 @@ function vInicio(){
   if(meusInd.length&&podeEscrever())at.push(atalho("acao:lancar","Lançar indicador",`${meusInd.length} indicador(es) sob sua responsabilidade`,0,false));
   if(podeEscrever())at.push(atalho("acao:propor","Propor uma ação","Sugerir melhoria para a Liderança",0,false));
   if(vePainel())at.push(atalho("painel","Painel geral","Visão do plano e dos indicadores",0,false));
+  if(podeRot("fotos")){const hj=(S.fotos||[]).filter(x=>x.data===iso(hoje())).length; at.push(atalho("rotinas:fotos","Registrar com foto",hj?`${hj} registro(s) hoje`:"Reposição, recebimento, limpeza",0,false));}
   if(ehLider())at.push(atalho("usuarios","Equipe","Usuários, ponto, comunicados e checklist",0,false));
   const pend=[];
   const daLoja=t=>ehLider()?"Loja: "+t.charAt(0).toLowerCase()+t.slice(1):t;
@@ -1984,6 +2142,7 @@ function limparFiltros(fid){
   if(fid==="plano")Object.assign(S.f.plano,{onda:"",status:"",onde:"",minhas:false});
   else if(fid==="trilha")Object.assign(S.f.trilha,{cat:"",status:"",minhas:false});
   else if(fid==="registro")Object.assign(S.f.reg,{dias:7,por:"",area:"",lim:150});
+  else if(fid==="fotos")Object.assign(S.f.fotos,{tipo:"",dias:7,por:""});
   render();
 }
 function abrirAjuda(){
@@ -1992,9 +2151,10 @@ function abrirAjuda(){
   const b=[];
   b.push(sec("Entrar e PIN",`<p>Escolha seu nome e digite seu PIN. No primeiro acesso o app pede para você criar um PIN só seu.</p><p>Para trocar o PIN ou sair, toque no seu nome no alto da tela.</p><p>Esqueceu o PIN? Fale com o Marco para receber um PIN provisório.</p>`,!S.eu));
   b.push(sec("Colocar o app na tela do celular",`<p><b>iPhone:</b> no Safari, toque em Compartilhar e depois em "Adicionar à Tela de Início".</p><p><b>Android:</b> no Chrome, toque nos três pontinhos e depois em "Adicionar à tela inicial".</p>`));
-  if(S.eu)b.push(sec("Tela inicial",`<p>"Para fazer hoje" mostra o que está pendente para você. Toque em um item para ir direto à tarefa.</p><p>Os comunicados aparecem no alto até você tocar em "Li e estou ciente".</p>`,true));
+  if(S.eu)b.push(sec("Tela inicial",`<p>"Para fazer hoje" mostra o que está pendente para você. Toque em um item para ir direto à tarefa.</p><p>Os comunicados aparecem no alto até você tocar em "Li e estou ciente".</p><p>Para trocar de tela, toque no menu <b>☰</b> no canto de cima, à esquerda.</p>`,true));
   if(rt.includes("checklist"))b.push(sec("Checklist de abertura e fechamento",`<p>Em Rotinas > Checklist, marque cada item quando estiver feito. Mais de uma pessoa pode marcar.</p><p>No fim, toque em "Concluir e conferir". Outra pessoa olha os itens e confirma com o PIN dela.</p><p>Se algum item ficou sem fazer, escreva o motivo em Pendências.</p>`));
   if(rt.includes("estoque"))b.push(sec("Estoque de caixas",`<p>Em Rotinas > Estoque de caixas, toque em <b>-1</b> no sabor toda vez que retirar uma caixa. Use a busca para achar o sabor.</p><p>Errou? Toque em "Desfazer" no registro, na lista dos últimos movimentos.</p><p>Quando chegar mercadoria, use "Entrada de caixas". Para acertar o saldo, use "Contagem".</p>`));
+  if(rt.includes("fotos"))b.push(sec("Registros com foto",`<p>Toque em "Registrar com foto" na tela inicial ou em "Registros com foto" no menu. Escolha o que está registrando, tire até ${MAX_FOTOS} fotos, escreva uma observação se quiser e salve.</p><p>Use para a reposição dos freezers, recebimento de mercadoria, limpeza, avarias e o que mais precisar ficar registrado.</p>`));
   if(rt.includes("caixa"))b.push(sec("Fechamento de caixa",`<p>Na tela inicial, toque em "Fechar caixa" e preencha os valores do turno. Se houver diferença, escreva a justificativa.</p>`));
   if(rt.includes("temperatura"))b.push(sec("Temperatura",`<p>Em Rotinas > Temperatura, digite a leitura de cada equipamento e toque em Registrar. São duas leituras por dia.</p>`));
   if(pr.length)b.push(sec("Produção",`<p><b>Loja:</b> use "Pedir produção" para avisar a fábrica do que está faltando e confira o recebimento quando o envio chegar.</p><p><b>Fábrica:</b> veja as ordens em Produção e atualize o andamento de cada uma.</p>`));
@@ -2810,6 +2970,7 @@ function entradasRegistro(){
   (S.propostas||[]).forEach(x=>add(x.criadoEm,x.propostoPor,"Plano",`propôs “${esc(String(x.oque||"").slice(0,80))}”`,"propostas"));
   (S.comunicados||[]).forEach(c=>add(c.em,c.por,"Equipe",`publicou o comunicado “${esc(c.titulo)}”`,"usuarios"));
   (S.ciencias||[]).forEach(c=>add(c.em,c.presencial?c.registradoPor:c.nome,"Equipe",c.presencial?`registrou a ciência de ${esc(c.nome)} em “${esc(c.titulo)}”`:`deu ciência em “${esc(c.titulo)}”`,"usuarios"));
+  (S.fotos||[]).forEach(x=>add(x.em,x.por,"Fotos",`registrou ${x.n||1} foto(s): <b>${esc(x.tipo)}</b> (${esc(x.local||"")})`,"rotinas:fotos"));
   (S.vendasProd||[]).forEach(v=>add(v.lancadoEm,v.lancadoPor,"Vendas",`lançou as vendas por produto de ${esc(v.titulo||v._doc)}`,"painel"));
   S.usuarios.forEach(u=>{ if(u.criadoEm&&u.criadoPor&&u.criadoPor!=="Planilha")add(u.criadoEm,u.criadoPor,"Equipe",`criou o usuário ${esc(u.nome)}`,"usuarios");
     if(u.alteradoEm&&u.alteradoPor)add(u.alteradoEm,u.alteradoPor,"Equipe",`alterou o usuário ${esc(u.nome)}`,"usuarios"); });
@@ -2850,6 +3011,7 @@ document.addEventListener("click",e=>{
   const rs=e.target.closest("[data-rsub]"); if(rs){S.f.rot.sub=rs.dataset.rsub;render();return;}
   const ef=e.target.closest("[data-efil]"); if(ef){S.f.rot.fEst=ef.dataset.efil;render();return;}
   const tl=e.target.closest("[data-tloc]"); if(tl){S.f.rot.localT=tl.dataset.tloc;render();return;}
+  const fo=e.target.closest("[data-foto]"); if(fo){verFoto(fo.dataset.foto);return;}
   const es=e.target.closest("[data-eqsub]"); if(es){S.f.eq.sub=es.dataset.eqsub;render();return;}
   const ct=e.target.closest("[data-cktipo]"); if(ct){S.f.rot.ckTipo=ct.dataset.cktipo;render();return;}
   const b=e.target.closest("[data-act]"); if(!b||b.closest("dialog"))return;
@@ -2906,6 +3068,7 @@ document.addEventListener("click",e=>{
   else if(a==="pinUsu")redefinirPin(S.usuarios.find(x=>x._doc===d));
   else if(a==="entrar")entrar(false);
   else if(a==="ajuda")abrirAjuda();
+  else if(a==="novaFoto")formFoto();
   else if(["aprovProp","recProp","aprovProd","aprovTodas"].includes(a)){
     if(b.dataset.busy)return; b.dataset.busy="1"; b.disabled=true;
     (async()=>{ try{
@@ -2936,6 +3099,7 @@ document.addEventListener("change",async e=>{
   if(t.id==="pCob"){S.f.prod.cob=Number(t.value);S.f.prod.sugOpen=true;render();}
   if(t.id==="vpSel"){S.f.vp=t.value;render();}
   if(t.id==="cxDias"){S.f.rot.diasCx=Number(t.value);render();}
+  if(t.id==="foTipo"||t.id==="foDias"||t.id==="foPor"){const r=S.f.fotos;r[{foTipo:"tipo",foDias:"dias",foPor:"por"}[t.id]]=t.id==="foDias"?Number(t.value):t.value;render();}
   if(t.id==="rgDias"||t.id==="rgPor"||t.id==="rgArea"){const r=S.f.reg;r[{rgDias:"dias",rgPor:"por",rgArea:"area"}[t.id]]=t.id==="rgDias"?Number(t.value):t.value;r.lim=150;render();}
   if(t.id==="pMes"){S.f.eq.mesP=t.value;render();}
   if(t.dataset&&t.dataset.ck!==undefined){marcarCk(Number(t.dataset.ck),t.checked);}
@@ -2943,13 +3107,23 @@ document.addEventListener("change",async e=>{
 });
 let qT;
 document.addEventListener("input",e=>{
-  const t=e.target; if(!["fQ","tQ","eQ","vpQ","rgQ"].includes(t.id))return;
-  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else if(t.id==="rgQ"){S.f.reg.q=t.value;S.f.reg.lim=150;}else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
+  const t=e.target; if(!["fQ","tQ","eQ","vpQ","rgQ","foQ"].includes(t.id))return;
+  clearTimeout(qT); qT=setTimeout(()=>{if(t.id==="eQ")S.f.rot.qEst=t.value;else if(t.id==="vpQ")S.f.vpQ=t.value;else if(t.id==="rgQ"){S.f.reg.q=t.value;S.f.reg.lim=150;}else if(t.id==="foQ"){S.f.fotos.q=t.value;}else S.f[t.id==="fQ"?"plano":"trilha"].q=t.value;render();const el=document.getElementById(t.id);if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}},250);
 });
 $("#whoBtn").addEventListener("click",menuUsuario);
 function rota(){const h=location.hash.slice(1),ant=S.view;S.view=["inicio","painel","plano","trilha","indicadores","propostas","usuarios","producao","rotinas","registro"].includes(h)?h:"inicio";render();if(ant&&ant!==S.view)window.scrollTo(0,0);}
 window.addEventListener("hashchange",rota);
 
+/* ---------- Menu lateral ---------- */
+const navLargo=()=>matchMedia("(min-width:1000px)").matches;
+const ajHdr=()=>{const h=document.querySelector("header.top"); if(h)document.documentElement.style.setProperty("--hdr",h.offsetHeight+"px");}; ajHdr(); window.addEventListener("resize",ajHdr);
+function navAbrir(on){ document.body.classList.toggle("nav-open",on); $("#navBack").hidden=!on; $("#menuBtn").setAttribute("aria-expanded",String(on)); if(on){const a=$("#tabs a.on")||$("#tabs a:not([hidden])"); a&&a.focus({preventScroll:true});} }
+try{ if(localStorage.getItem("sorvely_navmin")==="1")document.body.classList.add("nav-min"); }catch(e){}
+$("#menuBtn").addEventListener("click",()=>{ if(navLargo()){ const m=document.body.classList.toggle("nav-min"); try{localStorage.setItem("sorvely_navmin",m?"1":"0");}catch(e){} } else navAbrir(!document.body.classList.contains("nav-open")); });
+$("#navBack").addEventListener("click",()=>navAbrir(false));
+$("#tabs").addEventListener("click",e=>{ const a=e.target.closest("a[data-v]"); if(a&&a.id==="tabRot"&&S.f.rot.sub==="fotos"){ S.f.rot.sub=null; if(location.hash==="#rotinas"){e.preventDefault();render();} } if(a&&a.dataset.sub){ S.f.rot.sub=a.dataset.sub; if(location.hash==="#"+a.dataset.v){e.preventDefault();render();} } if(e.target.closest("a,button"))navAbrir(false); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&document.body.classList.contains("nav-open"))navAbrir(false); });
+matchMedia("(min-width:1000px)").addEventListener?.("change",()=>navAbrir(false));
 /* ---------- Conexão ---------- */
 let rT;
 window.addEventListener("offline",()=>{toast("Você ficou sem internet.");agendaRender();});
@@ -3006,6 +3180,7 @@ function assinar(col,key,map){
   assinar("solicitacoes","solic"); assinar("ordens","ordens"); assinar("produtos","produtos");
   { const cut=iso(addDias(hoje(),-62)); const sub=(col,key)=>db.collection(col).where("data",">=",cut).onSnapshot(sn=>{S[key]=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     S.subRot=sub; sub("temperaturas","tempDias"); sub("checklists","checklists"); ajustarAssinaturas();
+    db.collection("fotos").where("em",">=",new Date(Date.now()-31*864e5).toISOString()).onSnapshot(sn=>{S.fotos=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     db.collection("ponto").onSnapshot(sn=>{S.ponto=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     db.collection("comunicados").onSnapshot(sn=>{S.comunicados=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     db.collection("ciencias").onSnapshot(sn=>{S.ciencias=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
