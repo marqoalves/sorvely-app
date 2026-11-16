@@ -433,6 +433,33 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 
 
 
+
+/* Telas de lançamento */
+.lanc-top{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+.lanc-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lanc-acts .btn{margin:0}
+.lanc-top details.dica{margin:6px 0 0}
+.cx-hd{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.cx-hd select{padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;font-size:.85rem}
+ul.cx-l{list-style:none;margin:8px 0 0;padding:0}
+.cx-l li+li{border-top:1px solid var(--line)}
+.cx-it{width:100%;display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:10px 4px;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:var(--ink);border-radius:10px}
+.cx-it:hover{background:var(--bg)}
+.cx-d{display:flex;flex-direction:column;font-size:.75rem;color:var(--muted)}.cx-d b{font-size:.95rem;color:var(--ink)}
+.cx-m{display:flex;flex-direction:column;min-width:0}.cx-m .sub{font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cx-v{display:flex;flex-direction:column;align-items:flex-end;gap:2px}.cx-v .sub{font-size:.76rem;display:flex;align-items:center;gap:4px}
+.eq{gap:10px;padding:12px 12px 12px 14px}
+.eq-h>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.eq-h .sub{font-size:.78rem}
+.eq-ok{color:var(--ok)}.eq-falta{color:var(--warn)}
+.eq-ed{padding:4px 8px;font-size:.78rem}
+.eq-ls:empty{display:none}
+.eq{min-width:0}.eq-in{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}.eq-in input{font-size:1rem;width:100%;box-sizing:border-box}
+@media (max-width:600px){.eq-grid{grid-template-columns:1fr;gap:8px}}
+.cx-sec{display:flex;align-items:center;gap:8px;font-size:.95rem;margin:16px 0 6px}
+.cx-sec span{width:22px;height:22px;border-radius:50%;background:var(--acai);color:#fff;display:grid;place-items:center;font-size:.75rem;flex:none}
+dialog .cx-sec:first-of-type{margin-top:4px}
+@media (max-width:600px){.cx-r1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 8px}.cx-r1 input,.cx-r1 select{width:100%;min-width:0;box-sizing:border-box}.cx-r1 .field:last-child{grid-column:1/-1}table.cx th{font-size:.7rem}table.cx input{width:100%;min-width:0}table.cx td,table.cx th{padding:6px 4px}}
 /* Funcionários */
 .fu-g h3 .sub{font-weight:500}
 ul.fu-l{list-style:none;margin:8px 0 0;padding:0}
@@ -461,9 +488,9 @@ details.dica[open]>summary{color:var(--acai)}
 .pn-v{display:flex;align-items:baseline;gap:6px;margin:2px 0}
 .pn-v b{font:400 2.4rem/1 var(--display);color:var(--acai)}
 .pn-v span{color:var(--muted);font-weight:600}
-.stk{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--idle-bg);gap:2px}
-.stk i{display:block;min-width:4px}
-.stk .k-ok{background:var(--ok)}.stk .k-and{background:var(--warn)}.stk .k-idle{background:color-mix(in srgb,var(--idle) 35%,var(--idle-bg))}.stk .k-bad{background:var(--bad)}
+.pn-bar{display:flex;height:12px;border-radius:999px;overflow:hidden;background:var(--idle-bg);gap:2px}
+.pn-bar i{display:block;min-width:4px}
+.pn-bar .k-ok{background:var(--ok)}.pn-bar .k-and{background:var(--warn)}.pn-bar .k-idle{background:color-mix(in srgb,var(--idle) 35%,var(--idle-bg))}.pn-bar .k-bad{background:var(--bad)}
 .pn-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .pchip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:9px 12px;border:1px solid var(--line);border-left:4px solid var(--c);border-radius:12px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:var(--ink)}
 .pchip:hover{background:var(--bg)}
@@ -640,7 +667,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-15 23:46"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-15 23:56"><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff"><link rel="apple-touch-icon" href="icone-180.png"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -945,7 +972,7 @@ function vPainel(){
   <section class="card pn-hero">
     <div class="pn-top"><div><span class="pn-k">Progresso do plano</span><div class="pn-v"><b class="num">${pct}%</b> <span>concluído</span></div>
       <span class="sub">${cConc} de ${ac.length} ações de controle${m.canc?` (sem as ${m.canc} canceladas)`:""} · dia <b class="num">${dia}</b> do plano, iniciado em ${fmtD(ini)}</span></div></div>
-    <div class="stk" role="img" aria-label="${seg.map(x=>x[1]+" "+x[2].toLowerCase()).join(", ")}">${seg.map(([c,n])=>n?`<i class="k-${c}" style="flex:${n}"></i>`:"").join("")}</div>
+    <div class="pn-bar" role="img" aria-label="${seg.map(x=>x[1]+" "+x[2].toLowerCase()).join(", ")}">${seg.map(([c,n])=>n?`<i class="k-${c}" style="flex:${n}"></i>`:"").join("")}</div>
     <div class="pn-chips">${seg.map(([c,n,l,st])=>`<button type="button" class="pchip c-${c}" data-go="planoSt:${st}"><b class="num">${n}</b><span>${l}</span></button>`).join("")}</div>
   </section>
   <div class="grid2">
@@ -1659,6 +1686,7 @@ async function lancRuptura(){
   const {at,zer}=infoEst(); if(!at.length)return;
   lancAuto("ruptura-de-sabores",iso(hoje()),zer.length/at.length*100,`${zer.length} de ${at.length} sabores sem caixa no estoque da loja`+(zer.length?": "+zer.slice(0,8).map(e=>e.nome).join(", ")+(zer.length>8?"…":""):""));
 }
+function topoLanc(acoes,dicaHtml,k){ return `<div class="lanc-top">${acoes?`<div class="lanc-acts">${acoes}</div>`:""}${dicaHtml?dica(dicaHtml,k):""}</div>`; }
 function vEstoque(){
   const pode=podeRot("estoque"), q=normEst(S.f.rot.qEst||""), fil=S.f.rot.fEst||"todos";
   const {at,zer,baixo,tot}=infoEst();
@@ -1678,8 +1706,7 @@ function vEstoque(){
     ${pode&&e.ativo!==false?`<button class="btn" data-act="estRet" data-doc="${esc(e._doc)}" aria-label="Retirar 1 caixa de ${esc(e.nome)}" title="Retirar 1 caixa">−1</button>`:""}
 </div>`;};
   const grupos=CAT_EST.map(cat=>[cat,lst.filter(e=>(e.categoria||"Normal")===cat)]).filter(g=>g[1].length);
-  return `<div class="section-head"><span class="sub">Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar.</span>
-    ${pode?`<div class="btns"><button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button></div>`:""}</div>
+  return `${topoLanc(pode?`<button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button>`:"","Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar ou ver o histórico.","est")}
   <div class="tiles"><div class="tile"><span class="v num">${tot}</span><span class="l">caixas no estoque</span></div>
     <div class="tile ${zer.length?"bad":"ok"}"><span class="v num">${zer.length}</span><span class="l">sabores sem caixa${at.length?" ("+Math.round(zer.length/at.length*100)+"%)":""}</span></div>
     <div class="tile ${baixo.length?"warn":"ok"}"><span class="v num">${baixo.length}</span><span class="l">sabores no mínimo</span></div>
@@ -1948,17 +1975,18 @@ function vCaixa(){
   const dias=Number(S.f.rot.diasCx||7), desde=iso(addDias(hoje(),-dias+1));
   const l=S.caixas.filter(c=>c.data>=desde).sort((a,b)=>b.data.localeCompare(a.data)||(b.em||"").localeCompare(a.em||""));
   const fa=farolAuto(pctMes,"Menor é melhor",ind.limVerde,ind.limAmarelo)||"Amarelo";
-  return `<div class="section-head"><p class="sub">Ao fechar cada caixa, compare o valor do sistema com o que foi conferido em cada forma de pagamento. O app calcula a diferença e lança a quebra de caixa no indicador.</p>
-    ${podeRot("caixa")?'<button class="btn" data-act="novoCaixa">Registrar fechamento</button>':""}</div>
+  return `${topoLanc(podeRot("caixa")?'<button class="btn" data-act="novoCaixa">Registrar fechamento</button>':"","Ao fechar cada caixa, compare o valor do sistema com o que foi conferido em cada forma de pagamento. O app calcula a diferença e lança a quebra de caixa no indicador.","cx")}
   <div class="tiles">
     <div class="tile ${fa==="Verde"?"ok":fa==="Amarelo"?"warn":"bad"}"><span class="v num">${pctMes.toLocaleString("pt-BR",{maximumFractionDigits:2})}%</span><span class="l">quebra no mês sobre o vendido (meta até ${String(lim).replace(".",",")}%)</span></div>
     <div class="tile"><span class="v num">${brl(absMes)}</span><span class="l">soma das diferenças no mês</span></div>
     <div class="tile acai"><span class="v num">${doMes.length}</span><span class="l">fechamentos registrados no mês</span></div>
     <div class="tile ${acima?"bad":"ok"}"><span class="v num">${acima}</span><span class="l">fechamentos acima do limite</span></div>
   </div>
-  <div class="filters"><label class="sub" for="cxDias">Mostrar</label><select id="cxDias">${opts([{v:7,l:"últimos 7 dias"},{v:15,l:"últimos 15 dias"},{v:31,l:"últimos 31 dias"},{v:62,l:"últimos 62 dias"}],dias)}</select></div>
-  <div class="tbl"><table><thead><tr><th>Data</th><th>Turno</th><th>Operador</th><th class="num">Sistema</th><th class="num">Conferido</th><th class="num">Diferença</th><th class="num">%</th><th>Justificativa</th><th>Registrado por</th><th></th></tr></thead><tbody>
-  ${l.map(c=>{const f=farolAuto(c.pct,"Menor é melhor",ind.limVerde,ind.limAmarelo)||"Amarelo";return `<tr><td class="num">${fmtD(parseISO(c.data))}</td><td>${esc(c.turno)}</td><td>${esc(c.operador||"")}</td><td class="num">${brl(c.totalSistema)}</td><td class="num">${brl(c.totalConferido)}</td><td class="num ${c.diferenca<0?"neg":c.diferenca>0?"pos":""}">${c.diferenca>0?"+":""}${brl(c.diferenca)}</td><td class="num"><span class="dot d-${f}"></span> ${(c.pct||0).toLocaleString("pt-BR",{maximumFractionDigits:2})}%</td><td>${esc(c.justificativa||"")}</td><td>${esc(c.por)}${c.atrasado?' <span class="pill p-and">no dia seguinte</span>':""}</td><td><button class="icon-btn" data-act="verCaixa" data-doc="${esc(c._doc)}">Ver</button></td></tr>`;}).join("")||'<tr><td colspan="10" class="empty">Nenhum fechamento no período.</td></tr>'}</tbody></table></div>`;
+  <div class="card cx-card"><div class="cx-hd"><h3>Fechamentos</h3><select id="cxDias" aria-label="Período">${opts([{v:7,l:"últimos 7 dias"},{v:15,l:"últimos 15 dias"},{v:31,l:"últimos 31 dias"},{v:62,l:"últimos 62 dias"}],dias)}</select></div>
+  ${l.length?`<ul class="cx-l">${l.map(c=>{const f=farolAuto(c.pct,"Menor é melhor",ind.limVerde,ind.limAmarelo)||"Amarelo";return `<li><button type="button" class="cx-it" data-act="verCaixa" data-doc="${esc(c._doc)}">
+    <span class="cx-d"><b class="num">${fmtD(parseISO(c.data)).slice(0,5)}</b><span>${esc(c.turno)}</span></span>
+    <span class="cx-m"><b>${esc(c.operador||"sem operador")}</b><span class="sub">sistema ${brl(c.totalSistema)} · conferido ${brl(c.totalConferido)}${c.justificativa?" · "+esc(c.justificativa):""}</span><span class="sub">por ${esc(c.por)}${c.atrasado?" · no dia seguinte":""}</span></span>
+    <span class="cx-v"><b class="num ${c.diferenca<0?"neg":c.diferenca>0?"pos":""}">${c.diferenca>0?"+":""}${brl(c.diferenca)}</b><span class="sub"><span class="dot d-${f}"></span> ${(c.pct||0).toLocaleString("pt-BR",{maximumFractionDigits:2})}%</span></span></button></li>`;}).join("")}</ul>`:'<p class="empty">Nenhum fechamento no período.</p>'}</div>`;
 }
 function formCaixa(c){
   const ver=!!c; c=c||{data:iso(hoje()),turno:"Dia inteiro",operador:"",fundo:"",sangrias:"",contado:"",formas:{}};
@@ -1966,17 +1994,19 @@ function formCaixa(c){
   const ops=[...new Set(S.caixas.map(x=>x.operador).filter(Boolean))];
   const v=x=>x===undefined||x===null||x===""?"":String(x).replace(".",",");
   abrirDlg(`<h2>${ver?"Fechamento de "+fmtD(parseISO(c.data))+" · "+esc(c.turno):"Registrar fechamento de caixa"}</h2>
-    <div class="row3"><div class="field"><label for="cx_d">Data</label><input id="cx_d" type="date" name="data" value="${esc(c.data)}" max="${iso(hoje())}" ${ver?"disabled":""}></div>
+    <h3 class="cx-sec"><span>1</span> Quando e quem</h3>
+    <div class="row3 cx-r1"><div class="field"><label for="cx_d">Data</label><input id="cx_d" type="date" name="data" value="${esc(c.data)}" max="${iso(hoje())}" ${ver?"disabled":""}></div>
       <div class="field"><label for="cx_t">Turno</label><select id="cx_t" name="turno" ${ver?"disabled":""}>${opts(TURNOS,c.turno)}</select></div>
       <div class="field"><label for="cx_o">Operador do caixa</label><input id="cx_o" name="operador" list="lOps" value="${esc(c.operador)}" ${ver?"disabled":""} required></div></div>
     <datalist id="lOps">${ops.map(o=>`<option value="${esc(o)}">`).join("")}</datalist>
-    <h3>Dinheiro</h3>
+    <h3 class="cx-sec"><span>2</span> Dinheiro na gaveta</h3>
     <div class="row3"><div class="field"><label for="cx_f">Fundo de caixa (troco inicial)</label><input id="cx_f" name="fundo" inputmode="decimal" value="${v(c.fundo)}" ${ver?"disabled":""}></div>
       <div class="field"><label for="cx_s">Sangrias / retiradas</label><input id="cx_s" name="sangrias" inputmode="decimal" value="${v(c.sangrias)}" ${ver?"disabled":""}></div>
       <div class="field"><label for="cx_c">Contado na gaveta</label><input id="cx_c" name="contado" inputmode="decimal" value="${v(c.contado)}" ${ver?"disabled":""}></div></div>
     <p class="hint">Dinheiro conferido = contado na gaveta + sangrias − fundo de caixa.</p>
+    <h3 class="cx-sec"><span>3</span> Sistema e conferido por forma de pagamento</h3>
     <div class="tbl"><table class="cx"><thead><tr><th>Forma de pagamento</th><th>No sistema (Agille)</th><th>Conferido</th><th class="num">Diferença</th></tr></thead><tbody>
-    ${FORMAS.map((fp,k)=>{const x=(c.formas||{})[fp]||{};return `<tr><td>${fp}</td><td><input name="s${k}" inputmode="decimal" value="${v(x.sistema)}" ${ver?"disabled":""} aria-label="${fp} no sistema"></td><td>${fp==="Dinheiro"?`<span class="num" id="cx_din">–</span>`:`<input name="c${k}" inputmode="decimal" value="${v(x.conferido)}" ${ver?"disabled":""} aria-label="${fp} conferido">`}</td><td class="num" id="cx_d${k}">–</td></tr>`;}).join("")}
+    ${FORMAS.map((fp,k)=>{const x=(c.formas||{})[fp]||{};return `<tr><td>${fp}</td><td><input name="s${k}" inputmode="decimal" placeholder="0,00" value="${v(x.sistema)}" ${ver?"disabled":""} aria-label="${fp} no sistema"></td><td>${fp==="Dinheiro"?`<span class="num" id="cx_din">–</span>`:`<input name="c${k}" inputmode="decimal" value="${v(x.conferido)}" ${ver?"disabled":""} aria-label="${fp} conferido">`}</td><td class="num" id="cx_d${k}">–</td></tr>`;}).join("")}
     <tr class="tot"><td><b>Total</b></td><td class="num" id="cx_ts">–</td><td class="num" id="cx_tc">–</td><td class="num" id="cx_td">–</td></tr></tbody></table></div>
     <div class="cx-res" id="cx_res"></div>
     <div class="field"><label for="cx_j">Justificativa da diferença</label><textarea id="cx_j" name="justificativa" ${ver?"disabled":""} placeholder="Obrigatória quando a diferença passa de ${String(lim).replace(".",",")}% do vendido">${esc(c.justificativa||"")}</textarea></div>
@@ -2118,16 +2148,15 @@ function vTemperatura(){
   const fora=todas.filter(l=>!l.dentro).sort((a,b)=>(b.data+b.hora).localeCompare(a.data+a.hora)).slice(0,10);
   const conf7=todas.filter(l=>l.data>=dias[6]); const pct7=conf7.length?conf7.filter(l=>l.dentro).length/conf7.length*100:null;
   return `<div class="section-head">${locs.length>1?`<div class="seg">${locs.map(l=>`<button type="button" class="${l===loc?"on":""}" data-tloc="${esc(l)}">${esc(l)}</button>`).join("")}</div>`:`<h3>${esc(loc)}</h3>`}
-    <span class="sub">Registre cada equipamento duas vezes ao dia, na abertura e no fechamento.</span>
     ${ehLider()?'<button class="btn ghost sm" data-act="equipNovo">Novo equipamento</button>':""}</div>
+  ${dica("Registre cada equipamento duas vezes ao dia, na abertura e no fechamento. Digite a temperatura e toque em <b>Registrar</b>. Se ficar fora da faixa, o app pede o que foi feito.","tmp")}
   <div class="tiles"><div class="tile ${pct7===null?"":pct7>=100?"ok":pct7>=90?"warn":"bad"}"><span class="v num">${pct7===null?"–":Math.round(pct7)+"%"}</span><span class="l">leituras dentro da faixa nos últimos 7 dias</span></div>
     <div class="tile ${eqs.some(e=>doDia.filter(l=>l.equip===e.nome).length<2)?"warn":"ok"}"><span class="v num">${eqs.filter(e=>doDia.filter(l=>l.equip===e.nome).length>=2).length}/${eqs.length}</span><span class="l">equipamentos com as 2 leituras de hoje</span></div></div>
   ${!eqs.length?`<div class="card"><p>Nenhum equipamento cadastrado em ${esc(loc)}.</p>${ehLider()?`<button class="btn sm" data-act="equipPadrao" data-loc="${esc(loc)}">Cadastrar a lista sugerida</button> <span class="sub">${EQUIP_SUGERIDOS[loc].map(x=>x[0]).join(", ")}. Dá para ajustar depois.</span>`:'<p class="sub">Fale com o Marco para cadastrar os equipamentos.</p>'}</div>`:""}
   <div class="eq-grid">${eqs.map(e=>{const ls=doDia.filter(l=>l.equip===e.nome),ult=ls[ls.length-1];return `<div class="eq ${ult?(ult.dentro?"ok":"bad"):""}">
-    <div class="eq-h"><b>${esc(e.nome)}</b>${ehLider()?`<button class="icon-btn" data-act="equipEdit" data-doc="${esc(e._doc)}">Editar</button>`:""}</div>
-    <div class="sub">faixa ${fmtT(e.min)} a ${fmtT(e.max)}</div>
-    <div class="eq-ls">${ls.map(l=>`<span class="pill p-${l.dentro?"ok":"bad"}" title="${esc(l.por)}${l.acao?" · "+esc(l.acao):""}">${esc(l.hora)} · ${fmtT(l.temp)}</span>`).join("")||'<span class="sub">sem leitura hoje</span>'}</div>
-    ${pode?`<div class="eq-in"><input inputmode="decimal" placeholder="°C" aria-label="Temperatura de ${esc(e.nome)}" data-eqin="${esc(e._doc)}"><button class="btn sm" data-act="tempReg" data-doc="${esc(e._doc)}">Registrar</button></div>`:""}
+    <div class="eq-h"><div><b>${esc(e.nome)}</b><span class="sub">faixa ${fmtT(e.min)} a ${fmtT(e.max)} · <b class="${ls.length>=2?"eq-ok":"eq-falta"}">${Math.min(ls.length,2)}/2 hoje</b></span></div>${ehLider()?`<button class="icon-btn eq-ed" data-act="equipEdit" data-doc="${esc(e._doc)}" aria-label="Editar ${esc(e.nome)}">Editar</button>`:""}</div>
+    <div class="eq-ls">${ls.map(l=>`<span class="pill p-${l.dentro?"ok":"bad"}" title="${esc(l.por)}${l.acao?" · "+esc(l.acao):""}">${esc(l.hora)} · ${fmtT(l.temp)}</span>`).join("")}</div>
+    ${pode?`<div class="eq-in"><input inputmode="decimal" enterkeyhint="send" placeholder="Temperatura em °C" aria-label="Temperatura de ${esc(e.nome)}" data-eqin="${esc(e._doc)}"><button class="btn sm" data-act="tempReg" data-doc="${esc(e._doc)}">Registrar</button></div>`:""}
   </div>`;}).join("")}</div>
   <div class="card"><h3>Últimos 7 dias</h3><div class="tbl"><table><thead><tr><th>Equipamento</th>${dias.slice().reverse().map(d=>`<th class="num">${fmtD(parseISO(d)).slice(0,5)}</th>`).join("")}</tr></thead><tbody>
   ${eqs.map(e=>`<tr><td>${esc(e.nome)}</td>${dias.slice().reverse().map(d=>{const ls=todas.filter(l=>l.data===d&&l.equip===e.nome);return `<td class="num">${ls.map(l=>`<span class="${l.dentro?"":"neg"}">${fmtT(l.temp)}</span>`).join("<br>")||'<span class="sub">–</span>'}</td>`;}).join("")}</tr>`).join("")}</tbody></table></div></div>
@@ -2852,7 +2881,7 @@ function vFuncionarios(){
     return `<li class="fu-it${f.ativo===false?" fu-off":""}">
       <span class="fu-av">${esc(f.nome.slice(0,2).toUpperCase())}</span>
       <div class="fu-tx"><b>${esc(f.nome)}</b>${f.nomeCompleto&&f.nomeCompleto!==f.nome?` <span class="sub">${esc(f.nomeCompleto)}</span>`:""}
-        <span class="fu-meta">${esc(f.funcao||"sem função")}${f.admissao?` · desde ${fmtD(parseISO(f.admissao))}`:""}${ult?` · ponto até ${esc(ult.mes.slice(5))}/${esc(ult.mes.slice(2,4))}, banco ${fmtHm(ult.bancoMin,true)}`:" · sem cartão de ponto"}${f.ativo===false?" · desligado":""}</span>
+        <span class="fu-meta">${esc(f.funcao||"sem função")}${f.admissao?` · desde ${fmtD(parseISO(f.admissao))}`:""}${ult?` · ponto até ${esc(ult.mes.slice(5))}/${esc(ult.mes.slice(2,4))}, banco ${fmtHm(ult.bancoMin,true)}`:""}${f.ativo===false?" · desligado":""}</span>
         <span class="fu-st">${st}</span></div>
       <div class="fu-ac">${u?`<button class="icon-btn" data-act="editUsu" data-doc="${esc(u._doc)}">Usuário</button>`:(f.ativo!==false?`<button class="icon-btn fu-cria" data-act="criarUsuFunc" data-doc="${esc(f._doc)}">Criar usuário</button>`:"")}<button class="icon-btn" data-act="editFunc" data-doc="${esc(f._doc)}">Editar</button></div></li>`;};
   const grupos=[...LOCAIS_F,...new Set(fs.map(f=>f.local).filter(l=>l&&!LOCAIS_F.includes(l)))];
