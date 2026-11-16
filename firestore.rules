@@ -97,6 +97,19 @@ service cloud.firestore {
       allow update, delete: if lider() || emSetup();
     }
 
+    // Registros com foto: cada pessoa registra em nome próprio; apaga a própria ou a Liderança apaga
+    match /fotos/{id} {
+      allow read: if membro() || emSetup();
+      allow create: if emSetup() || (membro() && request.resource.data.por == eu().nome);
+      allow update: if lider() || emSetup();
+      allow delete: if emSetup() || lider() || (membro() && resource.data.por == eu().nome);
+    }
+    match /fotosDados/{id} {
+      allow read: if membro() || emSetup();
+      allow create: if emSetup() || (membro() && request.resource.data.por == eu().nome);
+      allow delete: if emSetup() || lider() || (membro() && resource.data.por == eu().nome);
+    }
+
     // Lançamentos de indicadores: todos lançam, só a Liderança apaga
     match /lancamentos/{id} {
       allow read, create, update: if membro() || emSetup();
@@ -118,7 +131,7 @@ service cloud.firestore {
 
     // Demais dados do app
     match /{col}/{id} {
-      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias', 'config', 'indicadores', 'acoes', 'trilha', 'lancamentos', 'historico', 'propostas'])
+      allow read, write: if !(col in ['publico', 'login', 'usuarios', 'caixas', 'data', 'ponto', 'comunicados', 'ciencias', 'config', 'indicadores', 'acoes', 'trilha', 'lancamentos', 'historico', 'propostas', 'fotos', 'fotosDados'])
         && (membro() || emSetup());
     }
   }
