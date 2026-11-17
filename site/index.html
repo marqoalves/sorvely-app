@@ -438,7 +438,13 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 
 /* Checklist por pessoa */
 .ck-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 8px}
-.ck-bar .sub{margin-left:auto}
+.ck-bar .btn{margin-left:auto}
+details.ck-sec>summary{display:flex;align-items:center;gap:8px;flex-wrap:wrap;cursor:pointer;list-style:none;font-weight:700;font-size:1rem}
+details.ck-sec>summary::-webkit-details-marker{display:none}
+details.ck-sec>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg)}
+details.ck-sec[open]>summary::after{transform:rotate(225deg)}
+details.ck-sec[open]>summary{margin-bottom:10px}
+.ck-st{margin-right:4px}
 .ck-resp{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;background:var(--acai-soft);color:var(--acai);font-size:.75rem;font-weight:600}
 .ck-meu .ck-it{border-left:3px solid var(--rosa);padding-left:8px}
 /* Menu em grupos */
@@ -724,7 +730,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-17 15:46"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-17 15:50"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -753,7 +759,7 @@ const S = {
   db:null, user:null, uid:null, owner:false, canWrite:true,
   eu:null, // nome escolhido
   geral:{dataInicio:"2026-09-20"},
-  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], retornos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], func:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
+  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], func:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
   loaded:{}, view:"painel",
   f:{plano:{onda:"",status:"",onde:"",minhas:false,q:"",vis:"lista"}, trilha:{cat:"",status:"",minhas:false,q:"",vis:"lista"}, prod:{sub:null,solSt:"ativas",sel:new Set(),dias:15}, rot:{sub:null,dataEnt:null,diasCx:7,localT:null,ultCanal:"",ckTipo:null}, eq:{sub:"funcionarios",mesP:null}}
 };
@@ -1459,7 +1465,7 @@ function vProducao(){
   let sub=S.f.prod.sub||padrao; if(sub==="produtos"&&!(ehLider()||p.includes("produtos")))sub=padrao;
   const abertas=S.solic.filter(s=>s.status==="Aberta").length, emitidas=S.ordens.filter(o=>o.status==="Emitida").length, emProd=S.ordens.filter(o=>o.status==="Em produção").length, enviadas=S.ordens.filter(o=>o.status==="Enviada").length;
   return `<div class="section-head"><h2>Produção</h2>
-    <div class="seg">${[["solic","Solicitações"],["ordens","Ordens"],["retornos","Retornos"],...(ehLider()||p.includes("produtos")?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
+    <div class="seg">${[["solic","Solicitações"],["ordens","Ordens"],...(ehLider()||p.includes("produtos")?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
     ${podeProd("solicitar")?'<button class="btn" data-act="novaSol">Nova solicitação</button>':podeProd("produzir")?'<button class="btn" data-act="sugerirProd">Sugerir produção</button>':""}
     ${podeProd("emitir")?'<button class="btn ghost" data-act="novaOP">Nova ordem</button>':""}</div>
   <div class="tiles">
@@ -1469,7 +1475,7 @@ function vProducao(){
     <div class="tile ${enviadas?"warn":""}"><span class="v num">${enviadas}</span><span class="l">enviadas aguardando conferência na loja</span></div>
   </div>
   ${ajudaProducao(p)}
-  ${sub==="ordens"?vOrdens():sub==="produtos"?vProdutos():sub==="retornos"?vRetornos():vSolic()}`;
+  ${sub==="ordens"?vOrdens():sub==="produtos"?vProdutos():vSolic()}`;
 }
 function ajudaProducao(p){
   const t=[];
@@ -1651,45 +1657,12 @@ function formEtapa(o,etapa){
   });
 }
 
-/* ---- baldes de retorno: loja devolve baldes com pouco sorvete para a fábrica aproveitar ---- */
-const ST_RET=["Aguardando envio","Enviado","Recebido na fábrica","Aproveitado"];
-const CLS_RET={"Aguardando envio":"and","Enviado":"acai","Recebido na fábrica":"ok","Aproveitado":"ok"};
-function vRetornos(){
-  const f=S.f.prod.retSt||"abertos";
-  const l=(S.retornos||[]).filter(r=>f==="todos"||(f==="abertos"?r.status!=="Aproveitado":r.status===f)).sort((a,b)=>(b.em||"").localeCompare(a.em||""));
-  const podeCriar=podeRot("estoque")||podeProd("solicitar");
-  return `<div class="filters"><select id="pRetSt" aria-label="Situação">${opts([{v:"abertos",l:"Em andamento"},...ST_RET.map(x=>({v:x,l:x})),{v:"todos",l:"Todos"}],f)}</select>
-    ${podeCriar?'<button class="btn" data-act="novoRet">Registrar baldes de retorno</button>':""}</div>
-  ${dica("Quando um balde fica com pouco sorvete, ele pode voltar para a fábrica e ser usado na montagem de outros baldes. A loja registra aqui o que vai voltar, marca quando enviar, e a fábrica marca quando receber e quando aproveitar.","ret")}
-  <div class="list">${l.map(r=>{const c=CLS_RET[r.status]||"idle", prox=ST_RET[ST_RET.indexOf(r.status)+1];
-    const pode=prox&&((prox==="Enviado"&&podeCriar)||(prox!=="Enviado"&&(podeProd("produzir")||podeProd("emitir"))));
-    return `<div class="item s-${c==="ok"?"ok":c==="and"?"and":"idle"}"><span class="id">${esc(r.num||"")}</span>
-      <span class="what">${(r.itens||[]).map(i=>`<div>${fmtQtd(i.qtd)} ${esc(i.unidade)} · ${esc(i.produto)}</div>`).join("")}${r.obs?`<div class="sub">${esc(r.obs)}</div>`:""}<div class="sub">${esc(r.por)} · ${quando(r.em)}${r.ultimoPor&&r.ultimoPor!==r.por?` · ${esc(r.status.toLowerCase())} por ${esc(r.ultimoPor)}`:""}</div></span>
-      <div class="actions"><span class="pill p-${c}">${esc(r.status)}</span>${pode?`<button class="icon-btn" data-act="avancarRet" data-doc="${esc(r._doc)}">Marcar ${esc(prox.toLowerCase())}</button>`:""}${r.status==="Aguardando envio"&&(r.por===S.eu||ehLider())?`<button class="icon-btn" data-act="apagarRet" data-doc="${esc(r._doc)}">Apagar</button>`:""}</div></div>`;}).join("")||'<p class="empty">Nenhum balde de retorno aqui.</p>'}</div>`;
-}
-function formRetorno(){
-  abrirDlg(`<h2>Baldes de retorno para a fábrica</h2><p class="hint">Liste os baldes com pouco sorvete que vão voltar para a fábrica. Informe o sabor e a quantidade de baldes.</p>
-    ${blocoItens([{unidade:"balde 10L"}])}
-    <div class="field"><label for="rt_o">Quanto sobrou e observações</label><textarea id="rt_o" name="obs" placeholder="ex.: 2 baldes com uns 2 dedos, 1 com metade"></textarea></div>
-    <p class="err-msg" id="rtErr" hidden></p>
-    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Registrar</button></div>`,
-  async (fd,btn,f)=>{
-    const {itens,erro}=lerItens(f); if(erro){const e=f.querySelector("#rtErr");e.textContent=erro;e.hidden=false;return false;}
-    const num=proxNum(S.retornos||[],"R-");
-    return gravar(()=>S.db.collection("retornos").add({num,itens,obs:String(fd.get("obs")||"").trim(),por:quemSou(),em:new Date().toISOString(),status:"Aguardando envio"}),"Baldes de retorno registrados.");
-  },{onOpen:ligarItens});
-}
-async function avancarRet(doc){
-  const r=(S.retornos||[]).find(x=>x._doc===doc); if(!r)return;
-  const prox=ST_RET[ST_RET.indexOf(r.status)+1]; if(!prox)return;
-  await gravar(()=>S.db.doc("retornos/"+doc).update({status:prox,ultimoPor:quemSou(),ultimoEm:new Date().toISOString(),["em_"+slugP(prox)]:new Date().toISOString()}),`${r.num}: ${prox.toLowerCase()}.`);
-}
 /* ---- catálogo ---- */
 function formProd(p){
   const novo=!p; p=p||{nome:"",categoria:"Sorvete",unidade:"balde 10L",ativo:true};
   abrirDlg(`<h2>${novo?"Novo produto":"Editar "+esc(p.nome)}</h2>
     <div class="field"><label for="pd_n">Nome</label><input id="pd_n" name="nome" value="${esc(p.nome)}" required></div>
-    <div class="row2"><div class="field"><label for="pd_c">Categoria</label><select id="pd_c" name="categoria">${opts(["Sorvete","Açaí","Picolé","Calda e cobertura","Outro"],p.categoria)}</select></div>
+    <div class="row2"><div class="field"><label for="pd_c">Categoria</label><select id="pd_c" name="categoria">${opts(["Sorvete","Açaí","Picolé","Balde de retorno","Calda e cobertura","Outro"],p.categoria)}</select></div>
       <div class="field"><label for="pd_u">Unidade padrão</label><select id="pd_u" name="unidade">${opts(UNIDADES,p.unidade)}</select></div></div>
     ${novo?"":`<label class="chk"><input type="checkbox" name="ativo" ${p.ativo!==false?"checked":""}> Ativo (desmarque para tirar das sugestões)</label>`}
     <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
@@ -1756,7 +1729,7 @@ function ajustarAssinaturas(){
 }
 
 /* ===== Estoque de caixas (loja) ===== */
-const CAT_EST=["Normal","Zero açúcar","Picolé"];
+const CAT_EST=["Normal","Zero açúcar","Picolé","Balde de retorno"];
 const normEst=s=>slugP(String(s||""));
 function movsEst(e){return S.estMov.filter(m=>m.sabor===e._doc&&m.tipo!=="contagem"&&(!e.baseEm||(m.em||"")>e.baseEm));}
 function saldoEst(e){return Number(e.base||0)+movsEst(e).reduce((s,m)=>s+Number(m.qtd||0),0);}
@@ -1802,7 +1775,7 @@ function vEstoque(){
     ${pode&&e.ativo!==false?`<button class="btn" data-act="estRet" data-doc="${esc(e._doc)}" aria-label="Retirar 1 caixa de ${esc(e.nome)}" title="Retirar 1 caixa">−1</button>`:""}
 </div>`;};
   const grupos=CAT_EST.map(cat=>[cat,lst.filter(e=>(e.categoria||"Normal")===cat)]).filter(g=>g[1].length);
-  return `${topoLanc(pode?`<button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button><button class="btn ghost sm" data-act="novoRet">Baldes de retorno</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button>`:"","Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar ou ver o histórico.","est")}
+  return `${topoLanc(pode?`<button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button>`:"","Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar ou ver o histórico.","est")}
   <div class="tiles"><div class="tile"><span class="v num">${tot}</span><span class="l">caixas no estoque</span></div>
     <div class="tile ${zer.length?"bad":"ok"}"><span class="v num">${zer.length}</span><span class="l">sabores sem caixa${at.length?" ("+Math.round(zer.length/at.length*100)+"%)":""}</span></div>
     <div class="tile ${baixo.length?"warn":"ok"}"><span class="v num">${baixo.length}</span><span class="l">sabores no mínimo</span></div>
@@ -2438,7 +2411,7 @@ function irPara(go){
   if(a==="abrir"){abrirDetalhe(b,c);return;}
   if(a==="planoSt"){S.f.plano.status=b;S.f.plano.minhas=false;S.f.plano.vis="lista";location.hash="plano";if(location.hash==="#plano")render();return;}
   if(a==="minhas"){S.f.plano.minhas=true;S.f.trilha.minhas=true;location.hash="trilha";return;}
-  if(a==="rotinas"){S.f.rot.sub=b; if(c)S.f.rot.ckTipo=c;}
+  if(a==="rotinas"){S.f.rot.sub=b; if(c)(S.f.det||(S.f.det={}))["ck_"+c]=true;}
   if(a==="producao")S.f.prod.sub=b;
   if(location.hash==="#"+a)render();else location.hash=a;
 }
@@ -3210,31 +3183,38 @@ const ckChave=t=>t==="reposicao"?semanaIni():iso(hoje());
 const itensCk=t=>(S.ckCfg&&Array.isArray(S.ckCfg[t])&&S.ckCfg[t].length?S.ckCfg[t]:CK_PADRAO[t]);
 const ckDoc=(data,t)=>S.checklists.find(c=>c._doc===data+"_"+t);
 function vChecklist(){
-  const tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento"), rep=tipo==="reposicao";
-  const chave=ckChave(tipo), c=ckDoc(chave,tipo), base=itensCk(tipo), its=base.map(itemCk), marc=(c&&c.marcados)||{};
-  const feito=!rep&&c&&c.concluido, permCk=podeRot("checklist");
-  const temMeus=its.some(it=>ehMeuCk(it)), soMeus=temMeus&&(S.f.rot.ckMeus??(rep&&!permCk));
-  const n=base.filter((_,i)=>marc[i]).length;
+  const agora=new Date().getHours()<18?"abertura":"fechamento", permCk=podeRot("checklist");
+  const todos=CK_TIPOS.map(([k])=>itensCk(k).map(itemCk)).flat(), temMeus=todos.some(it=>ehMeuCk(it));
+  const soMeus=temMeus&&(S.f.rot.ckMeus??!permCk);
   const podeEdit=S.canWrite&&(ehLider()||podeRot("ckConfig"));
   const hist=S.checklists.filter(x=>x.concluido).sort((a,b)=>String(b.data+b.tipo).localeCompare(a.data+a.tipo)).slice(0,14);
-  const titulo=rep?`Reposições da semana de ${fmtD(parseISO(chave))}`:`Checklist de ${tipo} · hoje`;
-  const linha=(it,i)=>{ const m=marc[i], meu=ehMeuCk(it), pode=!feito&&S.canWrite&&(permCk||meu);
-    if(soMeus&&!meu)return "";
-    return `<li class="${meu?"ck-meu":""}"><label class="chk ck-it ${m?"on":""}"><input type="checkbox" data-ck="${i}" ${m?"checked":""} ${pode?"":"disabled"}> <span>${esc(it.t)}${it.resp.length?` <span class="ck-resp">${it.resp.map(esc).join(", ")}</span>`:""}${m?`<span class="hint"> · ${esc(m.por)} ${esc(m.hora||"")}${rep&&m.dia?" ("+esc(m.dia)+")":""}</span>`:""}</span></label></li>`; };
-  return `<div class="card"><div class="section-head"><h3>${titulo}</h3>
-    <div class="seg">${CK_TIPOS.map(([k,l])=>`<button type="button" class="${tipo===k?"on":""}" data-cktipo="${k}">${l}</button>`).join("")}</div></div>
-  <div class="ck-bar">${temMeus?`<label class="chk"><input type="checkbox" id="ckMeus" ${soMeus?"checked":""}> Só os meus itens</label>`:"<span></span>"}<span class="sub">${n} de ${base.length} feitos</span>${podeEdit?'<button type="button" class="btn ghost sm" data-act="ckEditar">Editar itens</button>':""}</div>
-  ${feito?`<div class="banner ${c.conferidoPor?"ok":""}">Concluído por ${esc(c.feitoPor)} às ${new Date(c.concluidoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}. ${c.conferidoPor?"Conferido por <b>"+esc(c.conferidoPor)+"</b> com PIN.":"<b>Sem conferência.</b>"}${c.pendencias?"<br>Pendências: "+esc(c.pendencias):""}</div>`
-    :dica(rep?"Cada pessoa cuida da sua reposição durante a semana, ou quando houver necessidade. Marque o item quando repor. A lista recomeça toda segunda-feira.":"Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim, outra pessoa confere e confirma com o PIN dela.","ck"+(rep?"r":""))}
-  <ul class="ck-list">${its.map(linha).join("")}</ul>
-  ${!rep&&permCk&&!feito?`<div class="field"><label for="ckPend">Pendências ou observações</label><textarea id="ckPend" rows="2" placeholder="O que ficou pendente e por quê">${esc((c&&c.pendencias)||"")}</textarea></div>
-    <p><button class="btn" data-act="ckConcluir" data-tipo="${tipo}">Concluir e conferir (${n} de ${base.length})</button></p>`:""}
-  ${feito&&ehLider()?`<p><button class="btn ghost sm" data-act="ckReabrir" data-tipo="${tipo}">Reabrir</button></p>`:""}
-  </div>
-  ${rep?"":`<div class="card"><h3>Últimos registros</h3>${hist.length?`<div class="tbl"><table><thead><tr><th>Dia</th><th>Tipo</th><th class="num">Itens</th><th>Feito por</th><th>Conferência</th></tr></thead><tbody>${hist.map(x=>{const tot=(x.itens||[]).length||itensCk(x.tipo).length,ok=Object.keys(x.marcados||{}).length;return `<tr><td>${fmtD(parseISO(x.data))}</td><td>${esc(x.tipo)}</td><td class="num">${ok}/${tot}</td><td>${esc(x.feitoPor||"")}</td><td>${x.conferidoPor?esc(x.conferidoPor):'<span class="pill p-and">sem conferência</span>'}</td></tr>`;}).join("")}</tbody></table></div>`:'<p class="empty">Nenhum checklist concluído ainda.</p>'}</div>`}`;
+  const secao=([tipo,rotulo])=>{
+    const rep=tipo==="reposicao", chave=ckChave(tipo), c=ckDoc(chave,tipo), base=itensCk(tipo), its=base.map(itemCk), marc=(c&&c.marcados)||{};
+    const feito=!rep&&c&&c.concluido, n=base.filter((_,i)=>marc[i]).length;
+    const meusFalta=its.filter((it,i)=>ehMeuCk(it)&&!marc[i]).length;
+    const vis=its.map((it,i)=>({it,i})).filter(x=>!soMeus||ehMeuCk(x.it));
+    if(soMeus&&!vis.length)return "";
+    const k="ck_"+tipo, padrao=tipo===agora||(rep&&meusFalta>0);
+    const aberto=S.f.det&&k in S.f.det?S.f.det[k]:padrao;
+    const linha=({it,i})=>{ const m=marc[i], meu=ehMeuCk(it), pode=!feito&&S.canWrite&&(permCk||meu);
+      return `<li class="${meu?"ck-meu":""}"><label class="chk ck-it ${m?"on":""}"><input type="checkbox" data-ck="${tipo}:${i}" ${m?"checked":""} ${pode?"":"disabled"}> <span>${esc(it.t)}${it.resp.length?` <span class="ck-resp">${it.resp.map(esc).join(", ")}</span>`:""}${m?`<span class="hint"> · ${esc(m.por)} ${esc(m.hora||"")}${rep&&m.dia?" ("+esc(m.dia)+")":""}</span>`:""}</span></label></li>`; };
+    const st=feito?`<span class="pill p-${c.conferidoPor?"ok":"and"}">${c.conferidoPor?"conferido":"concluído sem conferência"}</span>`:`<span class="pill p-${n===base.length?"ok":n?"and":"idle"}">${n} de ${base.length}</span>`;
+    return `<details class="card ck-sec" data-keep="${k}"${aberto?" open":""}><summary><span class="ck-st">${rep?`${rotulo} da semana de ${fmtD(parseISO(chave))}`:`${rotulo} · hoje`}</span>${meusFalta?`<span class="ck-resp">${meusFalta} seu${meusFalta>1?"s":""}</span>`:""}${st}</summary>
+      ${feito?`<div class="banner ${c.conferidoPor?"ok":""}">Concluído por ${esc(c.feitoPor)} às ${new Date(c.concluidoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}. ${c.conferidoPor?"Conferido por <b>"+esc(c.conferidoPor)+"</b> com PIN.":"<b>Sem conferência.</b>"}${c.pendencias?"<br>Pendências: "+esc(c.pendencias):""}</div>`:""}
+      ${rep?'<p class="sub">Cada pessoa cuida da sua reposição durante a semana, ou quando houver necessidade. A lista recomeça toda segunda-feira.</p>':""}
+      <ul class="ck-list">${vis.map(linha).join("")}</ul>
+      ${!rep&&permCk&&!feito?`<div class="field"><label for="ckPend_${tipo}">Pendências ou observações</label><textarea id="ckPend_${tipo}" rows="2" placeholder="O que ficou pendente e por quê">${esc((c&&c.pendencias)||"")}</textarea></div>
+        <p><button class="btn" data-act="ckConcluir" data-tipo="${tipo}">Concluir e conferir (${n} de ${base.length})</button></p>`:""}
+      ${feito&&ehLider()?`<p><button class="btn ghost sm" data-act="ckReabrir" data-tipo="${tipo}">Reabrir</button></p>`:""}
+    </details>`;
+  };
+  return `<div class="ck-bar">${temMeus?`<label class="chk"><input type="checkbox" id="ckMeus" ${soMeus?"checked":""}> Só os meus itens</label>`:"<span></span>"}${podeEdit?'<button type="button" class="btn ghost sm" data-act="ckEditar">Editar itens</button>':""}</div>
+  ${dica("Toque em Abertura, Fechamento ou Reposições para abrir a lista. Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim da abertura e do fechamento, outra pessoa confere e confirma com o PIN dela. Os itens com nome são de quem está indicado.","ck")}
+  ${CK_TIPOS.map(secao).join("")||'<div class="card"><p class="empty">Nenhum item seu nos checklists.</p></div>'}
+  ${permCk?`<div class="card"><h3>Últimos registros</h3>${hist.length?`<div class="tbl"><table><thead><tr><th>Dia</th><th>Tipo</th><th class="num">Itens</th><th>Feito por</th><th>Conferência</th></tr></thead><tbody>${hist.map(x=>{const tot=(x.itens||[]).length||itensCk(x.tipo).length,ok=Object.keys(x.marcados||{}).length;return `<tr><td>${fmtD(parseISO(x.data))}</td><td>${esc(x.tipo)}</td><td class="num">${ok}/${tot}</td><td>${esc(x.feitoPor||"")}</td><td>${x.conferidoPor?esc(x.conferidoPor):'<span class="pill p-and">sem conferência</span>'}</td></tr>`;}).join("")}</tbody></table></div>`:'<p class="empty">Nenhum checklist concluído ainda.</p>'}</div>`:""}`;
 }
-async function marcarCk(i,on){
-  const tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento"), hj=ckChave(tipo), id=hj+"_"+tipo, c=ckDoc(hj,tipo);
+async function marcarCk(tipo,i,on){
+  const hj=ckChave(tipo), id=hj+"_"+tipo, c=ckDoc(hj,tipo);
   if(c&&c.concluido)return;
   const marc={...((c&&c.marcados)||{})};
   if(on)marc[i]={por:quemSou(),hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),dia:new Date().toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit"})}; else delete marc[i];
@@ -3251,7 +3231,7 @@ async function conferirPin(u,pin){
 }
 function concluirCk(tipo){
   const hj=iso(hoje()), id=hj+"_"+tipo, c=ckDoc(hj,tipo), base=itensCk(tipo), marc=(c&&c.marcados)||{};
-  const faltam=base.filter((_,i)=>!marc[i]), pend=($("#ckPend")||{}).value||"";
+  const faltam=base.filter((_,i)=>!marc[i]), pend=($("#ckPend_"+tipo)||{}).value||"";
   const conf=ativos().filter(u=>u.nome!==S.eu);
   abrirDlg(`<h2>Concluir ${tipo}</h2>
     ${faltam.length?`<div class="banner">${faltam.length} item(ns) não marcado(s): ${esc(faltam.map(x=>itemCk(x).t).join("; "))}. Explique nas pendências.</div>`:`<p class="hint">Todos os ${base.length} itens marcados.</p>`}
@@ -3433,9 +3413,6 @@ document.addEventListener("click",e=>{
   else if(a==="novoProd")formProd();
   else if(a==="sugerirProd")formSol(null,"Fábrica");
   else if(a==="limPessoa")formLimPessoa();
-  else if(a==="novoRet")formRetorno();
-  else if(a==="avancarRet")avancarRet(d);
-  else if(a==="apagarRet"){const r=(S.retornos||[]).find(x=>x._doc===d); if(r)pergunta("Apagar registro",`Apagar ${r.num}?`,"Apagar").then(ok=>{if(ok)gravar(()=>S.db.doc("retornos/"+d).delete(),"Registro apagado.");});}
   else if(a==="novoCaixa")formCaixa();
   else if(a==="verCaixa")formCaixa(S.caixas.find(x=>x._doc===d));
   else if(a==="entSaiu"||a==="entEntregue"||a==="entDel")acaoEntrega(b);
@@ -3517,10 +3494,9 @@ document.addEventListener("change",async e=>{
   if(t.id==="foTipo"||t.id==="foDias"||t.id==="foPor"){const r=S.f.fotos;r[{foTipo:"tipo",foDias:"dias",foPor:"por"}[t.id]]=t.id==="foDias"?Number(t.value):t.value;render();}
   if(t.id==="rgDias"||t.id==="rgPor"||t.id==="rgArea"){const r=S.f.reg;r[{rgDias:"dias",rgPor:"por",rgArea:"area"}[t.id]]=t.id==="rgDias"?Number(t.value):t.value;r.lim=150;render();}
   if(t.id==="pMes"){S.f.eq.mesP=t.value;render();}
-  if(t.id==="pRetSt"){S.f.prod.retSt=t.value;render();}
   if(t.id==="ckMeus"){S.f.rot.ckMeus=t.checked;render();}
   if(t.id==="galM"){S.f.gal.meses=Number(t.value);S.f.gal.velhas=null;render();}
-  if(t.dataset&&t.dataset.ck!==undefined){marcarCk(Number(t.dataset.ck),t.checked);}
+  if(t.dataset&&t.dataset.ck!==undefined){const [tp,ix]=t.dataset.ck.split(":");marcarCk(tp,Number(ix),t.checked);}
   if(t.id==="enData"){S.f.rot.dataEnt=t.value||iso(hoje());render();}
 });
 let qT;
@@ -3595,7 +3571,7 @@ function assinar(col,key,map){
   db.doc("config/geral").onSnapshot(s=>{ if(s.exists)S.geral=s.data(); agendaRender(); },()=>{});
   assinar("acoes","acoes"); assinar("trilha","trilha"); assinar("indicadores","indicadores");
   assinar("lancamentos","lanc"); assinar("propostas","propostas");
-  assinar("solicitacoes","solic"); assinar("ordens","ordens"); assinar("produtos","produtos"); assinar("retornos","retornos");
+  assinar("solicitacoes","solic"); assinar("ordens","ordens"); assinar("produtos","produtos");
   { const cut=iso(addDias(hoje(),-62)); const sub=(col,key)=>db.collection(col).where("data",">=",cut).onSnapshot(sn=>{S[key]=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     S.subRot=sub; sub("temperaturas","tempDias"); sub("checklists","checklists"); ajustarAssinaturas();
     db.collection("fotos").where("em",">=",new Date(Date.now()-31*864e5).toISOString()).onSnapshot(sn=>{S.fotos=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
