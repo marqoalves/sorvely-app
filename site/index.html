@@ -735,7 +735,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-17 16:00"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-17 17:49"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -2950,10 +2950,45 @@ async function semearFuncionarios(){
   const b=S.db.batch(); Object.entries(novos).forEach(([k,v])=>b.set(S.db.doc("ponto/func_"+k),{...v,cadastro:true,ativo:true,em:new Date().toISOString(),por:S.eu}));
   await b.commit(); return Object.keys(novos).length;
 }
+
+/* ---- Criar de uma vez os usuários e cadastros de quem está nos checklists ---- */
+const APELIDOS_FIXOS={"Alê":["Alexandre","Alessandro"]};
+function semUsuarioCk(){
+  const funcoes=new Set([...S.usuarios.map(u=>normEst(u.papel||"")),...(S.func||[]).map(f=>normEst(f.funcao||""))].filter(Boolean));
+  const nomes=new Map();
+  listasCk().forEach(l=>{ if(!pessoa(l.quem)&&!S.usuarios.some(u=>(u.chaves||[]).some(c=>normEst(c)===normEst(l.quem)))&&!funcoes.has(normEst(l.quem)))nomes.set(normEst(l.quem),l.quem); });
+  (S.func||[]).filter(f=>f.ativo!==false&&!usuarioDe(f)).forEach(f=>{ if(listasCk().some(l=>normEst(l.quem)===normEst(f.nome)))nomes.set(normEst(f.nome),f.nome); });
+  return [...nomes.values()].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+}
+function pinAleatorio(){ for(;;){ const p=String(Math.floor(100000+Math.random()*900000)); if(!/^(\d)\1+$/.test(p)&&!"0123456789".includes(p)&&!"9876543210".includes(p))return p; } }
+async function criarPendentesCk(){
+  const faltam=semUsuarioCk();
+  if(!faltam.length){toast("Todo mundo dos checklists já tem usuário.");return;}
+  if(!(await pergunta("Criar usuários",`Criar usuário e cadastro para ${faltam.join(", ")}? Cada um recebe um PIN provisório, que vai aparecer só uma vez.`,"Criar")))return;
+  const feitos=[], erros=[];
+  for(const nome of faltam){
+    try{
+      const id=slugP(nome), f=(S.func||[]).find(x=>normEst(x.nome)===normEst(nome));
+      if(!f) await S.db.doc("ponto/func_"+normEst(nome)).set({nome,nomeCompleto:"",funcao:"",local:"Loja",admissao:"",usuario:"",ativo:true,cadastro:true,em:new Date().toISOString(),por:S.eu});
+      const pin=pinAleatorio();
+      await S.db.doc("usuarios/"+id).set({nome,nivel:"Equipe",producao:[],rotinas:[],visaoGeral:false,papel:(f&&f.funcao)||"",chaves:[],ativo:true,trocarPin:true,ordem:99,criadoPor:quemSou(),criadoEm:new Date().toISOString(),...await dadosPin(pin,{_doc:id,nome})});
+      feitos.push({nome,pin});
+    }catch(e){ erros.push(nome+" ("+(e.code||e.message)+")"); }
+  }
+  // Alê também atende por Alexandre
+  for(const [nome,ap] of Object.entries(APELIDOS_FIXOS)){ const u=pessoa(nome); if(u){ const ch=[...new Set([...(u.chaves||[]),...ap])]; if(ch.length!==(u.chaves||[]).length) try{await S.db.doc("usuarios/"+u._doc).update({chaves:ch});}catch(e){} } }
+  abrirDlg(`<h2>Usuários criados</h2><p class="hint">Anote ou copie agora. Os PINs provisórios não aparecem de novo. No primeiro acesso, cada pessoa cria o PIN dela.</p>
+    <div class="tbl"><table><thead><tr><th>Usuário</th><th>PIN provisório</th></tr></thead><tbody>${feitos.map(x=>`<tr><td>${esc(x.nome)}</td><td class="fb-pin num">${x.pin}</td></tr>`).join("")}</tbody></table></div>
+    ${erros.length?`<p class="err-msg">Não deu para criar: ${esc(erros.join("; "))}</p>`:""}
+    <p class="hint">Endereço do app: sorvely-app.pages.dev. Para marcar outras permissões, use Equipe › Usuários › Editar.</p>
+    <div class="dlg-foot"><button class="btn ghost" value="copiar" type="submit">Copiar lista</button><button class="btn" value="cancel">Pronto</button></div>`,
+  async(fd,btn)=>{ if(btn==="copiar"){ try{await navigator.clipboard.writeText(feitos.map(x=>`${x.nome}: ${x.pin}`).join("\n")+"\nApp: sorvely-app.pages.dev");toast("Lista copiada.");}catch(e){toast("Não deu para copiar. Anote os PINs.");} } return false; });
+}
 function vFuncionarios(){
   const fs=(S.func||[]).slice().sort((a,b)=>(a.ativo===false)-(b.ativo===false)||a.nome.localeCompare(b.nome,"pt-BR"));
   const ativos=fs.filter(f=>f.ativo!==false), comU=ativos.filter(f=>usuarioDe(f)&&usuarioDe(f).ativo!==false).length;
-  const head=`<div class="section-head"><h2>Funcionários</h2><div class="actions"><button class="btn" data-act="novoFunc">Novo funcionário</button></div></div>`;
+  const pend=semUsuarioCk().length;
+  const head=`<div class="section-head"><h2>Funcionários</h2><div class="actions">${pend?`<button class="btn" data-act="criarPendCk">Criar usuários que faltam (${pend})</button>`:""}<button class="btn ${pend?"ghost":""}" data-act="novoFunc">Novo funcionário</button></div></div>`;
   if(!fs.length)return head+`<div class="card"><p>Nenhum funcionário cadastrado ainda.</p><p class="sub">Monte a lista com as pessoas do cartão de ponto e os usuários do app. Depois é só ajustar.</p><button class="btn" data-act="semearFunc">Montar lista pelo ponto</button></div>`;
   const linha=f=>{const u=usuarioDe(f), pt=pontoDe(f), ult=pt[pt.length-1];
     const st=!u?`<span class="pill p-idle">sem usuário</span>`:u.ativo===false?`<span class="pill p-bad">usuário bloqueado</span>`:`<span class="pill p-ok">usuário ${esc(u.nome)}</span> <span class="pill p-${u.nivel==="Liderança"?"acai":"and"}">${esc(u.nivel)}</span>${!u.pinHash?' <span class="pill p-bad">sem PIN</span>':u.trocarPin?' <span class="pill p-and">PIN provisório</span>':""}`;
@@ -3171,7 +3206,7 @@ function formCienciaPresencial(doc){
 const CK_PADRAO={
   abertura:["Temperatura da vitrine e dos freezers registrada no app","Validade conferida: o que vence primeiro fica na frente (PVPS)","Sabores em falta repostos do estoque, com baixa no app","Casquinhas, copos, colheres e guardanapos repostos","Mesas da área externa limpas e com guardanapos","Troco conferido e caixa aberto","Máquinas de cartão e equipamentos ligados e funcionando","Salão, balcão e vitrine limpos e organizados"],
   fechamento:["Casquinhas guardadas dentro do saco plástico (nada solto na vitrine da frente)","Vitrine coberta e freezers fechados, sem passar da capacidade dos picolés","Baixa no app de todas as caixas retiradas no dia","Fechamento de caixa registrado no app","Balcão, vitrine, máquinas e piso limpos","Caixas, embalagens e objetos guardados no lugar certo","Mesas externas recolhidas e organizadas","Lixo retirado","Luzes e equipamentos desligados (menos freezers) e portas trancadas","Pendências anotadas e avisadas à Liderança"],
-  reposicao:["Mousses @ Bruna","Chantilly e coberturas @ Gabriel","Brigadeiros e beijinhos, e potes de açaí 2L @ Denise","Freezer de sorvetes @ Amanda","Frutas @ Lary","Freezer de açaí e freezer zero açúcar @ Aline","Retirar gelo dos freezers e potes de sorvete 1,5L @ Andrea","Gelo @ Alessandro","Descartáveis @ Sabrina"]
+  reposicao:["Mousses @ Bruna","Chantilly e coberturas @ Gabriel","Brigadeiros e beijinhos, e potes de açaí 2L @ Denise","Freezer de sorvetes @ Amanda","Frutas @ Lary","Freezer de açaí e freezer zero açúcar @ Aline","Retirar gelo dos freezers e potes de sorvete 1,5L @ Andrea","Gelo @ Alê","Descartáveis @ Sabrina"]
 };
 const CK_TIPOS=[["abertura","Abertura"],["fechamento","Fechamento"],["reposicao","Reposições"]];
 const CK_MOM={abertura:"Abertura · hoje",fechamento:"Fechamento · hoje",reposicao:"Reposições da semana"};
@@ -3289,6 +3324,7 @@ function vCkConfig(){
   ${podeEscrever()||podeRot("ckConfig")?'<p><button class="btn" data-act="ckCfgSalvar" type="button">Salvar checklist da loja</button></p>':""}</form></div>
   <div class="card"><div class="section-head"><h3>Checklist de cada pessoa</h3><button type="button" class="btn sm" data-act="ckLista" data-i="-1">Nova lista</button></div>
   <p class="hint">Cada pessoa vê só a lista dela, em Meu checklist. A lista pode ser de uma pessoa (Bruna) ou de uma função (Balconista).</p>
+  ${ehLider()&&semUsuarioCk().length?`<p><button type="button" class="btn sm" data-act="criarPendCk">Criar usuários que faltam (${semUsuarioCk().length})</button></p>`:""}
   ${ls.length?`<ul class="ck-eq">${ls.map((l,i)=>`<li class="ck-cfg"><div><b>${esc(l.quem)}</b><span class="sub">${CK_TIPOS.map(([t,r])=>(l[t]||[]).length?`${r.toLowerCase()} ${l[t].length}`:"").filter(Boolean).join(" · ")||"sem itens"}${pessoa(l.quem)||S.usuarios.some(u=>normEst(u.papel||"")===normEst(l.quem))?"":" · ainda sem usuário"}</span></div><button type="button" class="icon-btn" data-act="ckLista" data-i="${i}">Editar</button></li>`).join("")}</ul>`:'<p class="empty">Nenhuma lista individual ainda.</p>'}</div>`;
 }
 function editarCk(){ abrirDlg(`<h2>Montar checklists</h2>${vCkConfig()}<div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Fechar</button></div>`,async()=>true); }
@@ -3433,7 +3469,7 @@ document.addEventListener("click",e=>{
   const fo=e.target.closest("[data-foto]"); if(fo){verFoto(fo.dataset.foto);return;}
   const es=e.target.closest("[data-eqsub]"); if(es){S.f.eq.sub=es.dataset.eqsub;render();return;}
   const ct=e.target.closest("[data-cktipo]"); if(ct){S.f.rot.ckTipo=ct.dataset.cktipo;render();return;}
-  const b=e.target.closest("[data-act]"); if(!b||(b.closest("dialog")&&!["ckLista","ckCfgSalvar"].includes(b.dataset.act)))return;
+  const b=e.target.closest("[data-act]"); if(!b||(b.closest("dialog")&&!["ckLista","ckCfgSalvar","criarPendCk"].includes(b.dataset.act)))return;
   const a=b.dataset.act, d=b.dataset.doc;
   if(a==="novaAcao")formAcao();
   else if(a==="editAcao")formAcao(S.acoes.find(x=>x._doc===d));
@@ -3486,6 +3522,7 @@ document.addEventListener("click",e=>{
   else if(a==="ckCfgSalvar")salvarCkCfg();
   else if(a==="ckEditar")editarCk();
   else if(a==="ckLista")formListaCk(Number(b.dataset.i));
+  else if(a==="criarPendCk")criarPendentesCk();
   else if(a==="novoUsu")formUsuario();
   else if(a==="novoFunc")formFuncionario();
   else if(a==="editFunc")formFuncionario((S.func||[]).find(x=>x._doc===b.dataset.doc));

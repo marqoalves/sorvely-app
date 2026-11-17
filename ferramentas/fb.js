@@ -86,14 +86,17 @@ est.textContent=`#fbGate{position:fixed;inset:0;z-index:9999;background:var(--bg
 #fbGate .fb-box{width:100%;max-width:420px}#fbGate h2{margin:0 0 6px}#fbGate .field{margin:12px 0}#fbGate select,#fbGate input{width:100%}
 #fbGate .fb-logo{margin:0 0 14px}#fbGate .fb-logo img{height:54px;width:auto;display:block}#fbGate h2{font-family:var(--display,inherit);font-weight:400}#fbGate .fb-box{border-radius:22px;padding:22px}#fbGate{background:var(--bg,#F4F7FF) url("marca/simbolo-azul.svg") no-repeat right -60px bottom -70px/260px}#fbGate table{width:100%;border-collapse:collapse;margin:10px 0}#fbGate td,#fbGate th{border-bottom:1px solid var(--line,#ddd);padding:6px;text-align:left}
 #fbNova{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;background:var(--ink,#222);color:var(--bg,#fff);box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:520px;margin:0 auto}
-#fbGate .fb-pin{font-family:monospace;font-size:1.1rem;font-weight:700}`;
+#fbGate .fb-pin{font-family:monospace;font-size:1.1rem;font-weight:700}
+#fbGate .fb-ac{position:relative}#fbGate .fb-sug{list-style:none;margin:4px 0 0;padding:4px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface,#fff);box-shadow:0 8px 24px rgba(31,29,66,.12)}
+#fbGate .fb-sug button{width:100%;text-align:left;padding:11px 12px;border:0;background:none;border-radius:9px;font:inherit;font-weight:600;color:var(--ink,#1F1D42);cursor:pointer}
+#fbGate .fb-sug button:hover,#fbGate .fb-sug button:focus{background:var(--acai-soft,#eef2ff)}#fbGate .fb-sug small{font-weight:400;color:var(--muted,#777)}#fbGate .fb-nada{padding:10px 12px;color:var(--muted,#777);font-size:.9rem}`;
 document.head.appendChild(est);
 
 async function telaLogin(){
   let lista=[];
   try{ const d=await comPrazo(fs.doc("publico/login").get()); lista=(d.exists&&d.data().lista)||[]; }catch(e){ if(e.code==="timeout"||e.code==="unavailable") return semConexao(); }
-  const g=tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Entrar</h2><p class="hint">Selecione seu nome e digite seu PIN.</p>
-    <form id="fbLg"><div class="field"><label for="fbU">Usuário</label><select id="fbU" required><option value="">Selecione seu nome</option>${lista.map(p=>`<option value="${esc(p.slug)}">${esc(p.nome)}</option>`).join("")}</select></div>
+  const g=tela(`<div class="fb-logo"><img src="marca/logo-azul.svg" alt="Sorvely Sorveteria" width="168" height="54"></div><h2>Entrar</h2><p class="hint">Digite seu nome, escolha na lista e digite seu PIN.</p>
+    <form id="fbLg"><div class="field fb-ac"><label for="fbUq">Usuário</label><input id="fbUq" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Comece a digitar seu nome" role="combobox" aria-autocomplete="list" aria-controls="fbSug" aria-expanded="false"><input type="hidden" id="fbU" value=""><ul id="fbSug" class="fb-sug" role="listbox" hidden></ul></div>
     <div class="field"><label for="fbP">PIN</label><input id="fbP" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6" required></div>
     <p class="err-msg" id="fbE" hidden></p><button class="btn" id="fbB">Entrar</button></form>
     <p class="hint" style="margin-top:14px">Esqueceu o PIN? Fale com o Marco para receber um PIN provisório.</p>`);
@@ -102,11 +105,25 @@ async function telaLogin(){
   try{ const av=sessionStorage.getItem("sorvely_aviso"); if(av){ avisoLogin=avisoLogin||av; sessionStorage.removeItem("sorvely_aviso"); } }catch(e){}
   if(avisoLogin){ err.textContent=avisoLogin; err.hidden=false; avisoLogin=""; }
   /* Lembra o último nome usado neste aparelho, para a pessoa só digitar o PIN */
-  try{ const ult=localStorage.getItem("sorvely_ultimo"), sel=g.querySelector("#fbU"); if(ult&&[...sel.options].some(o=>o.value===ult)){ sel.value=ult; g.querySelector("#fbP").focus(); } }catch(e){}
+  const q=g.querySelector("#fbUq"), hid=g.querySelector("#fbU"), sug=g.querySelector("#fbSug");
+  const nrm=x=>String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const escolher=p=>{ q.value=p.nome; hid.value=p.slug; sug.hidden=true; q.setAttribute("aria-expanded","false"); };
+  const achar=t=>{ const k=nrm(t); if(!k)return []; const nomes=p=>[p.nome,...(p.a||[])].map(nrm);
+    const ini=lista.filter(p=>nomes(p).some(n=>n.startsWith(k)||n.split(" ").some(w=>w.startsWith(k)))), meio=lista.filter(p=>!ini.includes(p)&&nomes(p).some(n=>n.includes(k)));
+    return [...ini,...meio].slice(0,6); };
+  const mostrar=()=>{ hid.value=""; const l=achar(q.value);
+    const exato=l.find(p=>nrm(p.nome)===nrm(q.value)); if(exato)hid.value=exato.slug;
+    sug.innerHTML=l.map(p=>`<li><button type="button" role="option" data-s="${esc(p.slug)}">${esc(p.nome)}${!nrm(p.nome).includes(nrm(q.value))?`<small> ${esc((p.a||[]).filter(x=>nrm(x).includes(nrm(q.value))).join(", "))}</small>`:""}</button></li>`).join("")||(q.value.trim()?'<li class="fb-nada">Nenhum nome encontrado. Fale com o Marco.</li>':"");
+    sug.hidden=!sug.innerHTML; q.setAttribute("aria-expanded",String(!sug.hidden)); };
+  q.addEventListener("input",mostrar); q.addEventListener("focus",()=>{ if(!hid.value&&q.value)mostrar(); });
+  sug.addEventListener("click",e=>{ const b=e.target.closest("[data-s]"); if(!b)return; escolher(lista.find(p=>p.slug===b.dataset.s)); g.querySelector("#fbP").focus(); });
+  q.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!hid.value){ const l=achar(q.value); if(l.length){e.preventDefault(); escolher(l[0]); g.querySelector("#fbP").focus();} } });
+  try{ const ult=localStorage.getItem("sorvely_ultimo"), p=lista.find(x=>x.slug===ult); if(p){ escolher(p); g.querySelector("#fbP").focus(); } }catch(e){}
   f.onsubmit=async ev=>{
     ev.preventDefault(); err.hidden=true;
-    const s=g.querySelector("#fbU").value, pin=g.querySelector("#fbP").value.trim();
-    if(!s)return falha("Escolha seu nome."); if(!/^\d{4,6}$/.test(pin))return falha("O PIN tem de 4 a 6 números.");
+    if(!hid.value){ const l=achar(q.value); if(l.length===1)escolher(l[0]); }
+    const s=hid.value, pin=g.querySelector("#fbP").value.trim();
+    if(!s)return falha(q.value.trim()?"Toque no seu nome na lista que aparece.":"Digite seu nome."); if(!/^\d{4,6}$/.test(pin))return falha("O PIN tem de 4 a 6 números.");
     b.disabled=true; b.textContent="Entrando...";
     try{
       const l=await comPrazo(fs.doc("login/"+s).get());
@@ -173,7 +190,7 @@ async function checarVersao(){
 function sincronizarLista(){
   fs.collection("usuarios").onSnapshot(sn=>{
     const lista=sn.docs.map(d=>({slug:d.id,...d.data()})).filter(u=>u.ativo!==false)
-      .sort((a,b)=>(a.ordem??99)-(b.ordem??99)||String(a.nome).localeCompare(b.nome)).map(u=>({slug:u.slug,nome:u.nome}));
+      .sort((a,b)=>(a.ordem??99)-(b.ordem??99)||String(a.nome).localeCompare(b.nome)).map(u=>({slug:u.slug,nome:u.nome,...((u.chaves||[]).filter(c=>c&&c!==u.nome).length?{a:(u.chaves||[]).filter(c=>c&&c!==u.nome)}:{})}));
     fs.doc("publico/login").get().then(d=>{ if(!d.exists||JSON.stringify(d.data().lista)!==JSON.stringify(lista)) fs.doc("publico/login").set({lista}); }).catch(()=>{});
   },()=>{});
 }

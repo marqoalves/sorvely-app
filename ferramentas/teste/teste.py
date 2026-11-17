@@ -238,6 +238,15 @@ async def main():
         r = await pg.evaluate("pendRepo().map(x=>x.t).join('|')")
         ok("reposições" in r, f"pendência das reposições aparece no Para fazer hoje ({r[:80]})")
         ok(await pg.evaluate("CAT_EST.includes('Balde de retorno')"), "baldes de retorno são cadastro do estoque")
+        falt = await pg.evaluate("semUsuarioCk()")
+        ok("Bruna" in falt and "Alessandro" not in falt and "Lary" not in falt, f"lista quem falta criar ({falt})")
+        await pg.evaluate("S.f.eq.sub='funcionarios';location.hash='usuarios';render()"); await pg.wait_for_timeout(400)
+        await pg.click("[data-act=criarPendCk]"); await pg.wait_for_selector("#dlg2 button[value=ok]"); await pg.click("#dlg2 button[value=ok]")
+        await pg.wait_for_selector("text=Usuários criados", timeout=15000)
+        nl = await pg.locator("#dlg tbody tr").count()
+        ok(nl == len(falt), f"criou {nl} usuários com PIN provisório")
+        await pg.click("#dlg button[value=cancel]"); await pg.wait_for_timeout(500)
+        ok(await pg.evaluate("semUsuarioCk().length")==0 and await pg.evaluate("!!window.__mockfb.docs['usuarios/bruna']"), "não sobra ninguém sem usuário")
         ok(await pg.evaluate("CAT_EST.includes('Picolé')"), "estoque aceita picolés")
         # limite por pessoa só avisa
         r = await pg.evaluate("(async()=>{const l=S.raw.acoes.filter(a=>a.status!=='Cancelada').slice(0,5);for(const a of l)await firebase.firestore().doc('acoes/'+a._doc).update({status:'Em andamento',responsaveis:['Marco']});await new Promise(r=>setTimeout(r,600));return acimaDoLimite().map(x=>x.nome)})()")
@@ -254,15 +263,19 @@ async def main():
 
         # Sair
         await pg.evaluate("sair()"); await pg.wait_for_selector("#fbGate #fbLg", timeout=10000)
-        opts = await pg.eval_on_selector_all("#fbU option", "o=>o.map(x=>x.textContent)")
-        ok(opts[1:] == ["Marco", "Lary", "Gustavo"] or set(opts[1:]) == {"Marco", "Lary", "Gustavo"}, f"tela de entrada lista os nomes {opts[1:]}")
+        await pg.fill("#fbUq", "a"); await pg.wait_for_timeout(200)
+        opts = await pg.eval_on_selector_all("#fbSug [data-s]", "o=>o.map(x=>x.textContent.trim())")
+        ok("Marco" in opts and "Lary" in opts and "Gustavo" not in opts, f"digitar mostra os nomes que combinam {opts}")
+        await pg.fill("#fbUq", "gus"); await pg.wait_for_timeout(200)
+        ok(await pg.eval_on_selector_all("#fbSug [data-s]", "o=>o.map(x=>x.textContent.trim())") == ["Gustavo"], "sugestão aparece ao digitar parte do nome")
+        await pg.fill("#fbUq", "")
         await pg.screenshot(path=SH + "5_login.png")
 
         async def login(slug, pin):
-            await pg.select_option("#fbU", slug); await pg.fill("#fbP", pin); await pg.click("#fbB")
+            await pg.fill("#fbUq", slug[:3]); await pg.wait_for_timeout(150); await pg.click(f"#fbSug [data-s='{slug}']"); await pg.fill("#fbP", pin); await pg.click("#fbB")
 
         # 3. PIN errado
-        ok(await pg.input_value("#fbU") == "", "primeira entrada no aparelho não vem com nome escolhido")
+        ok(await pg.input_value("#fbUq") == "", "primeira entrada no aparelho não vem com nome escolhido")
         await login("lary", "9999"); await pg.wait_for_selector("#fbE:not([hidden])")
         ok("incorreto" in await pg.inner_text("#fbE"), "PIN errado é recusado")
 
