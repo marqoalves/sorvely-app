@@ -435,6 +435,12 @@ ul.reg{list-style:none;margin:0;padding:0}ul.reg li{display:flex;gap:10px;align-
 
 
 
+
+/* Checklist por pessoa */
+.ck-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 8px}
+.ck-bar .sub{margin-left:auto}
+.ck-resp{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;background:var(--acai-soft);color:var(--acai);font-size:.75rem;font-weight:600}
+.ck-meu .ck-it{border-left:3px solid var(--rosa);padding-left:8px}
 /* Menu em grupos */
 .nav-sec{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:12px 12px 4px}
 .nav-sec:first-child{padding-top:2px}
@@ -737,13 +743,16 @@ const rankSt = x => ORD_ST[x.status] ?? 2;
 const CATEGORIAS = ["Produto","Marketing e comercial","Compras","Decisão com prazo próprio"];
 const PERSPECTIVAS = ["Financeira","Clientes e mercado","Processos internos","Pessoas e aprendizado","Validação do plano"];
 const LIM_PLANO = 5, LIM_TRILHA = 2;
+const limPessoa=()=>Math.max(1,Number((S.geral&&S.geral.limPessoa)||3));
+function emAndamentoDe(nome,excetoDoc){ return [...(S.raw.acoes||S.acoes),...(S.raw.trilha||S.trilha)].filter(x=>x.status==="Em andamento"&&x._doc!==excetoDoc&&ehResp(x,nome)).length; }
+function acimaDoLimite(){ const L=limPessoa(); return ativos().map(u=>({nome:u.nome,n:emAndamentoDe(u.nome)})).filter(x=>x.n>L).sort((a,b)=>b.n-a.n); }
 
 /* ---------- Estado ---------- */
 const S = {
   db:null, user:null, uid:null, owner:false, canWrite:true,
   eu:null, // nome escolhido
   geral:{dataInicio:"2026-09-20"},
-  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], func:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
+  acoes:[], trilha:[], indicadores:[], lanc:[], propostas:[], usuarios:[], hist:[], detalhe:null, raw:{}, solic:[], ordens:[], produtos:[], retornos:[], caixas:[], entDias:[], tempDias:[], equip:[], estoque:[], estMov:[], vendasProd:[], ponto:[], func:[], comunicados:[], ciencias:[], checklists:[], ckCfg:null,
   loaded:{}, view:"painel",
   f:{plano:{onda:"",status:"",onde:"",minhas:false,q:"",vis:"lista"}, trilha:{cat:"",status:"",minhas:false,q:"",vis:"lista"}, prod:{sub:null,solSt:"ativas",sel:new Set(),dias:15}, rot:{sub:null,dataEnt:null,diasCx:7,localT:null,ultCanal:"",ckTipo:null}, eq:{sub:"funcionarios",mesP:null}}
 };
@@ -1026,8 +1035,9 @@ function vPainel(){
   </section>
   <div class="grid2">
     <div class="card"><h3>Saúde do plano</h3>
-      ${linhaS("Ações em andamento",`limite de ${LIM_PLANO} ao mesmo tempo`,`${m.and} de ${LIM_PLANO}`,m.and>LIM_PLANO?"bad":"ok")}
-      ${linhaS("Trilha comercial",`${t.length} iniciativas, ${tConc} concluídas · limite de ${LIM_TRILHA}`,`${tAnd} de ${LIM_TRILHA} em andamento`,tAnd>LIM_TRILHA?"bad":"ok")}
+      ${(()=>{const ac=acimaDoLimite(), L=limPessoa(); return linhaS("Limite por pessoa",ac.length?ac.map(x=>`${esc(x.nome)} (${x.n})`).join(", "):`até ${L} atividades em andamento por pessoa`+(ehLider()?` · <button type="button" class="linkbtn" data-act="limPessoa">alterar</button>`:""),ac.length?`${ac.length} acima de ${L}`:"todos dentro",ac.length?"and":"ok");})()}
+      ${linhaS("Ações em andamento","plano de ação",String(m.and),"idle")}
+      ${linhaS("Trilha comercial",`${t.length} iniciativas, ${tConc} concluídas`,`${tAnd} em andamento`,"idle")}
       ${linhaS("5W2H completo","ações com todos os campos preenchidos",`${m.w5} de ${m.tot}`,m.w5===m.tot?"ok":"and")}
       ${linhaS("Prazos replanejados","atividades com prazo não cumprido",String(m.replanejadas),m.replanejadas?"and":"ok")}
     </div>
@@ -1417,10 +1427,10 @@ const UNIDADES=["balde 10L","cuba","caixa 10L","pote 500g","pote 1L","pote 1,5L"
 const ST_OP=["Emitida","Em produção","Produzida","Enviada","Recebida"];
 const CLS_OP={"Emitida":"idle","Em produção":"and","Produzida":"acai","Enviada":"and","Recebida":"ok","Cancelada":"bad"};
 const CLS_SOL={"Aberta":"and","Em ordem":"acai","Atendida":"ok","Recusada":"bad","Cancelada":"idle"};
-const PERM_ROT={solicitar:"Solicita produção (loja)",emitir:"Emite ordens de produção",produzir:"Produz e envia (fábrica)"};
+const PERM_ROT={solicitar:"Solicita produção (loja)",emitir:"Emite ordens de produção",produzir:"Produz, envia e sugere produção (fábrica)",produtos:"Cadastra e altera produtos"};
 function permProd(p){
   if(!p||p.ativo===false)return [];
-  if(p.nivel==="Liderança")return ["solicitar","emitir","produzir"];
+  if(p.nivel==="Liderança")return ["solicitar","emitir","produzir","produtos"];
   if(Array.isArray(p.producao))return p.producao;
   const r=[], papel=String(p.papel||"").toLowerCase();
   if(papel.includes("loja"))r.push("solicitar");
@@ -1444,20 +1454,20 @@ function vProducao(){
   if(!veProducao())return `<div class="card"><h2>Produção</h2><p class="sub">${S.eu?"Seu usuário não participa do controle de produção. Se precisar, fale com o Marco.":"Entre com seu nome e PIN para ver a produção."}</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
   const p=permProd(pessoa(S.eu));
   const padrao=p.includes("produzir")&&!p.includes("emitir")?"ordens":"solic";
-  let sub=S.f.prod.sub||padrao; if(sub==="solic"&&!(p.includes("solicitar")||p.includes("emitir")))sub="ordens"; if(sub==="produtos"&&!ehLider())sub=padrao;
+  let sub=S.f.prod.sub||padrao; if(sub==="produtos"&&!(ehLider()||p.includes("produtos")))sub=padrao;
   const abertas=S.solic.filter(s=>s.status==="Aberta").length, emitidas=S.ordens.filter(o=>o.status==="Emitida").length, emProd=S.ordens.filter(o=>o.status==="Em produção").length, enviadas=S.ordens.filter(o=>o.status==="Enviada").length;
   return `<div class="section-head"><h2>Produção</h2>
-    <div class="seg">${[...(p.includes("solicitar")||p.includes("emitir")?[["solic","Solicitações da loja"]]:[]),["ordens","Ordens de produção"],...(ehLider()?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
-    ${podeProd("solicitar")?'<button class="btn" data-act="novaSol">Nova solicitação</button>':""}
+    <div class="seg">${[["solic","Solicitações"],["ordens","Ordens"],["retornos","Retornos"],...(ehLider()||p.includes("produtos")?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
+    ${podeProd("solicitar")?'<button class="btn" data-act="novaSol">Nova solicitação</button>':podeProd("produzir")?'<button class="btn" data-act="sugerirProd">Sugerir produção</button>':""}
     ${podeProd("emitir")?'<button class="btn ghost" data-act="novaOP">Nova ordem</button>':""}</div>
   <div class="tiles">
-    ${p.includes("solicitar")||p.includes("emitir")?`<div class="tile ${abertas?"warn":""}"><span class="v num">${abertas}</span><span class="l">solicitações aguardando ordem</span></div>`:""}
+    <div class="tile ${abertas?"warn":""}"><span class="v num">${abertas}</span><span class="l">solicitações e sugestões aguardando ordem</span></div>
     <div class="tile ${emitidas?"warn":""}"><span class="v num">${emitidas}</span><span class="l">ordens emitidas para produzir</span></div>
     <div class="tile acai"><span class="v num">${emProd}</span><span class="l">ordens em produção</span></div>
     <div class="tile ${enviadas?"warn":""}"><span class="v num">${enviadas}</span><span class="l">enviadas aguardando conferência na loja</span></div>
   </div>
   ${ajudaProducao(p)}
-  ${sub==="ordens"?vOrdens():sub==="produtos"?vProdutos():vSolic()}`;
+  ${sub==="ordens"?vOrdens():sub==="produtos"?vProdutos():sub==="retornos"?vRetornos():vSolic()}`;
 }
 function ajudaProducao(p){
   const t=[];
@@ -1471,7 +1481,7 @@ function cartaoSol(s,sel){
   return `<div class="item s-${c==="and"?"and":c==="ok"?"ok":c==="bad"?"bad":"idle"}">
     <span class="id">${podeSel?`<input type="checkbox" class="selSol" data-doc="${esc(s._doc)}" ${sel?"checked":""} aria-label="Selecionar ${esc(s.num)}">`:""} ${esc(s.num||"")}</span>
     <span class="what">${(s.itens||[]).map(i=>`<div>${fmtQtd(i.qtd)} ${esc(i.unidade)} · ${esc(i.produto)}</div>`).join("")}</span>
-    <div class="actions"><span class="pill p-${c}">${esc(s.status)}</span>${s.urgencia==="Urgente"?'<span class="pill p-bad">urgente</span>':""}
+    <div class="actions">${s.origem==="Fábrica"?'<span class="pill p-acai">sugestão da fábrica</span>':""}<span class="pill p-${c}">${esc(s.status)}</span>${s.urgencia==="Urgente"?'<span class="pill p-bad">urgente</span>':""}
       ${podeProd("emitir")&&s.status==="Aberta"?`<button class="icon-btn" data-act="recusarSol" data-doc="${esc(s._doc)}">Recusar</button>`:""}
       ${s.status==="Aberta"&&(s.por===S.eu||ehLider())?`<button class="icon-btn" data-act="cancelarSol" data-doc="${esc(s._doc)}">Cancelar</button>`:""}
       ${s.opDoc?`<button class="icon-btn" data-act="abrirOP" data-doc="${esc(s.opDoc)}">Ver ${esc(s.opNum)}</button>`:""}</div>
@@ -1539,18 +1549,19 @@ function lerItens(f){
   return {itens:out,erro};
 }
 /* ---- solicitações ---- */
-function formSol(pre){
-  abrirDlg(`<h2>Nova solicitação de produção</h2><p class="hint">Liste o que está faltando ou vai faltar na loja.${Array.isArray(pre)&&pre.length?" Os sabores sem caixa ou no mínimo já vieram preenchidos; ajuste as quantidades.":""}</p>
+function formSol(pre,origem){
+  const fab=origem==="Fábrica";
+  abrirDlg(`<h2>${fab?"Sugerir produção":"Nova solicitação de produção"}</h2><p class="hint">${fab?"Sugira o que vale produzir, como sabores que a fábrica tem insumo ou baldes de retorno para aproveitar. A Liderança decide e emite a ordem.":"Liste o que está faltando ou vai faltar na loja."}${Array.isArray(pre)&&pre.length?" Os sabores sem caixa ou no mínimo já vieram preenchidos; ajuste as quantidades.":""}</p>
     ${blocoItens(Array.isArray(pre)?pre:[])}
     <div class="row2"><div class="field"><label for="sl_u">Urgência</label><select id="sl_u" name="urgencia">${opts(["Normal","Urgente"],"Normal")}</select></div>
       <div class="field"><label for="sl_d">Precisa chegar até</label><input id="sl_d" type="date" name="dataDesejada" min="${iso(hoje())}"></div></div>
     <div class="field"><label for="sl_o">Observações</label><textarea id="sl_o" name="obs" placeholder="ex.: estoque de morango acaba no sábado"></textarea></div>
     <p class="err-msg" id="slErr" hidden></p>
-    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Enviar solicitação</button></div>`,
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">${fab?"Enviar sugestão":"Enviar solicitação"}</button></div>`,
   async (fd,btn,f)=>{
     const {itens,erro}=lerItens(f); if(erro){const e=f.querySelector("#slErr");e.textContent=erro;e.hidden=false;return false;}
     const num=proxNum(S.solic,"S-");
-    return gravar(()=>S.db.collection("solicitacoes").add({num,itens,urgencia:fd.get("urgencia"),dataDesejada:fd.get("dataDesejada")||"",obs:String(fd.get("obs")||"").trim(),local:"Sorveteria Caetité",por:quemSou(),em:new Date().toISOString(),status:"Aberta"}),"Solicitação "+num+" enviada.");
+    return gravar(()=>S.db.collection("solicitacoes").add({num,itens,urgencia:fd.get("urgencia"),dataDesejada:fd.get("dataDesejada")||"",obs:String(fd.get("obs")||"").trim(),local:fab?"Fábrica":"Sorveteria Caetité",origem:fab?"Fábrica":"Loja",por:quemSou(),em:new Date().toISOString(),status:"Aberta"}),"Solicitação "+num+" enviada.");
   },{onOpen:ligarItens});
 }
 async function respostaSol(doc,status,titulo,rotulo){
@@ -1637,6 +1648,40 @@ function formEtapa(o,etapa){
     return ok;
   });
 }
+
+/* ---- baldes de retorno: loja devolve baldes com pouco sorvete para a fábrica aproveitar ---- */
+const ST_RET=["Aguardando envio","Enviado","Recebido na fábrica","Aproveitado"];
+const CLS_RET={"Aguardando envio":"and","Enviado":"acai","Recebido na fábrica":"ok","Aproveitado":"ok"};
+function vRetornos(){
+  const f=S.f.prod.retSt||"abertos";
+  const l=(S.retornos||[]).filter(r=>f==="todos"||(f==="abertos"?r.status!=="Aproveitado":r.status===f)).sort((a,b)=>(b.em||"").localeCompare(a.em||""));
+  const podeCriar=podeRot("estoque")||podeProd("solicitar");
+  return `<div class="filters"><select id="pRetSt" aria-label="Situação">${opts([{v:"abertos",l:"Em andamento"},...ST_RET.map(x=>({v:x,l:x})),{v:"todos",l:"Todos"}],f)}</select>
+    ${podeCriar?'<button class="btn" data-act="novoRet">Registrar baldes de retorno</button>':""}</div>
+  ${dica("Quando um balde fica com pouco sorvete, ele pode voltar para a fábrica e ser usado na montagem de outros baldes. A loja registra aqui o que vai voltar, marca quando enviar, e a fábrica marca quando receber e quando aproveitar.","ret")}
+  <div class="list">${l.map(r=>{const c=CLS_RET[r.status]||"idle", prox=ST_RET[ST_RET.indexOf(r.status)+1];
+    const pode=prox&&((prox==="Enviado"&&podeCriar)||(prox!=="Enviado"&&(podeProd("produzir")||podeProd("emitir"))));
+    return `<div class="item s-${c==="ok"?"ok":c==="and"?"and":"idle"}"><span class="id">${esc(r.num||"")}</span>
+      <span class="what">${(r.itens||[]).map(i=>`<div>${fmtQtd(i.qtd)} ${esc(i.unidade)} · ${esc(i.produto)}</div>`).join("")}${r.obs?`<div class="sub">${esc(r.obs)}</div>`:""}<div class="sub">${esc(r.por)} · ${quando(r.em)}${r.ultimoPor&&r.ultimoPor!==r.por?` · ${esc(r.status.toLowerCase())} por ${esc(r.ultimoPor)}`:""}</div></span>
+      <div class="actions"><span class="pill p-${c}">${esc(r.status)}</span>${pode?`<button class="icon-btn" data-act="avancarRet" data-doc="${esc(r._doc)}">Marcar ${esc(prox.toLowerCase())}</button>`:""}${r.status==="Aguardando envio"&&(r.por===S.eu||ehLider())?`<button class="icon-btn" data-act="apagarRet" data-doc="${esc(r._doc)}">Apagar</button>`:""}</div></div>`;}).join("")||'<p class="empty">Nenhum balde de retorno aqui.</p>'}</div>`;
+}
+function formRetorno(){
+  abrirDlg(`<h2>Baldes de retorno para a fábrica</h2><p class="hint">Liste os baldes com pouco sorvete que vão voltar para a fábrica. Informe o sabor e a quantidade de baldes.</p>
+    ${blocoItens([{unidade:"balde 10L"}])}
+    <div class="field"><label for="rt_o">Quanto sobrou e observações</label><textarea id="rt_o" name="obs" placeholder="ex.: 2 baldes com uns 2 dedos, 1 com metade"></textarea></div>
+    <p class="err-msg" id="rtErr" hidden></p>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Registrar</button></div>`,
+  async (fd,btn,f)=>{
+    const {itens,erro}=lerItens(f); if(erro){const e=f.querySelector("#rtErr");e.textContent=erro;e.hidden=false;return false;}
+    const num=proxNum(S.retornos||[],"R-");
+    return gravar(()=>S.db.collection("retornos").add({num,itens,obs:String(fd.get("obs")||"").trim(),por:quemSou(),em:new Date().toISOString(),status:"Aguardando envio"}),"Baldes de retorno registrados.");
+  },{onOpen:ligarItens});
+}
+async function avancarRet(doc){
+  const r=(S.retornos||[]).find(x=>x._doc===doc); if(!r)return;
+  const prox=ST_RET[ST_RET.indexOf(r.status)+1]; if(!prox)return;
+  await gravar(()=>S.db.doc("retornos/"+doc).update({status:prox,ultimoPor:quemSou(),ultimoEm:new Date().toISOString(),["em_"+slugP(prox)]:new Date().toISOString()}),`${r.num}: ${prox.toLowerCase()}.`);
+}
 /* ---- catálogo ---- */
 function formProd(p){
   const novo=!p; p=p||{nome:"",categoria:"Sorvete",unidade:"balde 10L",ativo:true};
@@ -1655,7 +1700,7 @@ function formProd(p){
 }
 
 /* ---------- Rotinas diárias: fechamento de caixa, entregas e temperatura ---------- */
-const PERM_ROT_DIA={checklist:"Checklist de abertura e fechamento",estoque:"Estoque de caixas",caixa:"Fechamento de caixa",temperatura:"Registro de temperatura"};
+const PERM_ROT_DIA={checklist:"Checklist (marcar itens)",ckConfig:"Monta e altera os checklists",estoque:"Estoque de caixas e picolés",caixa:"Fechamento de caixa",temperatura:"Registro de temperatura"};
 const FORMAS=["Dinheiro","Pix","Cartão de débito","Cartão de crédito","Vale-refeição/alimentação","Outros"];
 const CANAIS=["Delivery próprio","Aiqfome","Pede Aí","Outro"];
 const PGTO_ENT=["Dinheiro","Pix na entrega","Cartão na entrega","Pago online"];
@@ -1666,7 +1711,7 @@ const EQUIP_SUGERIDOS={
 };
 function permRot(p){
   if(!p||p.ativo===false)return [];
-  if(p.nivel==="Liderança")return ["checklist","caixa","temperatura","estoque","fotos"];
+  if(p.nivel==="Liderança")return ["checklist","ckConfig","caixa","temperatura","estoque","fotos"];
   if(Array.isArray(p.rotinas))return [...p.rotinas.filter(x=>x!=="entregas"&&x!=="fotos"),"fotos"];
   const papel=String(p.papel||"").toLowerCase(), r=[];
   if(papel.includes("loja"))r.push("checklist","caixa","temperatura","estoque");
@@ -1709,7 +1754,7 @@ function ajustarAssinaturas(){
 }
 
 /* ===== Estoque de caixas (loja) ===== */
-const CAT_EST=["Normal","Zero açúcar"];
+const CAT_EST=["Normal","Zero açúcar","Picolé"];
 const normEst=s=>slugP(String(s||""));
 function movsEst(e){return S.estMov.filter(m=>m.sabor===e._doc&&m.tipo!=="contagem"&&(!e.baseEm||(m.em||"")>e.baseEm));}
 function saldoEst(e){return Number(e.base||0)+movsEst(e).reduce((s,m)=>s+Number(m.qtd||0),0);}
@@ -1755,7 +1800,7 @@ function vEstoque(){
     ${pode&&e.ativo!==false?`<button class="btn" data-act="estRet" data-doc="${esc(e._doc)}" aria-label="Retirar 1 caixa de ${esc(e.nome)}" title="Retirar 1 caixa">−1</button>`:""}
 </div>`;};
   const grupos=CAT_EST.map(cat=>[cat,lst.filter(e=>(e.categoria||"Normal")===cat)]).filter(g=>g[1].length);
-  return `${topoLanc(pode?`<button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button>`:"","Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar ou ver o histórico.","est")}
+  return `${topoLanc(pode?`<button class="btn sm" data-act="estEnt">Entrada de caixas</button><button class="btn ghost sm" data-act="estCont">Contagem</button><button class="btn ghost sm" data-act="novoRet">Baldes de retorno</button>${podeProd("solicitar")&&(zer.length||baixo.length)?'<button class="btn ghost sm" data-act="estRepor">Pedir reposição</button>':""}<button class="btn ghost sm" data-act="estNovo">Novo sabor</button>`:"","Toque em <b>−1</b> a cada caixa retirada do freezer. Toque no nome do sabor para editar ou ver o histórico.","est")}
   <div class="tiles"><div class="tile"><span class="v num">${tot}</span><span class="l">caixas no estoque</span></div>
     <div class="tile ${zer.length?"bad":"ok"}"><span class="v num">${zer.length}</span><span class="l">sabores sem caixa${at.length?" ("+Math.round(zer.length/at.length*100)+"%)":""}</span></div>
     <div class="tile ${baixo.length?"warn":"ok"}"><span class="v num">${baixo.length}</span><span class="l">sabores no mínimo</span></div>
@@ -1920,7 +1965,7 @@ function cardVendasProd(){
 
 function vRotinas(){
   if(!veRotinas())return `<div class="card"><h2>Lançamentos</h2><p class="sub">${S.eu?"Seu usuário não tem rotinas diárias. Se precisar, fale com o Marco.":"Entre com seu nome e PIN para registrar as rotinas."}</p>${S.eu?"":'<p><button class="btn" data-act="entrar">Entrar</button></p>'}</div>`;
-  const perms=permRot(pessoa(S.eu)), opcoes=[["checklist","Checklist"],["estoque","Estoque"],["caixa","Caixa"],["temperatura","Temperatura"],["fotos","Fotos"]].filter(([k])=>perms.includes(k));
+  const perms=[...permRot(pessoa(S.eu)),...(itensCk("reposicao").map(itemCk).some(it=>ehMeuCk(it))?["checklist"]:[])], opcoes=[["checklist","Checklist"],["estoque","Estoque"],["caixa","Caixa"],["temperatura","Temperatura"],["fotos","Fotos"]].filter(([k])=>perms.includes(k));
   const sub=opcoes.some(o=>o[0]===S.f.rot.sub)?S.f.rot.sub:opcoes[0][0];
   const fotoBtns=perms.includes("fotos")?`<span class="rot-foto"><button type="button" class="btn ghost sm" data-act="novaFoto"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> Registrar com foto</button><button type="button" class="linkbtn${sub==="fotos"?" on":""}" data-rsub="fotos">Ver fotos</button></span>`:"";
   return `<div class="section-head"><h2>Lançamentos</h2>${fotoBtns}</div>
@@ -2320,6 +2365,7 @@ function vInicio(){
   if(pr.includes("produzir"))ess.push(at2("producao:ordens","Ordens para produzir","ord","",paraProd));
   if(pr.includes("emitir")&&abertas)ess.push(at2("producao:solic","Emitir ordens","ord","",abertas));
   if(pr.includes("solicitar"))ess.push(at2("acao:novaSol","Pedir produção","prod","",0));
+  else if(pr.includes("produzir"))ess.push(at2("acao:sugerirProd","Sugerir produção","prod","",0));
   if(pr.includes("emitir")&&!abertas)mais.push(at2("producao:solic","Emitir ordens","ord","",0));
   if(meusInd.length&&podeEscrever())(ehLider()?mais:ess).push(at2("acao:lancar","Lançar indicador","ind","",0));
   if(minhas.length)mais.push(at2("minhas","Minhas atividades","min",`${minhas.length} em aberto`,minhas.filter(x=>x.venc).length));
@@ -2329,6 +2375,7 @@ function vInicio(){
   const pend=[];
   const daLoja=t=>t;
   if(rt.includes("checklist"))pend.push(...pendCk().map(x=>({...x,loja:ehLider()})));
+  pend.push(...pendRepo());
   faltaTemp.filter(f=>f.total&&f.feitos<f.total).forEach(f=>pend.push({go:"rotinas:temperatura",t:`Temperatura da ${f.l.toLowerCase()==="fábrica"?"fábrica":"sorveteria"}: ${f.total-f.feitos} equipamento(s) sem as 2 leituras de hoje`,c:"and"}));
   if(rt.includes("caixa")&&!cxHoje&&new Date().getHours()>=17)pend.push({go:"acao:novoCaixa",t:"Nenhum fechamento de caixa registrado hoje",c:"and",loja:ehLider()});
   if(ie&&ie.zer.length)pend.push({go:"rotinas:estoque",t:`Sem caixa no estoque: ${ie.zer.slice(0,6).map(e=>e.nome).join(", ")}${ie.zer.length>6?" e mais "+(ie.zer.length-6):""}`,c:"and"});
@@ -2385,11 +2432,11 @@ function abrirAjuda(){
 }
 function irPara(go){
   const [a,b,c]=go.split(":");
-  if(a==="acao"){({novoCaixa:()=>formCaixa(),novaSol:()=>formSol(),lancar:()=>formLanc(),propor:()=>formPropor(),novaFoto:()=>formFoto()})[b]?.();return;}
+  if(a==="acao"){({sugerirProd:()=>formSol(null,"Fábrica"),novaSol:()=>formSol(),lancar:()=>formLanc(),propor:()=>formPropor(),novaFoto:()=>formFoto()})[b]?.();return;}
   if(a==="abrir"){abrirDetalhe(b,c);return;}
   if(a==="planoSt"){S.f.plano.status=b;S.f.plano.minhas=false;S.f.plano.vis="lista";location.hash="plano";if(location.hash==="#plano")render();return;}
   if(a==="minhas"){S.f.plano.minhas=true;S.f.trilha.minhas=true;location.hash="trilha";return;}
-  if(a==="rotinas")S.f.rot.sub=b;
+  if(a==="rotinas"){S.f.rot.sub=b; if(c)S.f.rot.ckTipo=c;}
   if(a==="producao")S.f.prod.sub=b;
   if(location.hash==="#"+a)render();else location.hash=a;
 }
@@ -2524,13 +2571,16 @@ async function validarStatus(col,item,novo){
       if(!(await pergunta("Produto ainda não aprovado",`${item.id} ${item.oque}. Aprovar agora e colocar em andamento?`,"Aprovar e iniciar")))return false;
       if(!(await aprovarProduto(item,true)))return false;
     }
-    const n=(S.raw.trilha||S.trilha).filter(t=>t.status==="Em andamento"&&t._doc!==item._doc).length;
-    if(n>=LIM_TRILHA) return limiteOk(`Já existem ${n} iniciativas comerciais em andamento. O limite é ${LIM_TRILHA}.`);
-  } else {
-    const n=(S.raw.acoes||S.acoes).filter(t=>t.status==="Em andamento"&&t._doc!==item._doc).length;
-    if(n>=LIM_PLANO) return limiteOk(`Já existem ${n} ações de controle em andamento. O limite é ${LIM_PLANO} ao mesmo tempo (seção 4.3).`);
   }
+  { const L=limPessoa(), acima=ativos().filter(u=>ehResp(item,u.nome)).map(u=>({nome:u.nome,n:emAndamentoDe(u.nome,item._doc)+1})).filter(x=>x.n>L);
+    if(acima.length) setTimeout(()=>toast(`Atenção: ${acima.map(x=>`${x.nome} fica com ${x.n} atividades em andamento`).join("; ")}. O combinado é até ${L} por pessoa.`),400); }
   return true;
+}
+function formLimPessoa(){
+  abrirDlg(`<h2>Limite por pessoa</h2><p class="hint">Quantas atividades (plano e trilha somados) cada pessoa pode ter em andamento ao mesmo tempo. Passar do limite não bloqueia, só gera um aviso.</p>
+    <div class="field"><label for="lp_n">Limite</label><input id="lp_n" name="n" type="number" min="1" max="20" value="${limPessoa()}" required></div>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
+  async fd=>gravar(()=>S.db.doc("config/geral").set({...S.geral,limPessoa:Math.max(1,Number(fd.get("n"))||3)}),"Limite atualizado."));
 }
 async function limiteOk(msg){
   if(!ehLider()){ await aviso("Limite de ações simultâneas",msg+" Conclua uma antes ou fale com o Marco."); return false; }
@@ -2605,9 +2655,8 @@ function vTrilha(){
   return `${subPlano("trilha")}<div class="section-head"><h2>Trilha Comercial</h2><span class="sub">${l.length} de ${S.trilha.length} iniciativas</span>
      ${seletorVis("trilha",[["lista","Lista"],["quadro","Quadro"]])}
      ${podeEscrever()&&ehLider()?'<button class="btn" data-act="novaTrilha">Nova iniciativa</button>':podeEscrever()?'<button class="btn ghost" data-act="propor">Propor iniciativa</button>':""}</div>
-  ${and>LIM_TRILHA?`<div class="banner err">${and} iniciativas em andamento. A regra da trilha é no máximo ${LIM_TRILHA} ao mesmo tempo.</div>`:""}
   ${semCusto?`<div class="banner">${semCusto} iniciativa${semCusto>1?"s":""} em andamento ainda sem custo e margem preenchidos.</div>`:""}
-  <p class="sub">Regra da trilha: no máximo ${LIM_TRILHA} iniciativas em andamento, nenhuma sem custo e margem calculados, e aprovação da proprietária quando muda produto ou posicionamento. Nenhum item novo entra no cardápio sem ficha técnica, custo e preço definidos.</p>
+  <p class="sub">Regra da trilha: cada pessoa com até ${limPessoa()} atividades em andamento (plano e trilha somados), nenhuma sem custo e margem calculados, e aprovação da proprietária quando muda produto ou posicionamento. Nenhum item novo entra no cardápio sem ficha técnica, custo e preço definidos.</p>
   ${blocoFiltros("trilha",`<input type="search" id="tQ" placeholder="Buscar" value="${esc(f.q)}">`,
     `<select id="tCat" aria-label="Categoria">${opts([{v:"",l:"Todas as categorias"},...CATEGORIAS],f.cat)}</select>
     <select id="tStatus" aria-label="Status">${opts([{v:"",l:"Todos os status"},...ST_TRILHA],f.status)}</select>
@@ -3141,33 +3190,52 @@ function formCienciaPresencial(doc){
 /* ---------- Checklist de abertura e fechamento ---------- */
 const CK_PADRAO={
   abertura:["Temperatura da vitrine e dos freezers registrada no app","Validade conferida: o que vence primeiro fica na frente (PVPS)","Sabores em falta repostos do estoque, com baixa no app","Casquinhas, copos, colheres e guardanapos repostos","Mesas da área externa limpas e com guardanapos","Troco conferido e caixa aberto","Máquinas de cartão e equipamentos ligados e funcionando","Salão, balcão e vitrine limpos e organizados"],
-  fechamento:["Casquinhas guardadas dentro do saco plástico (nada solto na vitrine da frente)","Vitrine coberta e freezers fechados, sem passar da capacidade dos picolés","Baixa no app de todas as caixas retiradas no dia","Fechamento de caixa registrado no app","Balcão, vitrine, máquinas e piso limpos","Caixas, embalagens e objetos guardados no lugar certo","Mesas externas recolhidas e organizadas","Lixo retirado","Luzes e equipamentos desligados (menos freezers) e portas trancadas","Pendências anotadas e avisadas à Liderança"]
+  fechamento:["Casquinhas guardadas dentro do saco plástico (nada solto na vitrine da frente)","Vitrine coberta e freezers fechados, sem passar da capacidade dos picolés","Baixa no app de todas as caixas retiradas no dia","Fechamento de caixa registrado no app","Balcão, vitrine, máquinas e piso limpos","Caixas, embalagens e objetos guardados no lugar certo","Mesas externas recolhidas e organizadas","Lixo retirado","Luzes e equipamentos desligados (menos freezers) e portas trancadas","Pendências anotadas e avisadas à Liderança"],
+  reposicao:["Mousses @ Bruna","Chantilly e coberturas @ Gabriel","Brigadeiros e beijinhos, e potes de açaí 2L @ Denise","Freezer de sorvetes @ Amanda","Frutas @ Lary","Freezer de açaí e freezer zero açúcar @ Aline","Retirar gelo dos freezers e potes de sorvete 1,5L @ Andrea","Gelo @ Alessandro","Descartáveis @ Sabrina"]
 };
-const CK_TIPOS=[["abertura","Abertura"],["fechamento","Fechamento"]];
+const CK_TIPOS=[["abertura","Abertura"],["fechamento","Fechamento"],["reposicao","Reposições"]];
+/* item do checklist: "texto @ Nome, Função" → quem faz */
+function itemCk(str){ const m=String(str).match(/^(.*?)\s+@\s*(.+)$/); return m?{t:m[1].trim(),resp:m[2].split(",").map(x=>x.trim()).filter(Boolean)}:{t:String(str).trim(),resp:[]}; }
+function chavesDe(nome){
+  const u=pessoa(nome); if(!u)return [normEst(nome)];
+  const k=[u.nome,...(u.chaves||[]),u.papel||""];
+  (S.func||[]).filter(f=>usuarioDe(f)===u).forEach(f=>{k.push(f.nome,f.funcao||"",String(f.nomeCompleto||"").split(" ")[0]);});
+  return [...new Set(k.map(normEst).filter(Boolean))];
+}
+const ehMeuCk=(it,nome=S.eu)=>!!nome&&it.resp.length>0&&(()=>{const k=chavesDe(nome);return it.resp.some(r=>k.includes(normEst(r)));})();
+function semanaIni(d=hoje()){ const x=new Date(d); const w=(x.getDay()+6)%7; return iso(addDias(x,-w)); }
+const ckChave=t=>t==="reposicao"?semanaIni():iso(hoje());
 const itensCk=t=>(S.ckCfg&&Array.isArray(S.ckCfg[t])&&S.ckCfg[t].length?S.ckCfg[t]:CK_PADRAO[t]);
 const ckDoc=(data,t)=>S.checklists.find(c=>c._doc===data+"_"+t);
 function vChecklist(){
-  const hj=iso(hoje()), tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento");
-  const c=ckDoc(hj,tipo), base=itensCk(tipo), marc=(c&&c.marcados)||{};
-  const feito=c&&c.concluido, pode=podeRot("checklist")&&!feito;
+  const tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento"), rep=tipo==="reposicao";
+  const chave=ckChave(tipo), c=ckDoc(chave,tipo), base=itensCk(tipo), its=base.map(itemCk), marc=(c&&c.marcados)||{};
+  const feito=!rep&&c&&c.concluido, permCk=podeRot("checklist");
+  const temMeus=its.some(it=>ehMeuCk(it)), soMeus=temMeus&&(S.f.rot.ckMeus??(rep&&!permCk));
   const n=base.filter((_,i)=>marc[i]).length;
+  const podeEdit=S.canWrite&&(ehLider()||podeRot("ckConfig"));
   const hist=S.checklists.filter(x=>x.concluido).sort((a,b)=>String(b.data+b.tipo).localeCompare(a.data+a.tipo)).slice(0,14);
-  return `<div class="card"><div class="section-head"><h3>Checklist de ${tipo} · hoje</h3>
+  const titulo=rep?`Reposições da semana de ${fmtD(parseISO(chave))}`:`Checklist de ${tipo} · hoje`;
+  const linha=(it,i)=>{ const m=marc[i], meu=ehMeuCk(it), pode=!feito&&S.canWrite&&(permCk||meu);
+    if(soMeus&&!meu)return "";
+    return `<li class="${meu?"ck-meu":""}"><label class="chk ck-it ${m?"on":""}"><input type="checkbox" data-ck="${i}" ${m?"checked":""} ${pode?"":"disabled"}> <span>${esc(it.t)}${it.resp.length?` <span class="ck-resp">${it.resp.map(esc).join(", ")}</span>`:""}${m?`<span class="hint"> · ${esc(m.por)} ${esc(m.hora||"")}${rep&&m.dia?" ("+esc(m.dia)+")":""}</span>`:""}</span></label></li>`; };
+  return `<div class="card"><div class="section-head"><h3>${titulo}</h3>
     <div class="seg">${CK_TIPOS.map(([k,l])=>`<button type="button" class="${tipo===k?"on":""}" data-cktipo="${k}">${l}</button>`).join("")}</div></div>
+  <div class="ck-bar">${temMeus?`<label class="chk"><input type="checkbox" id="ckMeus" ${soMeus?"checked":""}> Só os meus itens</label>`:"<span></span>"}<span class="sub">${n} de ${base.length} feitos</span>${podeEdit?'<button type="button" class="btn ghost sm" data-act="ckEditar">Editar itens</button>':""}</div>
   ${feito?`<div class="banner ${c.conferidoPor?"ok":""}">Concluído por ${esc(c.feitoPor)} às ${new Date(c.concluidoEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}. ${c.conferidoPor?"Conferido por <b>"+esc(c.conferidoPor)+"</b> com PIN.":"<b>Sem conferência.</b>"}${c.pendencias?"<br>Pendências: "+esc(c.pendencias):""}</div>`
-    :dica("Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim, outra pessoa confere e confirma com o PIN dela.","ck")}
-  <ul class="ck-list">${base.map((t,i)=>{const m=marc[i];return `<li><label class="chk ck-it ${m?"on":""}"><input type="checkbox" data-ck="${i}" ${m?"checked":""} ${pode?"":"disabled"}> <span>${esc(t)}${m?`<span class="hint"> · ${esc(m.por)} ${esc(m.hora||"")}</span>`:""}</span></label></li>`;}).join("")}</ul>
-  ${pode?`<div class="field"><label for="ckPend">Pendências ou observações</label><textarea id="ckPend" rows="2" placeholder="O que ficou pendente e por quê">${esc((c&&c.pendencias)||"")}</textarea></div>
+    :dica(rep?"Cada pessoa cuida da sua reposição durante a semana, ou quando houver necessidade. Marque o item quando repor. A lista recomeça toda segunda-feira.":"Marque cada item quando estiver feito. Mais de uma pessoa pode marcar. No fim, outra pessoa confere e confirma com o PIN dela.","ck"+(rep?"r":""))}
+  <ul class="ck-list">${its.map(linha).join("")}</ul>
+  ${!rep&&permCk&&!feito?`<div class="field"><label for="ckPend">Pendências ou observações</label><textarea id="ckPend" rows="2" placeholder="O que ficou pendente e por quê">${esc((c&&c.pendencias)||"")}</textarea></div>
     <p><button class="btn" data-act="ckConcluir" data-tipo="${tipo}">Concluir e conferir (${n} de ${base.length})</button></p>`:""}
   ${feito&&ehLider()?`<p><button class="btn ghost sm" data-act="ckReabrir" data-tipo="${tipo}">Reabrir</button></p>`:""}
   </div>
-  <div class="card"><h3>Últimos registros</h3>${hist.length?`<div class="tbl"><table><thead><tr><th>Dia</th><th>Tipo</th><th class="num">Itens</th><th>Feito por</th><th>Conferência</th></tr></thead><tbody>${hist.map(x=>{const tot=(x.itens||[]).length||itensCk(x.tipo).length,ok=Object.keys(x.marcados||{}).length;return `<tr><td>${fmtD(parseISO(x.data))}</td><td>${x.tipo==="abertura"?"Abertura":"Fechamento"}</td><td class="num">${ok} de ${tot}</td><td>${esc(x.feitoPor||"")}</td><td>${x.conferidoPor?esc(x.conferidoPor):'<span class="pill p-and">sem conferência</span>'}${x.pendencias?' <span class="pill p-idle" title="'+esc(x.pendencias)+'">pendência</span>':""}</td></tr>`;}).join("")}</tbody></table></div>`:'<p class="empty">Nenhum checklist concluído ainda.</p>'}</div>`;
+  ${rep?"":`<div class="card"><h3>Últimos registros</h3>${hist.length?`<div class="tbl"><table><thead><tr><th>Dia</th><th>Tipo</th><th class="num">Itens</th><th>Feito por</th><th>Conferência</th></tr></thead><tbody>${hist.map(x=>{const tot=(x.itens||[]).length||itensCk(x.tipo).length,ok=Object.keys(x.marcados||{}).length;return `<tr><td>${fmtD(parseISO(x.data))}</td><td>${esc(x.tipo)}</td><td class="num">${ok}/${tot}</td><td>${esc(x.feitoPor||"")}</td><td>${x.conferidoPor?esc(x.conferidoPor):'<span class="pill p-and">sem conferência</span>'}</td></tr>`;}).join("")}</tbody></table></div>`:'<p class="empty">Nenhum checklist concluído ainda.</p>'}</div>`}`;
 }
 async function marcarCk(i,on){
-  const hj=iso(hoje()), tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento"), id=hj+"_"+tipo, c=ckDoc(hj,tipo);
+  const tipo=S.f.rot.ckTipo||(new Date().getHours()<18?"abertura":"fechamento"), hj=ckChave(tipo), id=hj+"_"+tipo, c=ckDoc(hj,tipo);
   if(c&&c.concluido)return;
   const marc={...((c&&c.marcados)||{})};
-  if(on)marc[i]={por:quemSou(),hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}; else delete marc[i];
+  if(on)marc[i]={por:quemSou(),hora:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),dia:new Date().toLocaleDateString("pt-BR",{weekday:"short",day:"2-digit"})}; else delete marc[i];
   const d={data:hj,tipo,itens:itensCk(tipo),marcados:marc,concluido:false,atualizadoPor:quemSou(),atualizadoEm:new Date().toISOString()};
   await gravar(()=>c?S.db.doc("checklists/"+id).update({marcados:marc,itens:d.itens,atualizadoPor:d.atualizadoPor,atualizadoEm:d.atualizadoEm}):S.db.doc("checklists/"+id).set(d));
 }
@@ -3184,7 +3252,7 @@ function concluirCk(tipo){
   const faltam=base.filter((_,i)=>!marc[i]), pend=($("#ckPend")||{}).value||"";
   const conf=ativos().filter(u=>u.nome!==S.eu);
   abrirDlg(`<h2>Concluir ${tipo}</h2>
-    ${faltam.length?`<div class="banner">${faltam.length} item(ns) não marcado(s): ${esc(faltam.join("; "))}. Explique nas pendências.</div>`:`<p class="hint">Todos os ${base.length} itens marcados.</p>`}
+    ${faltam.length?`<div class="banner">${faltam.length} item(ns) não marcado(s): ${esc(faltam.map(x=>itemCk(x).t).join("; "))}. Explique nas pendências.</div>`:`<p class="hint">Todos os ${base.length} itens marcados.</p>`}
     <div class="field"><label for="ck_p">Pendências ou observações</label><textarea id="ck_p" name="pend" rows="2">${esc(pend)}</textarea></div>
     <div class="field"><label for="ck_c">Quem confere</label><select id="ck_c" name="conf"><option value="">Selecione</option>${conf.map(u=>`<option value="${esc(u.nome)}">${esc(u.nome)}</option>`).join("")}</select><span class="hint">A pessoa olha os itens e confirma com o PIN dela.</span></div>
     <div class="field"><label for="ck_pin">PIN de quem confere</label><input id="ck_pin" name="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></div>
@@ -3208,14 +3276,27 @@ function concluirCk(tipo){
     return gravar(()=>S.db.doc("checklists/"+id).set(d),confPor?"Checklist concluído e conferido por "+confPor+".":"Checklist concluído sem conferência.");
   });
 }
+function formCkCampos(){
+  return `<p class="hint">Um item por linha. Para dizer quem faz, escreva <b>@</b> e o nome ou a função no fim da linha, como <b>Mousses @ Bruna</b> ou <b>Varrer o salão @ Balconista</b>. Vários nomes separados por vírgula. Sem @, o item vale para todos.</p>
+  ${CK_TIPOS.map(([k,l])=>`<div class="field"><label for="ckc_${k}">${k==="reposicao"?"Reposições da semana":l}</label><textarea id="ckc_${k}" name="${k}" rows="${Math.min(14,itensCk(k).length+1)}">${esc(itensCk(k).join("\n"))}</textarea></div>`).join("")}`;
+}
 function vCkConfig(){
-  return `<div class="card"><h3>Itens do checklist</h3><p class="hint">Um item por linha. Vale a partir do próximo checklist.</p>
-  <form id="ckCfgF">${CK_TIPOS.map(([k,l])=>`<div class="field"><label for="ckc_${k}">${l}</label><textarea id="ckc_${k}" name="${k}" rows="${itensCk(k).length+1}">${esc(itensCk(k).join("\n"))}</textarea></div>`).join("")}
+  return `<div class="card"><h3>Itens do checklist</h3><form id="ckCfgF">${formCkCampos()}
   ${podeEscrever()?'<p><button class="btn" data-act="ckCfgSalvar" type="button">Salvar itens</button></p>':""}</form></div>`;
 }
+function editarCk(){
+  abrirDlg(`<h2>Itens do checklist</h2>${formCkCampos()}<div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar itens</button></div>`,
+  async()=>salvarCkCfg());
+}
 async function salvarCkCfg(){
-  const d={}; for(const [k] of CK_TIPOS){d[k]=String($("#ckc_"+k).value).split("\n").map(x=>x.trim()).filter(Boolean); if(!d[k].length){toast("Cada checklist precisa de pelo menos um item.");return;}}
-  await gravar(()=>S.db.doc("config/checklist").set({...d,atualizadoPor:quemSou(),atualizadoEm:new Date().toISOString()}),"Itens do checklist salvos.");
+  const d={}; for(const [k] of CK_TIPOS){d[k]=String($("#ckc_"+k).value).split("\n").map(x=>x.trim()).filter(Boolean); if(!d[k].length){toast("Cada checklist precisa de pelo menos um item.");return false;}}
+  return gravar(()=>S.db.doc("config/checklist").set({...d,atualizadoPor:quemSou(),atualizadoEm:new Date().toISOString()}),"Itens do checklist salvos.");
+}
+function pendRepo(){
+  if(!S.eu)return [];
+  const ch=semanaIni(), c=ckDoc(ch,"reposicao"), marc=(c&&c.marcados)||{}, dow=(new Date().getDay()+6)%7;
+  return itensCk("reposicao").map(itemCk).map((it,i)=>({it,i})).filter(x=>!marc[x.i]&&ehMeuCk(x.it))
+    .map(x=>({go:"rotinas:checklist:reposicao",t:"Reposição da semana: "+x.it.t,c:dow>=4?"and":"idle"}));
 }
 function pendCk(){
   const hj=iso(hoje()), h=new Date().getHours(), r=[];
@@ -3348,6 +3429,11 @@ document.addEventListener("click",e=>{
   else if(a==="cancelarSol")respostaSol(d,"Cancelada","Cancelar","Cancelar solicitação");
   else if(a==="abrirOP")abrirOP(d);
   else if(a==="novoProd")formProd();
+  else if(a==="sugerirProd")formSol(null,"Fábrica");
+  else if(a==="limPessoa")formLimPessoa();
+  else if(a==="novoRet")formRetorno();
+  else if(a==="avancarRet")avancarRet(d);
+  else if(a==="apagarRet"){const r=(S.retornos||[]).find(x=>x._doc===d); if(r)pergunta("Apagar registro",`Apagar ${r.num}?`,"Apagar").then(ok=>{if(ok)gravar(()=>S.db.doc("retornos/"+d).delete(),"Registro apagado.");});}
   else if(a==="novoCaixa")formCaixa();
   else if(a==="verCaixa")formCaixa(S.caixas.find(x=>x._doc===d));
   else if(a==="entSaiu"||a==="entEntregue"||a==="entDel")acaoEntrega(b);
@@ -3376,6 +3462,7 @@ document.addEventListener("click",e=>{
   else if(a==="ckConcluir")concluirCk(b.dataset.tipo);
   else if(a==="ckReabrir"){const id=iso(hoje())+"_"+b.dataset.tipo;pergunta("Reabrir checklist","O checklist volta a ficar pendente e a conferência é apagada.","Reabrir").then(ok=>{if(ok)gravar(()=>S.db.doc("checklists/"+id).update({concluido:false,conferidoPor:"",conferidoEm:""}),"Checklist reaberto.");});}
   else if(a==="ckCfgSalvar")salvarCkCfg();
+  else if(a==="ckEditar")editarCk();
   else if(a==="novoUsu")formUsuario();
   else if(a==="novoFunc")formFuncionario();
   else if(a==="editFunc")formFuncionario((S.func||[]).find(x=>x._doc===b.dataset.doc));
@@ -3428,6 +3515,8 @@ document.addEventListener("change",async e=>{
   if(t.id==="foTipo"||t.id==="foDias"||t.id==="foPor"){const r=S.f.fotos;r[{foTipo:"tipo",foDias:"dias",foPor:"por"}[t.id]]=t.id==="foDias"?Number(t.value):t.value;render();}
   if(t.id==="rgDias"||t.id==="rgPor"||t.id==="rgArea"){const r=S.f.reg;r[{rgDias:"dias",rgPor:"por",rgArea:"area"}[t.id]]=t.id==="rgDias"?Number(t.value):t.value;r.lim=150;render();}
   if(t.id==="pMes"){S.f.eq.mesP=t.value;render();}
+  if(t.id==="pRetSt"){S.f.prod.retSt=t.value;render();}
+  if(t.id==="ckMeus"){S.f.rot.ckMeus=t.checked;render();}
   if(t.id==="galM"){S.f.gal.meses=Number(t.value);S.f.gal.velhas=null;render();}
   if(t.dataset&&t.dataset.ck!==undefined){marcarCk(Number(t.dataset.ck),t.checked);}
   if(t.id==="enData"){S.f.rot.dataEnt=t.value||iso(hoje());render();}
@@ -3504,7 +3593,7 @@ function assinar(col,key,map){
   db.doc("config/geral").onSnapshot(s=>{ if(s.exists)S.geral=s.data(); agendaRender(); },()=>{});
   assinar("acoes","acoes"); assinar("trilha","trilha"); assinar("indicadores","indicadores");
   assinar("lancamentos","lanc"); assinar("propostas","propostas");
-  assinar("solicitacoes","solic"); assinar("ordens","ordens"); assinar("produtos","produtos");
+  assinar("solicitacoes","solic"); assinar("ordens","ordens"); assinar("produtos","produtos"); assinar("retornos","retornos");
   { const cut=iso(addDias(hoje(),-62)); const sub=(col,key)=>db.collection(col).where("data",">=",cut).onSnapshot(sn=>{S[key]=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});
     S.subRot=sub; sub("temperaturas","tempDias"); sub("checklists","checklists"); ajustarAssinaturas();
     db.collection("fotos").where("em",">=",new Date(Date.now()-31*864e5).toISOString()).onSnapshot(sn=>{S.fotos=sn.docs.map(d=>({...d.data(),_doc:d.id}));agendaRender();},()=>{});

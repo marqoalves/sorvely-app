@@ -39,6 +39,7 @@ function rules(authU,op,path,novo){
   if(col==="ponto") return lider()||emSetup();
   if(col==="comunicados") return leitura?(membro()||emSetup()):(lider()||emSetup());
   if(col==="ciencias"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||lider()||(membro()&&novo.nome===eu().nome); return lider()||emSetup(); }
+  if(col==="config"&&id==="checklist"&&!leitura&&membro()&&((eu()||{}).rotinas||[]).includes("ckConfig")) return true;
   if(col==="config"||col==="indicadores") return leitura?(membro()||emSetup()):(lider()||emSetup());
   if(col==="acoes"||col==="trilha"){ if(leitura)return membro()||emSetup(); if(op==="update"){const de=(atual||{}).status||"",para=(novo||{}).status||"";const mc=de!==para&&(de==="Cancelada"||para==="Cancelada");return emSetup()||lider()||(membro()&&!mc&&(col!=="trilha"||!!(novo||{}).aprovada===!!(atual||{}).aprovada));} return lider()||emSetup(); }
   if(col==="propostas"){ if(leitura)return membro()||emSetup(); if(op==="create")return emSetup()||lider()||(membro()&&novo.propostoPor===eu().nome&&novo.status==="Aguardando aprovação"); return lider()||emSetup(); }

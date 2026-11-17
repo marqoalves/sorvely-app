@@ -267,3 +267,5 @@ auth.onAuthStateChanged(async u=>{
   if(feito) telaLogin(); else telaSetup();
 });
 })();
+
+if("serviceWorker" in navigator&&location.protocol==="https:")window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));

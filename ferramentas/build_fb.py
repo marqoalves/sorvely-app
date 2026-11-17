@@ -14,8 +14,8 @@ def troca(velho, novo, n=1):
 import datetime
 VERSAO = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 head = ('<meta name="sorvely-versao" content="' + VERSAO + '">'
-        '<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#ffffff">'
-        '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml">'
+        '<link rel="manifest" href="/manifest.json">'
+        '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF">'
         '<script src="firebase-config.js"></script>'
         '<script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script>'
         '<script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>\n')

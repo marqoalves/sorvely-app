@@ -64,7 +64,8 @@ service cloud.firestore {
     // Configurações e indicadores: só a Liderança altera
     match /config/{id} {
       allow read: if membro() || emSetup();
-      allow write: if lider() || emSetup();
+      allow write: if lider() || emSetup()
+        || (id == 'checklist' && membro() && 'ckConfig' in eu().get('rotinas', []));
     }
     match /indicadores/{id} {
       allow read: if membro() || emSetup();
