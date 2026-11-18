@@ -735,7 +735,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-18 08:53"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-18 08:58"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -2952,7 +2952,7 @@ async function semearFuncionarios(){
 }
 
 /* ---- Criar de uma vez os usuários e cadastros de quem está nos checklists ---- */
-const APELIDOS_FIXOS={"Alê":["Alexandre","Alessandro"]};
+const APELIDOS_FIXOS={"Alê":["Alessandro"]};
 function semUsuarioCk(){
   const funcoes=new Set([...S.usuarios.map(u=>normEst(u.papel||"")),...(S.func||[]).map(f=>normEst(f.funcao||""))].filter(Boolean));
   const nomes=new Map();
@@ -2975,7 +2975,7 @@ async function criarPendentesCk(){
       feitos.push({nome,pin});
     }catch(e){ erros.push(nome+" ("+(e.code||e.message)+")"); }
   }
-  // Alê também atende por Alexandre
+  // Alê também atende por Alessandro
   for(const [nome,ap] of Object.entries(APELIDOS_FIXOS)){ const u=pessoa(nome); if(u){ const ch=[...new Set([...(u.chaves||[]),...ap])]; if(ch.length!==(u.chaves||[]).length) try{await S.db.doc("usuarios/"+u._doc).update({chaves:ch});}catch(e){} } }
   abrirDlg(`<h2>Usuários criados</h2><p class="hint">Anote ou copie agora. Os PINs provisórios não aparecem de novo. No primeiro acesso, cada pessoa cria o PIN dela.</p>
     <div class="tbl"><table><thead><tr><th>Usuário</th><th>PIN provisório</th></tr></thead><tbody>${feitos.map(x=>`<tr><td>${esc(x.nome)}</td><td class="fb-pin num">${x.pin}</td></tr>`).join("")}</tbody></table></div>

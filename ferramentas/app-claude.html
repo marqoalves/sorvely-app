@@ -2950,7 +2950,7 @@ async function semearFuncionarios(){
 }
 
 /* ---- Criar de uma vez os usuários e cadastros de quem está nos checklists ---- */
-const APELIDOS_FIXOS={"Alê":["Alexandre","Alessandro"]};
+const APELIDOS_FIXOS={"Alê":["Alessandro"]};
 function semUsuarioCk(){
   const funcoes=new Set([...S.usuarios.map(u=>normEst(u.papel||"")),...(S.func||[]).map(f=>normEst(f.funcao||""))].filter(Boolean));
   const nomes=new Map();
@@ -2973,7 +2973,7 @@ async function criarPendentesCk(){
       feitos.push({nome,pin});
     }catch(e){ erros.push(nome+" ("+(e.code||e.message)+")"); }
   }
-  // Alê também atende por Alexandre
+  // Alê também atende por Alessandro
   for(const [nome,ap] of Object.entries(APELIDOS_FIXOS)){ const u=pessoa(nome); if(u){ const ch=[...new Set([...(u.chaves||[]),...ap])]; if(ch.length!==(u.chaves||[]).length) try{await S.db.doc("usuarios/"+u._doc).update({chaves:ch});}catch(e){} } }
   abrirDlg(`<h2>Usuários criados</h2><p class="hint">Anote ou copie agora. Os PINs provisórios não aparecem de novo. No primeiro acesso, cada pessoa cria o PIN dela.</p>
     <div class="tbl"><table><thead><tr><th>Usuário</th><th>PIN provisório</th></tr></thead><tbody>${feitos.map(x=>`<tr><td>${esc(x.nome)}</td><td class="fb-pin num">${x.pin}</td></tr>`).join("")}</tbody></table></div>
