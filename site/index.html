@@ -735,7 +735,7 @@ h3.sec{font-family:var(--body);font-weight:600;font-size:.78rem;text-transform:u
 <dialog id="dlg2"><form class="dlg" id="dlg2Form" method="dialog"></form></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 
-<meta name="sorvely-versao" content="2026-11-17 17:49"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
+<meta name="sorvely-versao" content="2026-11-18 08:53"><link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" sizes="180x180" href="/apple-touch-icon.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><link rel="icon" href="marca/simbolo-azul.svg" type="image/svg+xml"><link rel="icon" type="image/png" sizes="192x192" href="/icone-192.png"><meta name="theme-color" content="#6593FF"><script src="firebase-config.js"></script><script src="sdk/firebase-app-compat.js"></script><script src="sdk/firebase-auth-compat.js"></script><script src="sdk/firebase-firestore-compat.js"></script><script src="fb.js"></script>
 <script>
 "use strict";
 /* ---------- Constantes ---------- */
@@ -2956,7 +2956,7 @@ const APELIDOS_FIXOS={"Alê":["Alexandre","Alessandro"]};
 function semUsuarioCk(){
   const funcoes=new Set([...S.usuarios.map(u=>normEst(u.papel||"")),...(S.func||[]).map(f=>normEst(f.funcao||""))].filter(Boolean));
   const nomes=new Map();
-  listasCk().forEach(l=>{ if(!pessoa(l.quem)&&!S.usuarios.some(u=>(u.chaves||[]).some(c=>normEst(c)===normEst(l.quem)))&&!funcoes.has(normEst(l.quem)))nomes.set(normEst(l.quem),l.quem); });
+  listasCk().forEach(l=>{ if(!pessoa(l.quem)&&!S.usuarios.some(u=>normEst(u.nome)===normEst(l.quem)||(u.chaves||[]).some(c=>normEst(c)===normEst(l.quem)))&&!funcoes.has(normEst(l.quem)))nomes.set(normEst(l.quem),l.quem); });
   (S.func||[]).filter(f=>f.ativo!==false&&!usuarioDe(f)).forEach(f=>{ if(listasCk().some(l=>normEst(l.quem)===normEst(f.nome)))nomes.set(normEst(f.nome),f.nome); });
   return [...nomes.values()].sort((a,b)=>a.localeCompare(b,"pt-BR"));
 }

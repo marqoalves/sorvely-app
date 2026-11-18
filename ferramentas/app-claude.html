@@ -2954,7 +2954,7 @@ const APELIDOS_FIXOS={"Alê":["Alexandre","Alessandro"]};
 function semUsuarioCk(){
   const funcoes=new Set([...S.usuarios.map(u=>normEst(u.papel||"")),...(S.func||[]).map(f=>normEst(f.funcao||""))].filter(Boolean));
   const nomes=new Map();
-  listasCk().forEach(l=>{ if(!pessoa(l.quem)&&!S.usuarios.some(u=>(u.chaves||[]).some(c=>normEst(c)===normEst(l.quem)))&&!funcoes.has(normEst(l.quem)))nomes.set(normEst(l.quem),l.quem); });
+  listasCk().forEach(l=>{ if(!pessoa(l.quem)&&!S.usuarios.some(u=>normEst(u.nome)===normEst(l.quem)||(u.chaves||[]).some(c=>normEst(c)===normEst(l.quem)))&&!funcoes.has(normEst(l.quem)))nomes.set(normEst(l.quem),l.quem); });
   (S.func||[]).filter(f=>f.ativo!==false&&!usuarioDe(f)).forEach(f=>{ if(listasCk().some(l=>normEst(l.quem)===normEst(f.nome)))nomes.set(normEst(f.nome),f.nome); });
   return [...nomes.values()].sort((a,b)=>a.localeCompare(b,"pt-BR"));
 }
