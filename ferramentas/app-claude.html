@@ -446,6 +446,7 @@ details.ck-sec[open]>summary::after{transform:rotate(225deg)}
 details.ck-sec[open]>summary{margin-bottom:10px}
 .ck-st{margin-right:4px}
 .ck-resp{display:inline-block;margin-left:4px;padding:1px 8px;border-radius:999px;background:var(--acai-soft);color:var(--acai);font-size:.75rem;font-weight:600}
+.op-ok td{color:var(--muted)}.op-extras{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}table.op-q td{vertical-align:middle}
 .ck-mom{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:12px 0 4px}
 .ck-meu-card{border-left:4px solid var(--rosa)}
 ul.ck-eq{list-style:none;margin:6px 0 0;padding:0}
@@ -1436,7 +1437,172 @@ async function acaoDetalhe(b){
 /* ---------- Produção: solicitações da loja, ordens de produção, envio e recebimento ---------- */
 const UNIDADES=["balde 10L","cuba","caixa 10L","pote 500g","pote 1L","pote 1,5L","picolé (unid.)","unidade","kg","L","pacote"];
 const ST_OP=["Emitida","Em produção","Produzida","Enviada","Recebida"];
-const CLS_OP={"Emitida":"idle","Em produção":"and","Produzida":"acai","Enviada":"and","Recebida":"ok","Cancelada":"bad"};
+const CLS_OP={"Emitida":"idle","Em produção":"and","Parcialmente produzida":"and","Produzida":"acai","Parcialmente enviada":"and","Enviada":"and","Recebida":"ok","Cancelada":"bad"};
+const COL_OP={"Parcialmente produzida":"Em produção","Parcialmente enviada":"Enviada"};
+const GRUPOS_SUG=["Brancos","Coloridos","Chocolate","Açaí","Zero açúcar"];
+/* ---- produção parcial: cada sabor anda sozinho dentro da ordem ---- */
+const nq=x=>Number(x||0);
+const faltaProd=i=>Math.max(0,nq(i.qtd)-nq(i.qtdProduzida));
+const dispEnvio=i=>Math.max(0,nq(i.qtdProduzida)-nq(i.qtdEnviada));
+const opAberta=o=>!["Recebida","Cancelada"].includes(o.status);
+const enviosPend=o=>(o.envios||[]).filter(e=>!e.recebido);
+const legadoReceber=o=>o.status==="Enviada"&&!(o.envios||[]).length;
+const grupoDe=prod=>{const p=S.produtos.find(x=>normEst(x.nome)===normEst(prod));return (p&&p.grupo)||"";};
+const gruposProd=()=>[...new Set([...GRUPOS_SUG,...S.produtos.map(p=>p.grupo).filter(Boolean)])];
+function statusOP(o){
+  if(o.status==="Cancelada")return "Cancelada";
+  const its=o.itens||[], alvo=i=>o.encerrada?nq(i.qtdProduzida):nq(i.qtd);
+  const prodAll=its.every(i=>nq(i.qtdProduzida)>=alvo(i)), prodAny=its.some(i=>nq(i.qtdProduzida)>0);
+  const envAll=its.every(i=>nq(i.qtdEnviada)>=alvo(i)), envAny=its.some(i=>nq(i.qtdEnviada)>0), pend=enviosPend(o).length;
+  if(o.encerrada&&!prodAny)return "Cancelada";
+  if(envAll&&envAny&&!pend)return "Recebida";
+  if(pend)return envAll?"Enviada":"Parcialmente enviada";
+  if(envAny)return "Parcialmente enviada";
+  if(prodAll&&prodAny)return "Produzida";
+  if(prodAny)return "Parcialmente produzida";
+  if(o.iniciada||o.status==="Em produção")return "Em produção";
+  return "Emitida";
+}
+async function salvarOP(o,mud,obs,msg){
+  const novo={...o,...mud}, st=statusOP(novo);
+  const ok=await movOP(o,{...mud,...(st==="Recebida"&&o.status!=="Recebida"?{recebidaEm:iso(hoje())}:{})},st!==o.status?st:null,obs,msg);
+  if(ok&&st==="Recebida"&&o.status!=="Recebida")for(const d of o.solicitacoes||[])await gravar(()=>S.db.doc("solicitacoes/"+d).update({status:"Atendida"}));
+  return ok;
+}
+function tabelaQtdOP(o,linhas,col,placeholder){
+  return `<div class="tbl"><table class="op-q"><thead><tr><th>Sabor</th>${col.map(c=>`<th class="num">${c[0]}</th>`).join("")}</tr></thead><tbody>${linhas.map(({i,k})=>`<tr><td>${esc(i.produto)} <span class="sub">${esc(i.unidade)}</span>${grupoDe(i.produto)?` <span class="pill p-idle">${esc(grupoDe(i.produto))}</span>`:""}</td>${col.map(c=>`<td class="num">${c[1](i,k)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function formProducaoOP(o){
+  const its=(o.itens||[]).map((i,k)=>({i,k})), pend=its.filter(x=>faltaProd(x.i)>0), lst=pend.length?pend:its;
+  abrirDlg(`<h2>Registrar produção · ${esc(o.num)}</h2><p class="hint">Preencha só o que foi produzido agora. O que ficar em branco continua pendente para outro dia.</p>
+    ${tabelaQtdOP(o,lst,[["Pedido",i=>fmtQtd(i.qtd)],["Já feito",i=>fmtQtd(nq(i.qtdProduzida))],["Falta",i=>fmtQtd(faltaProd(i))],["Produzido agora",(i,k)=>`<input class="num" name="q${k}" inputmode="decimal" style="width:80px" aria-label="Produzido agora de ${esc(i.produto)}">`],["Lote",(i,k)=>`<input name="l${k}" style="width:90px" aria-label="Lote de ${esc(i.produto)}">`]])}
+    <div class="field"><label for="pp_o">Observação</label><textarea id="pp_o" name="obs" placeholder="ex.: hoje só os brancos, coloridos amanhã"></textarea></div>
+    <p class="err-msg" id="ppErr" hidden></p>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn" value="ok">Registrar produção</button></div>`,
+  async(fd,btn,f)=>{
+    const itens=(o.itens||[]).map(i=>({...i})), feitos=[];
+    for(const {k} of lst){ const t=String(fd.get("q"+k)||"").trim(); if(!t)continue; const n=parseNum(t); if(isNaN(n)||n<0){const e=f.querySelector("#ppErr");e.textContent="Confira as quantidades: use só números.";e.hidden=false;return false;}
+      if(!n)continue; itens[k].qtdProduzida=nq(itens[k].qtdProduzida)+n; const l=String(fd.get("l"+k)||"").trim(); if(l)itens[k].lote=[itens[k].lote,l].filter(Boolean).join(", "); feitos.push(`${fmtQtd(n)} ${itens[k].produto}`); }
+    if(!feitos.length){const e=f.querySelector("#ppErr");e.textContent="Preencha a quantidade de pelo menos um sabor.";e.hidden=false;return false;}
+    return salvarOP(o,{itens,iniciada:true,produzidaEm:iso(hoje())},["Produzido: "+feitos.join(", "),String(fd.get("obs")||"").trim()].filter(Boolean).join(". "),"Produção registrada na "+o.num+".");
+  });
+  $("#dlg").classList.add("wide");
+}
+function formEnvioOP(o){
+  const lst=(o.itens||[]).map((i,k)=>({i,k})).filter(x=>dispEnvio(x.i)>0);
+  abrirDlg(`<h2>Registrar envio · ${esc(o.num)}</h2><p class="hint">Já vem preenchido com o que está pronto e ainda não foi enviado. Pode mandar só uma parte.</p>
+    ${tabelaQtdOP(o,lst,[["Pronto",i=>fmtQtd(dispEnvio(i))],["Enviar agora",(i,k)=>`<input class="num" name="q${k}" inputmode="decimal" value="${esc(String(dispEnvio(i)).replace(".",","))}" style="width:80px" aria-label="Enviar agora de ${esc(i.produto)}">`]])}
+    <div class="field"><label for="ev_dt">Data do envio</label><input id="ev_dt" type="date" name="data" value="${iso(hoje())}"></div>
+    <div class="field"><label for="ev_o">Observação</label><textarea id="ev_o" name="obs" placeholder="ex.: enviado no caminhão de terça"></textarea></div>
+    <p class="err-msg" id="evErr" hidden></p>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn" value="ok">Registrar envio</button></div>`,
+  async(fd,btn,f)=>{
+    const itens=(o.itens||[]).map(i=>({...i})), env=[];
+    for(const {i,k} of lst){ const n=parseNum(fd.get("q"+k)||"0"); if(isNaN(n)||n<0||n>dispEnvio(i)+1e-9){const e=f.querySelector("#evErr");e.textContent=`Confira ${i.produto}: o envio não pode passar do que está pronto.`;e.hidden=false;return false;}
+      if(n){ itens[k].qtdEnviada=nq(itens[k].qtdEnviada)+n; env.push({k,produto:i.produto,unidade:i.unidade,qtd:n}); } }
+    if(!env.length){const e=f.querySelector("#evErr");e.textContent="Coloque a quantidade de pelo menos um sabor.";e.hidden=false;return false;}
+    const envios=[...(o.envios||[]),{n:(o.envios||[]).length+1,data:fd.get("data")||iso(hoje()),por:quemSou(),em:new Date().toISOString(),itens:env,recebido:false,obs:String(fd.get("obs")||"").trim()}];
+    return salvarOP(o,{itens,envios,enviadaEm:fd.get("data")||iso(hoje())},`Envio ${envios.length}: `+env.map(x=>`${fmtQtd(x.qtd)} ${x.produto}`).join(", ")+(fd.get("obs")?". "+String(fd.get("obs")).trim():""),"Envio registrado na "+o.num+".");
+  });
+  $("#dlg").classList.add("wide");
+}
+function formRecebOP(o){
+  const ix=(o.envios||[]).findIndex(e=>!e.recebido); if(ix<0)return; const e=o.envios[ix];
+  abrirDlg(`<h2>Conferir envio ${e.n} · ${esc(o.num)}</h2><p class="hint">Enviado em ${fmtD(parseISO(e.data))} por ${esc(e.por)}. Confira o que chegou. Se alguma quantidade for diferente, corrija e explique na observação.</p>
+    <div class="tbl"><table><thead><tr><th>Sabor</th><th class="num">Enviado</th><th>Recebido</th></tr></thead><tbody>${e.itens.map((x,j)=>`<tr><td>${esc(x.produto)} <span class="sub">${esc(x.unidade)}</span></td><td class="num">${fmtQtd(x.qtd)}</td><td><input class="num" name="r${j}" inputmode="decimal" value="${esc(String(x.qtd).replace(".",","))}" style="width:80px" aria-label="Recebido de ${esc(x.produto)}"></td></tr>`).join("")}</tbody></table></div>
+    <div class="field"><label for="rc_o">Observação</label><textarea id="rc_o" name="obs" placeholder="ex.: 1 balde chegou amassado"></textarea></div>
+    <p class="err-msg" id="rcErr" hidden></p>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Voltar</button><button class="btn" value="ok">Confirmar recebimento</button></div>`,
+  async(fd,btn,f)=>{
+    const itens=(o.itens||[]).map(i=>({...i})), rec=[]; let div=false;
+    for(let j=0;j<e.itens.length;j++){ const x=e.itens[j], n=parseNum(fd.get("r"+j)||"0"); if(isNaN(n)||n<0){const er=f.querySelector("#rcErr");er.textContent="Confira as quantidades: use só números.";er.hidden=false;return false;}
+      if(Math.abs(n-x.qtd)>1e-9)div=true; const it=itens[x.k]||itens.find(i=>i.produto===x.produto); if(it)it.qtdRecebida=nq(it.qtdRecebida)+n; rec.push({...x,qtdRecebida:n}); }
+    const envios=o.envios.map((v,k)=>k===ix?{...v,recebido:true,recebidoPor:quemSou(),recebidoEm:new Date().toISOString(),itens:rec}:v);
+    const ok=await salvarOP(o,{itens,envios,recebidaPor:quemSou(),divergencia:!!(o.divergencia||div)},`Recebido o envio ${e.n}`+(div?" com diferença":"")+(fd.get("obs")?". "+String(fd.get("obs")).trim():""),"Recebimento confirmado na "+o.num+".");
+    if(ok)await entradaPorOP({num:o.num,itens:rec.map(x=>({produto:x.produto,unidade:x.unidade,qtdRecebida:x.qtdRecebida}))});
+    return ok;
+  });
+}
+function formAddSabor(o,destinoLivre){
+  const abertas=S.ordens.filter(opAberta).sort((a,b)=>String(b.num).localeCompare(a.num));
+  abrirDlg(`<h2>${o?"Adicionar sabor · "+esc(o.num):"Produção fora das ordens"}</h2>
+    <p class="hint">${o?"Use quando um sabor foi pedido ou produzido e não entrou nesta ordem.":"Use quando a fábrica produziu um sabor que não estava em nenhuma ordem, por exemplo um pedido feito por telefone."}</p>
+    <div class="row2"><div class="field"><label for="as_p">Sabor ou produto</label><input id="as_p" name="produto" list="lProdutos" required><datalist id="lProdutos">${nomesProdutos().map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
+      <div class="field"><label for="as_u">Unidade</label><select id="as_u" name="unidade">${opts(UNIDADES,"balde 10L")}</select></div></div>
+    <div class="row2"><div class="field"><label for="as_q">Quantidade ${o?"pedida":"produzida"}</label><input id="as_q" name="qtd" inputmode="decimal" required></div>
+      <div class="field"><label for="as_f">${o?"Já produzido (se já fez)":"Lote"}</label><input id="as_f" name="${o?"feito":"lote"}" ${o?'inputmode="decimal"':""}></div></div>
+    ${o?"":`<div class="field"><label for="as_d">Onde lançar</label><select id="as_d" name="destino"><option value="">Nova ordem só com este sabor</option>${abertas.map(x=>`<option value="${esc(x._doc)}">Adicionar à ${esc(x.num)} (${esc(x.status)})</option>`).join("")}</select></div>`}
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
+  async fd=>{
+    const produto=String(fd.get("produto")).trim(), unidade=fd.get("unidade"), q=parseNum(fd.get("qtd")); if(!produto||isNaN(q)||q<=0){toast("Preencha o sabor e a quantidade.");return false;}
+    const quem=quemSou();
+    if(o){ const fe=parseNum(fd.get("feito")||"0"); const itens=[...(o.itens||[]).map(i=>({...i})),{produto,unidade,qtd:q,...(fe>0?{qtdProduzida:fe}:{}),adicionadoPor:quem}];
+      return salvarOP(o,{itens},`Sabor adicionado: ${fmtQtd(q)} ${produto}`+(fe>0?` (${fmtQtd(fe)} já produzido)`:""),"Sabor adicionado à "+o.num+"."); }
+    const lote=String(fd.get("lote")||"").trim(), dest=S.ordens.find(x=>x._doc===fd.get("destino"));
+    if(dest){ const itens=[...(dest.itens||[]).map(i=>({...i})),{produto,unidade,qtd:q,qtdProduzida:q,...(lote?{lote}:{}),adicionadoPor:quem}];
+      return salvarOP(dest,{itens,iniciada:true},`Produzido fora da ordem e adicionado: ${fmtQtd(q)} ${produto}`,"Produção lançada na "+dest.num+"."); }
+    const num=proxNum(S.ordens,"OP-"), agora=new Date().toISOString();
+    return gravar(()=>S.db.collection("ordens").add({num,avulsa:true,itens:[{produto,unidade,qtd:q,qtdProduzida:q,...(lote?{lote}:{})}],prioridade:"Normal",produtor:"",dataProducao:iso(hoje()),dataEnvio:"",obs:"Produção fora das ordens",solicitacoes:[],solNums:[],status:"Produzida",iniciada:true,emitidaPor:quem,emitidaEm:agora,ultimoPor:quem,ultimoEm:agora,historico:[{status:"Produzida",por:quem,em:agora,obs:`Produção fora das ordens: ${fmtQtd(q)} ${produto}`}]}),`Produção lançada na ${num}.`);
+  });
+}
+async function moverPendentes(o){
+  const pend=(o.itens||[]).filter(i=>faltaProd(i)>0); if(!pend.length)return;
+  if(!(await pergunta("Mover o que falta",`Criar uma ordem nova com ${pend.map(i=>`${fmtQtd(faltaProd(i))} ${i.produto}`).join(", ")} e encerrar a ${o.num} com o que já foi feito?`,"Mover")))return;
+  const num=proxNum(S.ordens,"OP-"), agora=new Date().toISOString(), quem=quemSou();
+  const ok=await gravar(()=>S.db.collection("ordens").add({num,itens:pend.map(i=>({produto:i.produto,unidade:i.unidade,qtd:faltaProd(i)})),prioridade:o.prioridade||"Normal",produtor:o.produtor||"",dataProducao:"",dataEnvio:o.dataEnvio||"",obs:`O que faltou da ${o.num}`,origemOP:o.num,solicitacoes:[],solNums:o.solNums||[],status:"Emitida",emitidaPor:quem,emitidaEm:agora,ultimoPor:quem,ultimoEm:agora,historico:[{status:"Emitida",por:quem,em:agora,obs:`Criada com o que faltou da ${o.num}`}]}));
+  if(ok)await salvarOP(o,{encerrada:true},`Encerrada com o que foi feito. O que faltou foi para a ${num}.`,`${num} criada com o que faltou.`);
+}
+async function encerrarOP(o){
+  if(!(await pergunta("Encerrar ordem",`Encerrar a ${o.num} com o que já foi produzido? O que falta deixa de ser pendente.`,"Encerrar")))return;
+  await salvarOP(o,{encerrada:true},"Encerrada com o que foi feito.","Ordem encerrada.");
+}
+/* ---- Produzir hoje: tudo o que falta, de todas as ordens, por grupo de cor ---- */
+function pendentesPorSabor(grupo){
+  const m=new Map();
+  S.ordens.filter(opAberta).forEach(o=>(o.itens||[]).forEach((i,k)=>{ const f=o.encerrada?0:faltaProd(i); if(!f)return; const g=grupoDe(i.produto);
+    if(grupo&&grupo!=="__sem"&&g!==grupo)return; if(grupo==="__sem"&&g)return;
+    const key=normEst(i.produto)+"|"+i.unidade; if(!m.has(key))m.set(key,{produto:i.produto,unidade:i.unidade,grupo:g,falta:0,ops:[],urg:false});
+    const x=m.get(key); x.falta+=f; x.ops.push({o,k,f}); if(o.prioridade==="Urgente")x.urg=true; }));
+  return [...m.values()].sort((a,b)=>(b.urg-a.urg)||(a.grupo||"~").localeCompare(b.grupo||"~")||a.produto.localeCompare(b.produto));
+}
+function vProduzirHoje(){
+  const cd=S.geral&&S.geral.corDia&&S.geral.corDia.data===iso(hoje())?S.geral.corDia:null;
+  const g=S.f.prod.grupo??(cd?cd.grupo:""), gs=gruposProd();
+  const l=pendentesPorSabor(g), tot=pendentesPorSabor("").length;
+  return `${cd?`<div class="banner ok">Sugestão para hoje: <b>${esc(cd.grupo)}</b>${cd.obs?" · "+esc(cd.obs):""} <span class="sub">(${esc(cd.por)})</span></div>`:""}
+  <div class="filters"><div class="seg">${[["","Todos"],...gs.map(x=>[x,x]),["__sem","Sem grupo"]].map(([k,lb])=>`<button type="button" class="${g===k?"on":""}" data-act="pGrupo" data-k="${esc(k)}">${esc(lb)}</button>`).join("")}</div>
+    ${ehLider()?'<button class="btn ghost sm" data-act="corDia">Sugerir cor do dia</button>':""}
+    ${podeProd("produzir")||podeProd("emitir")?'<button class="btn ghost sm" data-act="prodAvulsa">Produção fora das ordens</button>':""}</div>
+  ${dica("Aqui aparece tudo o que falta produzir, somando todas as ordens abertas. Escolha a cor do dia para ver só esses sabores. Ao registrar, a quantidade é distribuída entre as ordens, começando pelas urgentes e mais antigas. O grupo de cada sabor é definido em Produção › Produtos.","phj")}
+  <div class="list">${l.map((x,ix)=>`<div class="item s-${x.urg?"bad":"idle"}"><span class="id">${esc(x.grupo||"sem grupo")}</span>
+    <span class="what"><b>${fmtQtd(x.falta)} ${esc(x.unidade)} · ${esc(x.produto)}</b><div class="sub">${x.ops.map(y=>`${esc(y.o.num)}: ${fmtQtd(y.f)}${y.o.prioridade==="Urgente"?" (urgente)":""}`).join(" · ")}</div></span>
+    <div class="actions">${podeProd("produzir")?`<button class="icon-btn" data-act="prodSabor" data-i="${ix}">Registrar</button>`:""}</div></div>`).join("")||`<p class="empty">${tot?"Nada pendente neste grupo.":"Nenhum sabor pendente nas ordens abertas."}</p>`}</div>`;
+}
+function formProdSabor(x){
+  abrirDlg(`<h2>Registrar produção</h2><p class="hint"><b>${esc(x.produto)}</b> (${esc(x.unidade)}). Falta ${fmtQtd(x.falta)} em ${x.ops.length} ordem(ns): ${x.ops.map(y=>esc(y.o.num)).join(", ")}.</p>
+    <div class="row2"><div class="field"><label for="ps_q">Produzido agora</label><input id="ps_q" name="qtd" inputmode="decimal" value="${esc(String(x.falta).replace(".",","))}" required></div>
+    <div class="field"><label for="ps_l">Lote</label><input id="ps_l" name="lote"></div></div>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Registrar</button></div>`,
+  async fd=>{
+    let n=parseNum(fd.get("qtd")); const lote=String(fd.get("lote")||"").trim(); if(isNaN(n)||n<=0){toast("Coloque a quantidade.");return false;}
+    const ops=x.ops.slice().sort((a,b)=>((b.o.prioridade==="Urgente")-(a.o.prioridade==="Urgente"))||String(a.o.num).localeCompare(b.o.num));
+    let ok=true;
+    for(let j=0;j<ops.length&&n>0;j++){ const y=ops[j], o=S.ordens.find(z=>z._doc===y.o._doc)||y.o; const q=j===ops.length-1?n:Math.min(n,y.f); n-=q;
+      const itens=(o.itens||[]).map(i=>({...i})); itens[y.k].qtdProduzida=nq(itens[y.k].qtdProduzida)+q; if(lote)itens[y.k].lote=[itens[y.k].lote,lote].filter(Boolean).join(", ");
+      ok=await salvarOP(o,{itens,iniciada:true,produzidaEm:iso(hoje())},`Produzido: ${fmtQtd(q)} ${x.produto}`,null)&&ok; }
+    if(ok)toast(`Produção de ${x.produto} registrada.`);
+    return ok;
+  });
+}
+function formCorDia(){
+  const cd=S.geral&&S.geral.corDia||{};
+  abrirDlg(`<h2>Sugerir cor do dia</h2><p class="hint">A fábrica vê a sugestão no alto de Produzir hoje. É só uma sugestão, ela pode produzir outros sabores.</p>
+    <div class="field"><label for="cd_g">Grupo</label><input id="cd_g" name="grupo" list="cdG" value="${esc(cd.data===iso(hoje())?cd.grupo:"")}" required><datalist id="cdG">${gruposProd().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
+    <div class="field"><label for="cd_o">Observação</label><input id="cd_o" name="obs" placeholder="ex.: começar pelo coco" value="${esc(cd.data===iso(hoje())?cd.obs||"":"")}"></div>
+    <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
+  async fd=>gravar(()=>S.db.doc("config/geral").set({...S.geral,corDia:{grupo:String(fd.get("grupo")).trim(),obs:String(fd.get("obs")||"").trim(),data:iso(hoje()),por:quemSou()}}),"Sugestão salva."));
+}
+
 const CLS_SOL={"Aberta":"and","Em ordem":"acai","Atendida":"ok","Recusada":"bad","Cancelada":"idle"};
 const PERM_ROT={solicitar:"Solicita produção (loja)",emitir:"Emite ordens de produção",produzir:"Produz, envia e sugere produção (fábrica)",produtos:"Cadastra e altera produtos"};
 function permProd(p){
@@ -1457,7 +1623,7 @@ function pendProducao(){
   if(!S.eu)return 0; const p=permProd(pessoa(S.eu)); let n=0;
   if(p.includes("emitir"))n+=S.solic.filter(s=>s.status==="Aberta").length;
   if(p.includes("produzir"))n+=S.ordens.filter(o=>o.status==="Emitida").length;
-  if(p.includes("solicitar"))n+=S.ordens.filter(o=>o.status==="Enviada").length;
+  if(p.includes("solicitar"))n+=S.ordens.filter(o=>enviosPend(o).length||legadoReceber(o)).length;
   return n;
 }
 
@@ -1466,19 +1632,19 @@ function vProducao(){
   const p=permProd(pessoa(S.eu));
   const padrao=p.includes("produzir")&&!p.includes("emitir")?"ordens":"solic";
   let sub=S.f.prod.sub||padrao; if(sub==="produtos"&&!(ehLider()||p.includes("produtos")))sub=padrao;
-  const abertas=S.solic.filter(s=>s.status==="Aberta").length, emitidas=S.ordens.filter(o=>o.status==="Emitida").length, emProd=S.ordens.filter(o=>o.status==="Em produção").length, enviadas=S.ordens.filter(o=>o.status==="Enviada").length;
+  const abertas=S.solic.filter(s=>s.status==="Aberta").length, emitidas=S.ordens.filter(o=>o.status==="Emitida").length, emProd=S.ordens.filter(o=>["Em produção","Parcialmente produzida"].includes(o.status)).length, enviadas=S.ordens.filter(o=>enviosPend(o).length||legadoReceber(o)).length;
   return `<div class="section-head"><h2>Produção</h2>
-    <div class="seg">${[["solic","Solicitações"],["ordens","Ordens"],...(ehLider()||p.includes("produtos")?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
+    <div class="seg">${[["solic","Solicitações"],["ordens","Ordens"],...(p.includes("produzir")||p.includes("emitir")?[["hoje","Produzir hoje"]]:[]),...(ehLider()||p.includes("produtos")?[["produtos","Produtos"]]:[])].map(([k,l])=>`<button type="button" class="${sub===k?"on":""}" data-psub="${k}">${l}</button>`).join("")}</div>
     ${podeProd("solicitar")?'<button class="btn" data-act="novaSol">Nova solicitação</button>':podeProd("produzir")?'<button class="btn" data-act="sugerirProd">Sugerir produção</button>':""}
     ${podeProd("emitir")?'<button class="btn ghost" data-act="novaOP">Nova ordem</button>':""}</div>
   <div class="tiles">
     <div class="tile ${abertas?"warn":""}"><span class="v num">${abertas}</span><span class="l">solicitações e sugestões aguardando ordem</span></div>
     <div class="tile ${emitidas?"warn":""}"><span class="v num">${emitidas}</span><span class="l">ordens emitidas para produzir</span></div>
     <div class="tile acai"><span class="v num">${emProd}</span><span class="l">ordens em produção</span></div>
-    <div class="tile ${enviadas?"warn":""}"><span class="v num">${enviadas}</span><span class="l">enviadas aguardando conferência na loja</span></div>
+    <div class="tile ${enviadas?"warn":""}"><span class="v num">${enviadas}</span><span class="l">envios aguardando conferência na loja</span></div>
   </div>
   ${ajudaProducao(p)}
-  ${sub==="ordens"?vOrdens():sub==="produtos"?vProdutos():vSolic()}`;
+  ${sub==="ordens"?vOrdens():sub==="hoje"?vProduzirHoje():sub==="produtos"?vProdutos():vSolic()}`;
 }
 function ajudaProducao(p){
   const t=[];
@@ -1511,8 +1677,9 @@ function vSolic(){
 }
 function cartaoOP(o){
   const tot=(o.itens||[]).length, urg=o.prioridade==="Urgente";
-  return `<div class="kcard s-${o.status==="Recebida"?"ok":o.status==="Em produção"||o.status==="Enviada"?"and":"idle"}" data-act="abrirOP" data-doc="${esc(o._doc)}" tabindex="0">
-    <div class="kc-top"><span class="id">${esc(o.num)}</span>${urg?'<span class="pill p-bad">urgente</span>':""}</div>
+  const parc=o.status.startsWith("Parcialmente"), fz=(o.itens||[]).filter(i=>nq(i.qtdProduzida)>=nq(i.qtd)).length;
+  return `<div class="kcard s-${o.status==="Recebida"?"ok":CLS_OP[o.status]==="and"?"and":"idle"}" data-act="abrirOP" data-doc="${esc(o._doc)}" tabindex="0">
+    <div class="kc-top"><span class="id">${esc(o.num)}</span>${urg?'<span class="pill p-bad">urgente</span>':""}${parc?`<span class="pill p-and">${o.status==="Parcialmente produzida"?`${fz} de ${tot} sabores`:"envio parcial"}</span>`:""}${o.avulsa?'<span class="pill p-idle">fora das ordens</span>':""}</div>
     <div class="kc-what">${(o.itens||[]).slice(0,4).map(i=>`${fmtQtd(i.qtd)} ${esc(i.unidade)} · ${esc(i.produto)}`).join("<br>")}${tot>4?`<br><span class="sub">+${tot-4} itens</span>`:""}</div>
     <div class="kc-meta">${o.dataProducao?`<span class="num">produzir até ${fmtD(parseISO(o.dataProducao))}</span>`:""}${o.dataEnvio?`<span class="num">enviar até ${fmtD(parseISO(o.dataEnvio))}</span>`:""}${o.produtor?`<span>${esc(o.produtor)}</span>`:""}</div>
     <div class="kc-foot"><span>${esc(o.ultimoPor||o.emitidaPor||"")} · ${quando(o.ultimoEm||o.emitidaEm)}</span></div></div>`;
@@ -1522,13 +1689,13 @@ function vOrdens(){
   const l=S.ordens.filter(o=>o.status!=="Cancelada"&&(o.status!=="Recebida"||new Date(o.ultimoEm||o.emitidaEm)>lim));
   const canc=S.ordens.filter(o=>o.status==="Cancelada").length;
   return `<p class="sub">Clique em uma ordem para ver os itens e avançar a etapa. Ordens recebidas ficam no quadro por ${dias} dias.${canc?` ${canc} ordem(ns) cancelada(s) não aparecem.`:""}</p>
-  <div class="board">${ST_OP.map(st=>{const x=l.filter(o=>o.status===st).sort((a,b)=>((b.prioridade==="Urgente")-(a.prioridade==="Urgente"))||(a.dataProducao||"9").localeCompare(b.dataProducao||"9"));return `<section class="bcol"><h3><span class="pill p-${CLS_OP[st]}">${st}</span> <span class="num sub">${x.length}</span></h3><div class="bcol-list">${x.map(cartaoOP).join("")||'<p class="empty sm">Nenhuma</p>'}</div></section>`;}).join("")}</div>`;
+  <div class="board">${ST_OP.map(st=>{const x=l.filter(o=>(COL_OP[o.status]||o.status)===st).sort((a,b)=>((b.prioridade==="Urgente")-(a.prioridade==="Urgente"))||(a.dataProducao||"9").localeCompare(b.dataProducao||"9"));return `<section class="bcol"><h3><span class="pill p-${CLS_OP[st]}">${st}</span> <span class="num sub">${x.length}</span></h3><div class="bcol-list">${x.map(cartaoOP).join("")||'<p class="empty sm">Nenhuma</p>'}</div></section>`;}).join("")}</div>`;
 }
 function vProdutos(){
   const l=S.produtos.slice().sort((a,b)=>(a.categoria||"").localeCompare(b.categoria||"")||a.nome.localeCompare(b.nome));
   return `<div class="section-head"><p class="sub">Cadastre os produtos e sabores que a fábrica produz. Eles aparecem como sugestão ao fazer solicitações e ordens. Também dá para digitar um produto que não está na lista.</p><button class="btn sm" data-act="novoProd">Novo produto</button></div>
-  <div class="tbl"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Unidade padrão</th><th>Situação</th><th></th></tr></thead><tbody>
-  ${l.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.categoria||"")}</td><td>${esc(p.unidade||"")}</td><td>${p.ativo===false?"inativo":"ativo"}</td><td><button class="icon-btn" data-act="editProd" data-doc="${esc(p._doc)}">Editar</button></td></tr>`).join("")||'<tr><td colspan="5" class="empty">Nenhum produto cadastrado ainda.</td></tr>'}</tbody></table></div>`;
+  <div class="tbl"><table><thead><tr><th>Produto</th><th>Grupo</th><th>Categoria</th><th>Unidade padrão</th><th>Situação</th><th></th></tr></thead><tbody>
+  ${l.map(p=>`<tr><td>${esc(p.nome)}</td><td>${esc(p.grupo||"–")}</td><td>${esc(p.categoria||"")}</td><td>${esc(p.unidade||"")}</td><td>${p.ativo===false?"inativo":"ativo"}</td><td><button class="icon-btn" data-act="editProd" data-doc="${esc(p._doc)}">Editar</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">Nenhum produto cadastrado ainda.</td></tr>'}</tbody></table></div>`;
 }
 /* ---- linhas de itens editáveis ---- */
 function nomesProdutos(){return [...new Set([...S.produtos.filter(p=>p.ativo!==false).map(p=>p.nome),...S.solic.flatMap(s=>(s.itens||[]).map(i=>i.produto)),...S.ordens.flatMap(o=>(o.itens||[]).map(i=>i.produto))])].filter(Boolean).sort();}
@@ -1610,23 +1777,35 @@ function formOP(solDocs,pre){
 }
 function abrirOP(doc){
   const o=S.ordens.find(x=>x._doc===doc); if(!o)return;
-  const st=o.status, cols=[["qtd","Pedido"],["qtdProduzida","Produzido"],["qtdEnviada","Enviado"],["qtdRecebida","Recebido"]].filter(([k])=>k==="qtd"||(o.itens||[]).some(i=>i[k]!==undefined&&i[k]!==""));
-  const acoes=[];
+  const st=o.status, cols=[["qtd","Pedido"],["qtdProduzida","Produzido"],["falta","Falta"],["qtdEnviada","Enviado"],["qtdRecebida","Recebido"]].filter(([k])=>k==="qtd"||(k==="falta"?(o.itens||[]).some(i=>nq(i.qtdProduzida)>0&&faltaProd(i)>0&&!o.encerrada):(o.itens||[]).some(i=>i[k]!==undefined&&i[k]!=="")));
+  const acoes=[], aberta=opAberta(o), its=o.itens||[], faltaAlgo=!o.encerrada&&its.some(i=>faltaProd(i)>0);
   if(st==="Emitida"&&podeProd("produzir"))acoes.push(["iniciar","Iniciar produção"]);
-  if(st==="Em produção"&&podeProd("produzir"))acoes.push(["produzida","Registrar produção"]);
-  if(st==="Produzida"&&(podeProd("produzir")||podeProd("emitir")))acoes.push(["enviar","Registrar envio"]);
-  if(st==="Enviada"&&podeProd("solicitar"))acoes.push(["receber","Confirmar recebimento"]);
+  if(aberta&&faltaAlgo&&st!=="Emitida"&&podeProd("produzir"))acoes.push(["produzir","Registrar produção"]);
+  if(aberta&&its.some(i=>dispEnvio(i)>0)&&(podeProd("produzir")||podeProd("emitir")))acoes.push(["enviar","Registrar envio"]);
+  if(enviosPend(o).length&&podeProd("solicitar"))acoes.push(["receberEnv","Conferir envio "+enviosPend(o)[0].n]);
+  if(legadoReceber(o)&&podeProd("solicitar"))acoes.push(["receber","Confirmar recebimento"]);
+  const extras=[]; if(aberta&&(podeProd("produzir")||podeProd("emitir")))extras.push(["addSabor","Adicionar sabor"]);
+  if(aberta&&faltaAlgo&&podeProd("emitir"))extras.push(["mover","Mover o que falta para nova ordem"],["encerrar","Encerrar com o que foi feito"]);
   abrirDlg(`<h2>${esc(o.num)} <span class="pill p-${CLS_OP[st]||"idle"}">${esc(st)}</span>${o.prioridade==="Urgente"?' <span class="pill p-bad">urgente</span>':""}</h2>
     <div class="det-meta"><span>emitida por <b>${esc(o.emitidaPor)}</b> em ${fmtD(new Date(o.emitidaEm))}</span>${o.produtor?`<span><b>Produz:</b> ${esc(o.produtor)}</span>`:""}${o.dataProducao?`<span class="num"><b>Produzir até</b> ${fmtD(parseISO(o.dataProducao))}</span>`:""}${o.dataEnvio?`<span class="num"><b>Enviar até</b> ${fmtD(parseISO(o.dataEnvio))}</span>`:""}${(o.solNums||[]).length?`<span><b>Solicitações:</b> ${esc(o.solNums.join(", "))}</span>`:""}</div>
     <div class="tbl"><table><thead><tr><th>Produto</th><th>Unidade</th>${cols.map(([k,l])=>`<th class="num">${l}</th>`).join("")}<th>Lote / obs.</th></tr></thead><tbody>
-    ${(o.itens||[]).map(i=>`<tr><td>${esc(i.produto)}</td><td>${esc(i.unidade)}</td>${cols.map(([k])=>`<td class="num ${k==="qtdRecebida"&&i.qtdRecebida!==undefined&&Number(i.qtdRecebida)!==Number(i.qtdEnviada??i.qtd)?"atras":""}">${i[k]!==undefined&&i[k]!==""?fmtQtd(i[k]):"–"}</td>`).join("")}<td>${esc([i.lote,i.obsItem].filter(Boolean).join(" · "))}</td></tr>`).join("")}</tbody></table></div>
+    ${(o.itens||[]).map(i=>`<tr class="${faltaProd(i)===0?"op-ok":""}"><td>${esc(i.produto)}${grupoDe(i.produto)?` <span class="pill p-idle">${esc(grupoDe(i.produto))}</span>`:""}${i.adicionadoPor?` <span class="sub">(adicionado por ${esc(i.adicionadoPor)})</span>`:""}</td><td>${esc(i.unidade)}</td>${cols.map(([k])=>k==="falta"?`<td class="num ${faltaProd(i)?"atras":""}">${faltaProd(i)?fmtQtd(faltaProd(i)):"✓"}</td>`:`<td class="num ${k==="qtdRecebida"&&i.qtdRecebida!==undefined&&Number(i.qtdRecebida)!==Number(i.qtdEnviada??i.qtd)?"atras":""}">${i[k]!==undefined&&i[k]!==""?fmtQtd(i[k]):"–"}</td>`).join("")}<td>${esc([i.lote,i.obsItem].filter(Boolean).join(" · "))}</td></tr>`).join("")}</tbody></table></div>
+    ${o.encerrada?'<p class="banner">Ordem encerrada com o que foi feito. O que faltava deixou de ser pendente.</p>':""}
+    ${(o.envios||[]).length?`<p class="sub"><b>Envios:</b> ${o.envios.map(e=>`${e.n}º em ${fmtD(parseISO(e.data))} (${e.recebido?"recebido":"aguardando conferência"})`).join(" · ")}</p>`:""}
+    ${extras.length?`<p class="op-extras">${extras.map(([v,l])=>`<button class="btn ghost sm" value="${v}" formnovalidate>${l}</button>`).join("")}</p>`:""}
     ${o.obs?`<p><b>Observações:</b> ${esc(o.obs)}</p>`:""}
     <h3>Histórico</h3><ul class="tl">${(o.historico||[]).slice().reverse().map(h=>`<li class="tl-${h.status?"status":"nota"}"><div class="tl-h"><span class="tl-tipo">${esc(h.status||"Observação")}</span><b>${esc(h.por)}</b><span class="sub">${quando(h.em)}</span></div>${h.obs?`<div class="${h.status?"":"tl-nota"}">${esc(h.obs)}</div>`:""}</li>`).join("")}</ul>
     ${S.eu&&veProducao()&&S.canWrite?`<div class="nota-box"><label for="op_nt" class="sub">Escrever observação nesta ordem</label><textarea id="op_nt" name="nota"></textarea></div>`:""}
     <div class="dlg-foot">${podeProd("emitir")&&!["Recebida","Cancelada"].includes(st)?'<button class="btn danger" value="cancelar" formnovalidate>Cancelar ordem</button>':""}<button class="btn ghost" value="cancel" formnovalidate>Fechar</button>${S.eu&&veProducao()&&S.canWrite?'<button class="btn ghost" value="nota" formnovalidate>Salvar observação</button>':""}${acoes.map(([v,l])=>`<button class="btn" value="${v}" formnovalidate>${l}</button>`).join("")}</div>`,
   async (fd,btn)=>{
     if(btn==="nota"){const t=String(fd.get("nota")||"").trim();if(!t){toast("Escreva a observação.");return false;}return movOP(o,{},null,t,"Observação salva.");}
-    if(btn==="iniciar")return movOP(o,{},"Em produção","","Produção iniciada.");
+    if(btn==="iniciar")return movOP(o,{iniciada:true},"Em produção","","Produção iniciada.");
+    if(btn==="produzir"){setTimeout(()=>formProducaoOP(o),0);return true;}
+    if(btn==="enviar"){setTimeout(()=>formEnvioOP(o),0);return true;}
+    if(btn==="receberEnv"){setTimeout(()=>formRecebOP(o),0);return true;}
+    if(btn==="addSabor"){setTimeout(()=>formAddSabor(o),0);return true;}
+    if(btn==="mover"){setTimeout(()=>moverPendentes(o),0);return true;}
+    if(btn==="encerrar"){setTimeout(()=>encerrarOP(o),0);return true;}
     if(btn==="cancelar"){setTimeout(async()=>{if(await pergunta("Cancelar ordem",`Cancelar a ${o.num}? As solicitações ligadas voltam para abertas.`,"Cancelar ordem")){const ok=await movOP(o,{},"Cancelada","","Ordem cancelada.");if(ok)for(const d of o.solicitacoes||[])await gravar(()=>S.db.doc("solicitacoes/"+d).update({status:"Aberta",opDoc:null,opNum:null}));}},0);return true;}
     if(["produzida","enviar","receber"].includes(btn)){setTimeout(()=>formEtapa(o,btn),0);return true;}
   });
@@ -1665,12 +1844,13 @@ function formProd(p){
   const novo=!p; p=p||{nome:"",categoria:"Sorvete",unidade:"balde 10L",ativo:true};
   abrirDlg(`<h2>${novo?"Novo produto":"Editar "+esc(p.nome)}</h2>
     <div class="field"><label for="pd_n">Nome</label><input id="pd_n" name="nome" value="${esc(p.nome)}" required></div>
+    <div class="field"><label for="pd_g">Grupo de produção (cor)</label><input id="pd_g" name="grupo" list="pdG" value="${esc(p.grupo||"")}" placeholder="ex.: Brancos, Coloridos, Chocolate, Açaí"><datalist id="pdG">${gruposProd().map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
     <div class="row2"><div class="field"><label for="pd_c">Categoria</label><select id="pd_c" name="categoria">${opts(["Sorvete","Açaí","Picolé","Balde de retorno","Calda e cobertura","Outro"],p.categoria)}</select></div>
       <div class="field"><label for="pd_u">Unidade padrão</label><select id="pd_u" name="unidade">${opts(UNIDADES,p.unidade)}</select></div></div>
     ${novo?"":`<label class="chk"><input type="checkbox" name="ativo" ${p.ativo!==false?"checked":""}> Ativo (desmarque para tirar das sugestões)</label>`}
     <div class="dlg-foot"><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button><button class="btn" value="ok">Salvar</button></div>`,
   async fd=>{
-    const d={nome:String(fd.get("nome")).trim(),categoria:fd.get("categoria"),unidade:fd.get("unidade"),ativo:novo?true:!!fd.get("ativo")};
+    const d={nome:String(fd.get("nome")).trim(),grupo:String(fd.get("grupo")||"").trim(),categoria:fd.get("categoria"),unidade:fd.get("unidade"),ativo:novo?true:!!fd.get("ativo")};
     if(!d.nome)return false;
     if(novo&&S.produtos.some(x=>x.nome.toLowerCase()===d.nome.toLowerCase())){toast("Esse produto já está cadastrado.");return false;}
     return novo?gravar(()=>S.db.collection("produtos").add(d),"Produto cadastrado."):gravar(()=>S.db.doc("produtos/"+p._doc).update(d),"Produto salvo.");
@@ -2324,7 +2504,7 @@ function vInicio(){
   if(!S.eu)return `<div class="card hero"><h2>Bem-vindo ao app da Sorvely</h2><p>Entre com seu nome e PIN para ver as suas tarefas do dia.</p><p><button class="btn" data-act="entrar">Entrar</button> <button class="btn ghost" data-act="ajuda">Ajuda</button></p></div>${rodapeVersao()}`;
   const p=pessoa(S.eu), pr=permProd(p), rt=permRot(p), hojeI=iso(hoje());
   const minhas=[...S.acoes.filter(a=>ehResp(a,S.eu)&&!fechada(a)).map(a=>({...a,col:"acoes",fim:datasAcao(a).fim,venc:vencida(a)})),...S.trilha.filter(t=>ehResp(t,S.eu)&&!fechada(t)).map(t=>({...t,col:"trilha",fim:parseISO(t.prazo),venc:vencidaTrilha(t)}))].sort((a,b)=>(a.fim||9e15)-(b.fim||9e15));
-  const abertas=S.solic.filter(s=>s.status==="Aberta").length, paraProd=S.ordens.filter(o=>o.status==="Emitida"||o.status==="Em produção").length, paraReceber=S.ordens.filter(o=>o.status==="Enviada").length;
+  const abertas=S.solic.filter(s=>s.status==="Aberta").length, paraProd=S.ordens.filter(o=>opAberta(o)&&!o.encerrada&&(o.itens||[]).some(i=>faltaProd(i)>0)).length, paraReceber=S.ordens.filter(o=>enviosPend(o).length||legadoReceber(o)).length;
   const locs=rt.includes("temperatura")?locaisTemp():[];
   const faltaTemp=locs.map(l=>{const eqs=S.equip.filter(e=>e.local===l&&e.ativo!==false);const ls=(S.tempDias.find(d=>d._doc===hojeI+"_"+slugP(l))||{}).leituras||[];return {l,total:eqs.length,feitos:eqs.filter(e=>ls.filter(x=>x.equip===e.nome).length>=2).length};});
   const cxHoje=S.caixas.filter(c=>c.data===hojeI).length;
@@ -2340,7 +2520,7 @@ function vInicio(){
   if(rt.includes("entregas"))ess.push(at2("rotinas:entregas","Entregas","prod",emRota?`${emRota} em rota`:"",0));
   if(podeRot("fotos"))ess.push(at2("acao:novaFoto","Registrar com foto","foto","",0));
   if(pr.includes("solicitar")&&paraReceber)ess.push(at2("producao:ordens","Conferir recebimento","rec","",paraReceber));
-  if(pr.includes("produzir"))ess.push(at2("producao:ordens","Ordens para produzir","ord","",paraProd));
+  if(pr.includes("produzir"))ess.push(at2("producao:hoje","Produzir hoje","ord","",paraProd));
   if(pr.includes("emitir")&&abertas)ess.push(at2("producao:solic","Emitir ordens","ord","",abertas));
   if(pr.includes("solicitar"))ess.push(at2("acao:novaSol","Pedir produção","prod","",0));
   else if(pr.includes("produzir"))ess.push(at2("acao:sugerirProd","Sugerir produção","prod","",0));
@@ -3490,6 +3670,10 @@ document.addEventListener("click",e=>{
   else if(a==="novoProd")formProd();
   else if(a==="sugerirProd")formSol(null,"Fábrica");
   else if(a==="limPessoa")formLimPessoa();
+  else if(a==="pGrupo"){S.f.prod.grupo=b.dataset.k;render();}
+  else if(a==="corDia")formCorDia();
+  else if(a==="prodAvulsa")formAddSabor(null);
+  else if(a==="prodSabor"){const x=pendentesPorSabor(S.f.prod.grupo??((S.geral&&S.geral.corDia&&S.geral.corDia.data===iso(hoje()))?S.geral.corDia.grupo:""))[Number(b.dataset.i)]; if(x)formProdSabor(x);}
   else if(a==="novoCaixa")formCaixa();
   else if(a==="verCaixa")formCaixa(S.caixas.find(x=>x._doc===d));
   else if(a==="entSaiu"||a==="entEntregue"||a==="entDel")acaoEntrega(b);
